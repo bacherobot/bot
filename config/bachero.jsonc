@@ -7,14 +7,14 @@
             "name": "botName",
             "type": "string",
             "default": "Bachero",
-			"value": "Bachero",
+            "value": "Bachero",
             "description": "Le nom que Bachero utilisera quand il parle de lui-même"
         },
         {
             "name": "embedColor",
             "type": "string",
             "default": "#6A82FB",
-			"value": "#6A82FB",
+            "value": "#6A82FB",
             "description": "Quel est la couleur utilisée dans les embeds envoyer ?"
         },
         {
