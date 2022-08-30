@@ -1,0 +1,46 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.ping",
+
+	// Nom du module
+	"name": "Ping",
+
+	// Description du module
+	"shortDescription": "Ce module rajoute une commande ping",
+	"longDescription": "Ce module rajoute une commande affichant le temps de latence entre Bachero et Discord une fois executé",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"ping.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "showPingFromDatabase",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "La commande devrait afficher le ping de la base de données ?"
+		},
+		{
+			"name": "monitoredByElwatch",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Es-ce que Bachero est sous la surveillance d'ElWatch (https://elwatch.fr) ?"
+		}
+	]
+}

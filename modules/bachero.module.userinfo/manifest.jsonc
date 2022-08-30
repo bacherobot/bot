@@ -1,0 +1,40 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.userinfo",
+
+	// Nom du module
+	"name": "Informations sur un utilisateur",	
+
+	// Description du module
+	"shortDescription": "Ajoute la possibilité d'obtenir des informations sur un utilisateur",
+	"longDescription": "Permet d'obtenir des informations sur un utilisateur avec une commande, se sert également d'API externe pour être plus complet",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"userinfo.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "alwaysShowMinimal",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Désactive l'intégration de Discord WhoIs et ElWatch dans la commande"
+		}
+	]
+}

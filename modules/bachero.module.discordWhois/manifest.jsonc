@@ -1,0 +1,30 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.discordWhois",
+
+	// Nom du module
+	"name": "Discord WhoIs",
+
+	// Description du module
+	"shortDescription": "Ajoute tout les membres des serveurs dans l'historique Discord WhoIs",
+	"longDescription": "Ce module ajoute tout les membres de tout les serveurs dans l'historique de pseudo Discord WhoIs accessible via https://discord-whois.johanstickman.com",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"main.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	]
+}

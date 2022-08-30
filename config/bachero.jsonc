@@ -1,0 +1,56 @@
+// Ce fichier n'est pas automatiquement recréé par Bachero.
+// Si vous le supprimez pas erreur, retélécharger le depuis GitHub
+
+{
+    "config": [
+        {
+            "name": "botName",
+            "type": "string",
+            "default": "Bachero",
+			"value": "Bachero",
+            "description": "Le nom que Bachero utilisera quand il parle de lui-même"
+        },
+        {
+            "name": "embedColor",
+            "type": "string",
+            "default": "#6A82FB",
+			"value": "#6A82FB",
+            "description": "Quel est la couleur utilisée dans les embeds envoyer ?"
+        },
+        {
+            "name": "databaseType",
+            "type": "string",
+            "default": "json",
+            "value": "json",
+            "description": "Quel type de base de données utiliser ? mongodb/json"
+        },
+        {
+            "name": "compressDatabase",
+            "type": "boolean",
+            "default": true,
+            "value": true,
+            "description": "Détermine si la base de données doit être compressé, si vous modifiez ce paramètre, vous devrez supprimer les précédentes bases de données"
+        },
+        {
+            "name": "botActivityContent",
+            "type": "string",
+            "default": null,
+            "value": "bachero.johanstickman.com",
+            "description": "Définit le contenu du statut d'activité au bot, aucun si non défini."
+        },
+        {
+            "name": "botActivityType",
+            "type": "string",
+            "default": null,
+            "value": "watching",
+            "description": "Définit le type de statut parmi : playing, streaming, watching, listening, competing"
+        },
+        {
+            "name": "botStatus",
+            "type": "string",
+            "default": "online",
+            "value": "online",
+            "description": "Définit le statut de bot parmi : online, idle, dnd, offline"
+        }
+    ]
+}

@@ -1,0 +1,302 @@
+const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, AttachmentBuilder, ActionRowBuilder, ComponentType } = require('discord.js')
+const { rando } = require('@nastyox/rando.js')
+var CronJob = require('cron').CronJob
+const { ChartJSNodeCanvas } = require('chartjs-node-canvas')
+const bacheroFunctions = require('../../functions')
+const database = bacheroFunctions.database.getDatabase('bachero.module.pfc')
+const disableCooldown = bacheroFunctions.config.getValue('bachero.module.pfc', 'disableCooldown')
+const disableAutoResetLeaderboard = bacheroFunctions.config.getValue('bachero.module.pfc', 'disableAutoResetLeaderboard')
+const disableGraphicLeaderboard = bacheroFunctions.config.getValue('bachero.module.pfc', 'disableGraphicLeaderboard')
+
+// Fonction pour réinitialiser les scores
+async function resetScores(){
+	// Obtenir toute la base de données
+	var databaseJSON = await bacheroFunctions.database.getAll(database)	
+
+	// Si la dernière fois qu'on a réinisialisé les scores n'était pas il y a plus de 6 jours et 20 heures, ne rien faire
+	var lastReset = databaseJSON.lastReset
+	if(lastReset && lastReset > Date.now() - (6 * 24 * 60 * 60 * 1000 + 20 * 60 * 60 * 1000)) return; else databaseJSON.lastReset = Date.now()
+
+	// Réinisialiser les scores de tout le monde
+	for(var key of Object.keys(databaseJSON)){
+		if(key.startsWith('winCount-')) bacheroFunctions.database.delete(database, key)
+		if(key.startsWith('loseCount-')) bacheroFunctions.database.delete(database, key)
+	}
+
+	// Définir la date de dernière réinisialisation des scores
+	bacheroFunctions.database.set(database, 'lastReset', Date.now())
+}
+if(disableAutoResetLeaderboard != true){
+	// Tout les jours à sept heures, tenter de réinisialiser les scores
+	new CronJob('0 7 * * *', async function(){
+		resetScores()
+	})
+	// Vérifier si on devrait supprimer les scores, au moment où le bot démarre
+	resetScores()
+}
+
+// Exporter certaines fonctions
+module.exports = {
+	// Définir les infos de la commande slash
+	slashInfo: new SlashCommandBuilder()
+		.setName('pfc')
+		.setDescription('Permet de jouer au pierre feuille ciseau')
+		.addBooleanOption(option => option.setName('showleaderboard')
+			.setDescription('Affiche le classement des joueurs')
+			.setRequired(false)),
+
+	// Récupérer le listener bouton (quand quelqu'un clique sur un bouton)
+	async interactionListener(listener){
+		listener.on('button', async (interaction) => {
+			// Vérifier l'identifiant du bouton
+			if(interaction.customId != 'pfc-pierre' && interaction.customId != 'pfc-feuille' && interaction.customId != 'pfc-ciseau') return
+
+			// Vérifier que l'auteur de l'identifiant soit le bon
+			if(interaction?.message?.interaction?.user?.id != interaction?.user?.id) return interaction.reply({ content: "Il semblerait que tu ne sois pas la personne que j'attendais...", ephemeral: true })
+
+			// Vérifier si l'utilisateur est limité, et si c'est pas le cas, le limiter
+			if(disableCooldown != true){
+				var checkAndReply = await bacheroFunctions.cooldown.checkAndReply(interaction, 'pfcPlay')
+				if(checkAndReply) return; else await bacheroFunctions.cooldown.set('pfcPlay', interaction.user.id, 1000)
+			}
+
+			// Obtenir une réponse aléatoire du bot
+			var botAnswer = rando(['pierre', 'feuille', 'ciseau'])
+			botAnswer = botAnswer.value
+
+			// Déterminer si le joueur a gagné, ou perdu
+			var winner = ''
+			if(interaction.customId == 'pfc-pierre' && botAnswer == 'feuille') winner = 'bot'
+			if(interaction.customId == 'pfc-feuille' && botAnswer == 'ciseau') winner = 'bot'
+			if(interaction.customId == 'pfc-ciseau' && botAnswer == 'pierre') winner = 'bot'
+			if(interaction.customId == 'pfc-pierre' && botAnswer == 'ciseau') winner = 'player'
+			if(interaction.customId == 'pfc-feuille' && botAnswer == 'pierre') winner = 'player'
+			if(interaction.customId == 'pfc-ciseau' && botAnswer == 'feuille') winner = 'player'
+			if(interaction.customId == 'pfc-pierre' && botAnswer == 'pierre') winner = 'draw'
+			if(interaction.customId == 'pfc-feuille' && botAnswer == 'feuille') winner = 'draw'
+			if(interaction.customId == 'pfc-ciseau' && botAnswer == 'ciseau') winner = 'draw'
+
+			// Obtenir le nombre de victoire/défaite
+			var winCount = (await bacheroFunctions.database.get(database, `winCount-${interaction?.user?.id}`)) || 0
+			var loseCount = (await bacheroFunctions.database.get(database, `loseCount-${interaction?.user?.id}`)) || 0
+
+			// Le redéfinir
+			if(winner == 'player'){
+				winCount++
+				await bacheroFunctions.database.set(database, `winCount-${interaction?.user?.id}`, winCount)
+			}
+			if(winner == 'bot'){
+				loseCount++
+				await bacheroFunctions.database.set(database, `loseCount-${interaction?.user?.id}`, loseCount)
+			}
+
+			// Si c'est pas un match nul, recalculer le pourcentage de victoire
+			var winPercent = (winCount / (winCount + loseCount)) * 100
+
+			// Créé un embed à partir de celui du message
+			var embed = new EmbedBuilder(interaction?.message?.embeds[0]?.data)
+			embed.setDescription(`Tu as choisi **${interaction.customId.replace('pfc-','')}** et j'ai choisi **${botAnswer}**.\n\n${winner == 'draw' ? 'C\'est un match nul !' : winner == 'player' ? 'Bravo, tu as gagné !' : 'Dommage, tu as perdu !'}`)
+			embed.setFooter({ text: `${winCount} victoire${winCount.length > 1 ? 's' : ''} | ${loseCount} défaite${loseCount.length > 1 ? 's' : ''}${!Math.round(winPercent) ? '' : ` | ${Math.round(winPercent)}% des parties remportées`}` })
+			interaction.update({ embeds: [embed] }).catch(err => {})
+		})
+	},
+
+	// Code a executer quand la commande est appelée
+	async execute(interaction){
+		// Si on veut obtenir le classement
+		if(interaction.options.getBoolean('showleaderboard')){
+			// Vérifier si l'utilisateur est limité, et si c'est pas le cas, le limiter
+			var checkAndReply = await bacheroFunctions.cooldown.checkAndReply(interaction, 'pfcLeaderboardShow')
+			if(checkAndReply) return; else await bacheroFunctions.cooldown.set('pfcLeaderboardShow', interaction.user.id, 10000)
+
+			// Obtenir la base de données entière en JSON
+			const databaseJSON = await bacheroFunctions.database.getAll(database)
+
+			// Créé une variable qui contiendra chaque utilisateur de la BDD
+			var users = []
+
+			// Pour chaque utilisateur de la BDD, ajouter le nom de l'utilisateur à la variable users
+			for(var key of Object.keys(databaseJSON)){
+				// Si ça commence par "winCount-"
+				if(key.startsWith('winCount-')){
+					// Obtenir l'identifiant
+					var id = key.split('-')[1]
+
+					// Obtenir le loseCount
+					var loseCount = databaseJSON[`loseCount-${id}`]
+
+					// Si on a pas de loseCount, et que le nombre de victoire est inférieure à 10, ignorer
+					if(!loseCount && databaseJSON[`winCount-${id}`] < 10) continue
+
+					// Sinon, ajouter l'utilisateur
+					users.push({
+						id: id,
+						winCount: databaseJSON[key],
+						loseCount: loseCount,
+						winPercent: Math.round((databaseJSON[key] / (databaseJSON[key] + loseCount)) * 100)
+					})
+				}
+			}
+
+			// Si on a rien trouvé, on envoie un message d'erreur
+			if(!users.length){
+				var embed = new EmbedBuilder()
+				.setTitle('Classement')
+				.setDescription(`Impossible d'obtenir le classement puisque personne n'y a encore participé. ${databaseJSON.lastReset ? `Le classement a été réinitialisé pour la dernière fois le <t:${Math.round(databaseJSON.lastReset/1000)}:f>` : ''}`)
+				.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
+				return interaction.reply({ embeds: [embed] })
+			}
+
+			// Trier pour que les utilisateurs avec le pourcentage le plus élevé soit au début
+			users.sort((a, b) => b.winPercent - a.winPercent)
+
+			// Créé le contenu du classement
+			var leaderboardText = ''
+			for(var i = 0; i < users.length; i++){
+				if(i >= 10) break
+				var user = users[i]
+				leaderboardText += `\n**${i + 1}.** ${await bacheroFunctions.parseUserFromString(user.id, 'mention')} : ${user.winPercent ? `${user.winPercent}%` : '0%'} - ${user.winCount} victoire${user.winCount.length > 1 ? 's' : ''} | ${user.loseCount} défaite${user.loseCount.length > 1 ? 's' : ''}`
+			}
+
+			// Obtenir la position dans le classement
+			var position = users.findIndex(user => user.id == interaction.user.id) + 1
+
+			// Créer un embed
+			var embed = new EmbedBuilder()
+			.setTitle('Classement')
+			.setDescription(`Voici le classement des joueurs (interserveurs) :\n${leaderboardText}`)
+			.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
+			.setFooter({ text: `Parmis ${users.length} joueurs, ${position == 0 ? "vous n'êtes pas dans le classement" : `vous êtes le ${position}${position == 1 ? "er" : "ème"}`}` })
+
+			// Créé un bouton
+			var date = Date.now()
+			const row = new ActionRowBuilder().addComponents(
+				new ButtonBuilder()
+				.setCustomId(`showGraph-${date}`)
+				.setLabel('Afficher un graphique')
+				.setStyle(ButtonStyle.Primary),
+			)
+
+			// Si on est pas cooldown par le fait de générer un graphique
+			if(disableGraphicLeaderboard != true) var check = await bacheroFunctions.cooldown.check('pfcLeaderboardGenerateImage', interaction.user.id)
+			else if(disableGraphicLeaderboard == true) var check = true
+
+			// Options pour la réponse
+			var options = {
+				embeds: [embed]
+			}
+			if(!check) options.components = [row]
+
+			// Envoyer l'embed
+			if(await interaction.reply(options).catch(err => { return 'stop' }) == 'stop') return
+
+			// Quand quelqu'un clique sur le bouton
+			const filter = inte => inte.customId == `showGraph-${date}`
+			const collector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, filter, time: 999999 })
+			collector.on('collect', async inte => {
+				// Arrêter le collecteur
+				collector.stop()
+
+				// Cooldown
+				await bacheroFunctions.cooldown.set('pfcLeaderboardGenerateImage', inte.user.id, 30000)
+
+				// Pour le graphique, limiter à 5 utilisateurs
+				if(users.length > 5) users = users.slice(0, 5)
+
+				// Liste des pseudos d'utilisateurs
+				var usersNames = []
+				for(var i = 0; i < users.length; i++){
+					usersNames.push((await bacheroFunctions.parseUserFromString(users[i].id)).username.toString().substring(0, 15))
+				}
+
+				// Configuration du graphique
+				const width = 400
+				const height = 400
+				const configuration = {
+					type: 'pie',
+					data: {
+						labels: usersNames,
+						datasets: [{
+							label: '%',
+							data: users.map(a => a.winPercent),
+							backgroundColor: [
+								'#ff5a64',
+								'#36a2eb',
+								'#fc9c56',
+								'#512da8',
+								'#f9906f'
+							]
+						}]
+					},
+					options: {
+						animation: {
+							animateRotate: false
+						}
+					},
+					plugins: [{
+						id: 'background-colour',
+						beforeDraw: (chart) => {
+							const ctx = chart.ctx
+							ctx.save()
+							ctx.fillStyle = '#f2f3f5'
+							ctx.fillRect(0, 0, width, height)
+							ctx.restore()
+						}
+					}]
+				}
+				const chartCallback = (ChartJS) => {
+					ChartJS.defaults.responsive = true
+					ChartJS.defaults.maintainAspectRatio = false
+				}
+
+				// Générer le graphique dans un buffer
+				const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback })
+				const buffer = await chartJSNodeCanvas.renderToBuffer(configuration)
+
+				// Créé un attachement
+				var attachment = new AttachmentBuilder(buffer, { name: 'leaderboard.png' })
+				embed.setImage('attachment://leaderboard.png')
+
+				// Ajouter l'image dans l'interaction
+				inte.update({ embeds: [embed], files: [attachment], components: [] }).catch(err => {})
+			})
+		}
+		// Sinon, afficher les boutons dans un embed
+		else {
+			// Obtenir le nombre de victoire/défaite
+			var winCount = (await bacheroFunctions.database.get(database, `winCount-${interaction?.user?.id}`)) || 0
+			var loseCount = (await bacheroFunctions.database.get(database, `loseCount-${interaction?.user?.id}`)) || 0
+
+			// Calculer son pourcentage de parties gagnés
+			var winPercent = (winCount / (winCount + loseCount)) * 100
+
+			// Créer un embed
+			var embed = new EmbedBuilder()
+			.setTitle('Pierre feuille ciseau')
+			.setDescription(`Appuie sur un des boutons en dessous de ce message pour jouer au pierre feuille ciseau`)
+			.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
+			.setFooter({ text: `${winCount} victoire${winCount.length > 1 ? 's' : ''} | ${loseCount} défaite${loseCount.length > 1 ? 's' : ''}${!Math.round(winPercent) ? '' : ` | ${Math.round(winPercent)}% des parties remportées`}` })
+
+			// Créé des boutons
+			const row = new ActionRowBuilder().addComponents(
+				new ButtonBuilder()
+				.setCustomId(`pfc-pierre`)
+				.setStyle(ButtonStyle.Primary)
+				.setEmoji('🪨'),
+
+				new ButtonBuilder()
+				.setCustomId(`pfc-feuille`)
+				.setStyle(ButtonStyle.Primary)
+				.setEmoji('🍃'),
+
+				new ButtonBuilder()
+				.setCustomId(`pfc-ciseau`)
+				.setStyle(ButtonStyle.Primary)
+				.setEmoji('✂️'),
+			)
+
+			// Répondre à l'interaction
+			interaction.reply({ embeds: [embed], components: [row] }).catch(err => {})
+		}
+	}
+}

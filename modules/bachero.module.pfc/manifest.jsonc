@@ -1,0 +1,52 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.pfc",
+
+	// Nom du module
+	"name": "Pierre feuille ciseau",
+
+	// Description du module
+	"shortDescription": "Ce module rajoute une commande pfc",
+	"longDescription": "Ce module rajoute le jeu du pierre feuille ciseau dans Discord",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"pfc.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "disableCooldown",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Désactiver le cooldown et laisser les utilisateurs jouer sans limites ?"
+		},
+		{
+			"name": "disableAutoResetLeaderboard",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Ne pas réinitialiser le classement des joueurs automatiquement"
+		},
+		{
+			"name": "disableGraphicLeaderboard",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Désactiver l'affichage d'un graphique lorsqu'on affiche le classement ?"
+		}
+	]
+}

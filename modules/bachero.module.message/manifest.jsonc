@@ -1,0 +1,62 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.message",
+
+	// Nom du module
+	"name": "Gestion des messages",	
+
+	// Description du module
+	"shortDescription": "Ce module rajoute plusieurs commandes en lien avec la gestion des messages",
+	"longDescription": "Ce module rajoute plusieurs commandes permettant de gérer les messages des serveurs, pour en supprimer ou en envoyer.",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"first.js",
+		"say.js",
+		"embed.js",
+		"slowmode.js",
+		"clear.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "sayWithoutPermissions",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Active la commande /SAY même sans avoir la permission de gérer les messages, peut être utilisé pour mentionner sans avoir la permission."
+		},
+		{
+			"name": "embedWithoutPermissions",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Active la commande /EMBED même sans avoir la permission de gérer les messages, peut être utilisé pour mentionner sans avoir la permission."
+		},
+		{
+			"name": "sayShowAuthor",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Affiche l'auteur des messages envoyés via la commande /SAY"
+		},
+		{
+			"name": "embedShowAuthor",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Affiche l'auteur des messages envoyés via la commande /EMBED"
+		}
+	]
+}

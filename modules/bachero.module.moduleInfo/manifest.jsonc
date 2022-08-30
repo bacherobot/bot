@@ -1,0 +1,40 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.moduleInfo",
+
+	// Nom du module
+	"name": "Informations modules",
+
+	// Description du module
+	"shortDescription": "Ce module rajoute la commande /module",
+	"longDescription": "Ce module rajoute une commande permettant d'obtenir la liste des modules actuellements installés, ou des informations détaillés sur un seul via son nom de packet",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"module.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "authorizedIds",
+			"type": "array", // boolean, string, number, array, object, null
+			"default": [],
+			"description": "Empêche tous les utilisateurs (sauf ceux dont l'identifient est dans la liste) d'utiliser la commande. Si la liste est vide, tout le monde pourra l'utiliser."
+		}
+	]
+}
