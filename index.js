@@ -42,7 +42,8 @@ const client = new Client({
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.DirectMessages,
 		GatewayIntentBits.GuildPresences,
-		GatewayIntentBits.GuildMembers
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.MessageContent
 	],
 	partials: [
 		Partials.User,
@@ -156,7 +157,7 @@ function loadModules(){
 					console.log(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : une commande slash avec le même nom existe déjà.`)
 					return process.exit()
 				}
-				client.commands.set(file.slashInfo.toJSON().name, file)
+				client.commands.set(file.slashInfo.toJSON().name, { file: file, whitelistedGuildIds: manifest.whitelistedGuildIds })
 				allSlashCommands.push(file.slashInfo.toJSON())
 				thisModuleAllCommands.push(file.slashInfo.toJSON())
 			}
@@ -167,7 +168,7 @@ function loadModules(){
 					console.log(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : un menu cotnextuel avec le même nom existe déjà.`)
 					return process.exit()
 				}
-				client.contextsMenus.set(file.contextInfo.toJSON().name, file)
+				client.contextsMenus.set(file.contextInfo.toJSON().name, { file: file, whitelistedGuildIds: manifest.whitelistedGuildIds })
 				allSlashCommands.push(file.contextInfo.toJSON()) // oui je met ça dans la variable des cmd slash, ça marche donc go
 				thisModuleAllContextsMenu.push(file.contextInfo.toJSON())
 			}
@@ -182,6 +183,7 @@ function loadModules(){
 			commands: thisModuleAllCommands,
 			contextsMenus: thisModuleAllContextsMenu,
 			source: manifest.source,
+			whitelistedGuildIds: manifest.whitelistedGuildIds
 		})
 
 		// Afficher le message une fois démarré
@@ -223,7 +225,7 @@ client.on('interactionCreate', async interaction => {
 
 		// Exécuter la commande
 		try {
-			await contextMenu.execute(interaction)
+			await contextMenu.file.execute(interaction)
 		} catch (error) {
 			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`)
 			console.log(error)
@@ -246,9 +248,14 @@ client.on('interactionCreate', async interaction => {
 			return await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Commande inexistante").setDescription(`Cette commande est introuvable dans ${botName}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false })
 		}
 
+		// Vérifier qu'on est sur un serveur autorisé
+		if(command?.whitelistedGuildIds?.length && !command.whitelistedGuildIds.includes(interaction.guildId)){
+			return await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Serveur interdit").setDescription(`Cette commande ne peut pas être exécuté puisque ce serveur n'est pas autorisé.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))], ephemeral: true })
+		}
+
 		// Exécuter la commande
 		try {
-			await command.execute(interaction)
+			await command.file.execute(interaction)
 		} catch (error) {
 			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté la commande ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`)
 			console.log(error)
@@ -264,7 +271,62 @@ client.on('interactionCreate', async interaction => {
 // Quand le bot reçoit un message
 client.on('messageCreate', async message => {
 	// Répondre à ElWatch
-	if(message.content === "Hello from ElWatch!" && message.author.bot === true && message.author.id === "898255769827430460") return message.reply("coucou bg :eye:")
+	if(message.content === "Hello from ElWatch!" && message.author.bot && message.author.id === "898255769827430460") return message.reply("coucou bg :eye:")
+
+	/* Tentative pour rendre les command slash compatible avec les commandes par prefix (tah l'époque)
+	// Empêcher les bots
+	if(message.author.bot) return
+
+	// Uniquement si c'est le bon prefix
+	if(!message.content.startsWith(bacheroFunctions.config.getValue('bachero', 'prefix'))) return
+
+	// Si c'est une commande sous forme de message
+	var args = message.content?.split(bacheroFunctions.config.getValue('bachero', 'prefix'))?.[1]?.trim()?.split(' ')
+	var commandName = args?.[0]?.toLowerCase(); // on peut pas faire de commande slash avec majuscules
+	args = args?.slice(1)
+
+	// Vérifier si la commande existe sous forme de commande slash
+	var command = client.commands.get(commandName)
+
+	// Si aucune commande trouvé
+	if(!command){
+		console.log(chalk.yellow("[WARN] ") + `${message.author.tag} a exécuté la commande ${chalk.yellow(commandName)} qui n'existe pas.`)
+		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Commande inexistante").setDescription(`Cette commande est introuvable dans ${botName}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] })
+	}
+
+	// Vérifier qu'on est sur un serveur autorisé
+	if(command?.whitelistedGuildIds?.length && !command.whitelistedGuildIds.includes(message.guildId)){
+		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Serveur interdit").setDescription(`Cette commande ne peut pas être exécuté puisque ce serveur n'est pas autorisé.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+	}
+
+	// Préparer la variable qui contiendra le message de réponse
+	var messageResponse;
+
+	// Modifier le message pour qu'il ressemble un peu plus à une interaction
+	message.user = message.author
+	delete message.author
+	message.deferReply = async () => {
+		messageResponse = message.reply('Veuillez patienter...')
+		return messageResponse
+	}
+	message.editReply = async (content) => {
+		messageResponse.edit(content)
+		return messageResponse
+	}
+
+	// Exécuter la commande
+	try {
+		await command.file.execute(message)
+	} catch (error) {
+		console.log(chalk.yellow("[WARN] ") + `${message.user.tag} a exécuté la commande ${chalk.yellow(command)} qui a fini en une erreur :`)
+		console.log(error)
+		try {
+			messageResponse = message.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] }).catch(err => {})
+		} catch (error) {
+			await messageResponse.edit({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] }).catch(err => {})
+		}
+	}
+	*/
 })
 
 // Une fois connecté à Discord
