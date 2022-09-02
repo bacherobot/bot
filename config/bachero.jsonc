@@ -51,6 +51,13 @@
             "default": "online",
             "value": "online",
             "description": "Définit le statut de bot parmi : online, idle, dnd, offline"
-        }
+        },
+		{
+		  "name": "prefix",
+		  "type": "string",
+		  "default": "bc",
+		  "value": "bc",
+		  "description": "prefix bot"
+		}
     ]
 }
