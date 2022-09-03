@@ -12,7 +12,6 @@ module.exports = {
 
 	// Code a executer quand la commande est appelée
 	async execute(interaction){
-		
 		// Vérifier si l'utilisateur est limité, et si c'est pas le cas, le limiter
 		var checkAndReply = await bacheroFunctions.cooldown.checkAndReply(interaction, 'pingCommandUsage')
 		if(checkAndReply) return; else await bacheroFunctions.cooldown.set('pingCommandUsage', interaction.user.id, 1000)
