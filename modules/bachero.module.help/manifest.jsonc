@@ -1,0 +1,31 @@
+{
+	"disabled": true,
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.help",
+
+	// Nom du module
+	"name": "Page d'aide",
+
+	// Description du module
+	"shortDescription": "Ce module permet d'obtenir la liste des commandes avec une commande",
+	"longDescription": "Ajoute une commande (/help) pour obtenir la liste de toute les commandes disponibles dans les modules installés",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "eh j'suis encore en développement",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"help.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	]
+}
