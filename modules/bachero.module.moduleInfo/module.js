@@ -17,7 +17,7 @@ module.exports = {
 		// Vérifier que la personne est autorisé
 		if(authorizedIds?.length && !authorizedIds?.includes(interaction.user.id)) return interaction.reply({ ephemeral: true, content: "Oupsi, tu n'as pas le droit d'utiliser cette commande..." })
 
-		// Si on a pas encore le client, le définir
+		// Si on a pas encore la liste des modules, le définir
 		if(!allModulesDetails) allModulesDetails = bacheroFunctions.modules.allModulesDetails()
 
 		// Obtenir le nom de packet

@@ -31,11 +31,11 @@ module.exports = {
 		if(interaction.channel.type != 0) return interaction.editReply({ content: `Cette commande ne peut qu'être exécutée dans un salon textuel.` }).catch(err => {})
 
 		// Si le temps à définir est le même que celui actuellement défini
-		if(nextTime == currentTime) return interaction.editReply({ content: `Le mode lent déjà défini sur ${currentTime} secondes.` }).catch(err => {})
+		if(nextTime == currentTime) return interaction.editReply({ content: `Le mode lent est déjà défini sur ${currentTime} secondes.` }).catch(err => {})
 
 		// Modifier le temps dans le salon
 		try {
-			interaction.channel.setRateLimitPerUser(nextTime, `${interaction.user.tag} (ID : ${interaction.user.id}) a modifié le slowmode via la commande /slowmode`)
+			interaction.channel.setRateLimitPerUser(nextTime, `${interaction.user.tag} (ID : ${interaction.user.id}) a modifié le slowmode via la commande /slowmode`).catch(err => { return err })
 			interaction.editReply({ content: `Le temps à attendre entre chaque message est passé de ${currentTime} ${currentTime > 1 ? 'secondes' : 'seconde'} à ${nextTime} ${nextTime > 1 ? 'secondes' : 'seconde'}.` })
 		} catch(err) {
 			// Si il y a eu une erreur
