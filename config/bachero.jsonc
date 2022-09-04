@@ -60,6 +60,13 @@
             "description": "Modifie le préfixe du bot lors de l'utilisation de commandes par message"
         },
         {
+            "name": "disableTextCommand",
+            "type": "boolean",
+            "default": false,
+            "value": false,
+            "description": "Désactive l'utilisation de commande par messages"
+        },
+        {
             "name": "disableCheckUpdate",
             "type": "boolean",
             "default": false,

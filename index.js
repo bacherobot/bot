@@ -5,11 +5,15 @@ const path = require('path')
 const chalk = require('chalk')
 const jsonc = require('jsonc')
 const events = require('events')
+const UglifyJS = require("uglify-js")
 const bacheroFunctions = require('./functions')
 require('dotenv').config()
 
-// Obtenir le nom du bot
+// Obtenir quelques trucs
 var botName = bacheroFunctions.config.getValue('bachero', 'botName')
+var botPrefix = bacheroFunctions.config.getValue('bachero', 'prefix')
+var disableTextCommand = bacheroFunctions.config.getValue('bachero', 'disableTextCommand')
+var statsDatabase = bacheroFunctions.database.getDatabase('stats')
 
 // Créé un listener pour les modules
 var interactionListener = new events.EventEmitter()
@@ -29,7 +33,7 @@ function moduleExists(moduleName){
 	try {
 		require.resolve(moduleName)
 		return true
-	} catch (e) {
+	} catch (e){
 		return false
 	}
 }
@@ -37,7 +41,7 @@ function moduleExists(moduleName){
 // Importer et initialiser un bot Discord
 const { REST } = require('@discordjs/rest')
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN)
-const { Client, GatewayIntentBits, Partials, EmbedBuilder, Routes, ActivityType } = require('discord.js')
+const { Client, GatewayIntentBits, PermissionsBitField, Partials, EmbedBuilder, Routes, ActivityType } = require('discord.js')
 const client = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
@@ -58,13 +62,11 @@ const client = new Client({
 	]
 })
 
-// Map qui contiendra les slash commands
+// Quelques maps pour le client
 client.commands = new Map()
 client.contextsMenus = new Map()
 client.allModulesDetails = new Map()
-
-// map qui contiendra les text commands
-client.textcommands = new Map()
+client.textCommands = new Map()
 
 // Obtenir la liste des modules et préparer une variable
 var modulesFolder = fs.readdirSync(path.join(__dirname, 'modules'))
@@ -78,7 +80,7 @@ function loadModules(){
 		var manifest
 		try {
 			manifest = jsonc.parse(fs.readFileSync(path.join(__dirname, 'modules', module, 'manifest.jsonc'), 'utf8'))
-		} catch (e) {
+		} catch (e){
 			manifest = null
 		}
 
@@ -154,13 +156,11 @@ function loadModules(){
 			var file = require(path.join(__dirname, 'modules', module, fileName))
 			
 			// Modifier le fichier pour la compatibilité des text commands
-			var editedfile = require(textcommandcompatibility(path.join(__dirname, 'modules', module, fileName)));
+			if(disableTextCommand != true) var editedfile = require(textCommandCompatibility(path.join(__dirname, 'modules', module, fileName)))
 
 			// En profiter pour donner au module le listener
-			if(file?.interactionListener) file.interactionListener(interactionListener);
-
-			// pour les text commands
-			if(editedfile?.interactionListenerText) editedfile.interactionListenerText(interactionListenerText);
+			if(file?.interactionListener) file.interactionListener(interactionListener)
+			if(editedfile?.interactionListenerText) editedfile.interactionListenerText(interactionListenerText)
 
 			// Si il y a des commandes slash
 			if(file?.slashInfo && file?.execute){
@@ -169,7 +169,7 @@ function loadModules(){
 					return process.exit()
 				}
 				client.commands.set(file.slashInfo.toJSON().name, { file: file, whitelistedGuildIds: manifest.whitelistedGuildIds })
-				client.textcommands.set(editedfile.slashInfo.toJSON().name, { file: editedfile, whitelistedGuildIds: manifest.whitelistedGuildIds })
+				if(disableTextCommand != true) client.textCommands.set(editedfile.slashInfo.toJSON().name, { file: editedfile, whitelistedGuildIds: manifest.whitelistedGuildIds })
 				allSlashCommands.push(file.slashInfo.toJSON())
 				thisModuleAllCommands.push(file.slashInfo.toJSON())
 			}
@@ -212,29 +212,61 @@ async function createCommands(){
 		console.log(chalk.blue("[INFO] ") + 'Actualisation des commandes slashs commencées...')
 		await rest.put(Routes.applicationCommands(process.env.DISCORD_CLIENT_ID), { body: allSlashCommands })
 		console.log(chalk.blue("[INFO] ") + 'Actualisation des commandes slashs terminées')
-	} catch (error) {
+	} catch (error){
 		console.log(chalk.red("[ERROR] ") + "Impossible d'actualiser les commandes slashs.")
 		console.error(error)
+	}
+
+	// Une fois que tout ça est fait, on vérifie les mises à jour
+	checkUpdates()
+}
+
+// Vérifier les mises à jour
+async function checkUpdates(){
+	// Si la vérification est désactivé
+	if(bacheroFunctions.config.getValue('bachero', 'disableCheckUpdate') == true) return
+
+	// Obtenir la date de dernière vérification
+	var lastUpdateCheck = await bacheroFunctions.database.get(statsDatabase, 'lastUpdateCheck')
+
+	// Si la date n'était pas il y a plus d'un jour, annuler
+	if(lastUpdateCheck && lastUpdateCheck > Date.now() - 1000 * 60 * 60 * 24) return
+
+	// Mettre à jour la date de dernière vérification
+	await bacheroFunctions.database.set(statsDatabase, 'lastUpdateCheck', Date.now())
+
+	// Log
+	console.log(chalk.blue("[INFO] (MAJ) ") + `Début de la vérification des mises à jour...`)
+
+	// Obtenir les mises à jour
+	var latestPackageJson = await require('node-fetch')('https://raw.githubusercontent.com/bacherobot/bot/master/package.json').then(res => res.text())
+
+	// Tenter de parse en JSON
+	try {
+		latestPackageJson = JSON.parse(latestPackageJson)
+	} catch (e){
+		console.log(chalk.yellow("[WARN] (MAJ) ") + "Impossible d'obtenir le package.json de la dernière version :")
+		console.error(e)
+		latestPackageJson = {}
+	}
+
+	// Vérifier la version
+	var actualVersion = require(path.join(__dirname, 'package.json')).version
+	if(latestPackageJson.version != actualVersion){
+		console.log(chalk.blue("[INFO] (MAJ) ") + `Une mise à jour de Bachero est disponible, ${chalk.yellow(actualVersion)} → ${chalk.yellow(latestPackageJson.version)}, https://github.com/bacherobot/bot/releases/tag/${latestPackageJson.version}`)
 	}
 }
 
 // Quand on reçoit une interaction
 client.on('interactionCreate', async interaction => {
 	// Si c'est un bouton ou un modal, l'envoyer via le listener
-	if(interaction.isModalSubmit()) {
-		if(interaction.customId.startsWith('text:')) {
-			return interactionListenerText.emit('modal', interaction);
-		} else {
-			return interactionListener.emit('modal', interaction);
-		}
+	if(interaction.isModalSubmit()){
+		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit('modal', interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
+		else return interactionListenerText.emit('modal', interaction)
 	}
-	if(interaction.isButton()) {
-		// verifie si c'est une commande text ou slash
-		if(interaction.customId.startsWith('text:')) {
-			return interactionListenerText.emit('button', interaction)
-		} else {
-			return interactionListener.emit('button', interaction)
-		}
+	if(interaction.isButton()){
+		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit('button', interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
+		else return interactionListenerText.emit('button', interaction)
 	}
 
 	// Si c'est un menu contextuel
@@ -248,15 +280,21 @@ client.on('interactionCreate', async interaction => {
 			return await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Menu contextuel inexistant").setDescription(`Ce menu contextuel est introuvable dans ${botName}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false })
 		}
 
+		// Vérifier qu'on est sur un serveur autorisé
+		if(contextMenu?.whitelistedGuildIds?.length && !contextMenu.whitelistedGuildIds.includes(interaction.guildId)){
+			return await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Serveur interdit").setDescription(`Ce menu contextuel ne peut pas être exécuté puisque ce serveur n'est pas autorisé.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))], ephemeral: true })
+		}
+
 		// Exécuter la commande
 		try {
+			interaction.sourceType = 'contextMenu'
 			await contextMenu.file.execute(interaction)
-		} catch (error) {
+		} catch (error){
 			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`)
 			console.log(error)
 			try {
 				interaction.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution du menu contextuel :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false }).catch(err => {})
-			} catch (error) {
+			} catch (error){
 				await interaction.editReply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution du menu contextuel :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false }).catch(err => {})
 			}
 		}
@@ -264,13 +302,12 @@ client.on('interactionCreate', async interaction => {
 
 	// Et si c'est une commande slash
 	else if(interaction.isCommand()){
-		console.log(chalk.blue("[INFO] ") + `Commande reçue : ${interaction.commandName} (${interaction.id})`)
 		// Récupérer la commande par son nom
 		var command = client.commands.get(interaction.commandName)
 
 		// Si aucune commande trouvé
 		if(!command){
-			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté la commande ${chalk.yellow(interaction.commandName)} qui n'existe pas.`)
+			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui n'existe pas.`)
 			return await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Commande inexistante").setDescription(`Cette commande est introuvable dans ${botName}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false })
 		}
 
@@ -281,13 +318,14 @@ client.on('interactionCreate', async interaction => {
 
 		// Exécuter la commande
 		try {
+			interaction.sourceType = 'slashCommand'
 			await command.file.execute(interaction)
-		} catch (error) {
-			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté la commande ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`)
+		} catch (error){
+			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`)
 			console.log(error)
 			try {
 				interaction.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false }).catch(err => {})
-			} catch (error) {
+			} catch (error){
 				await interaction.editReply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false }).catch(err => {})
 			}
 		}
@@ -299,22 +337,25 @@ client.on('messageCreate', async message => {
 	// Répondre à ElWatch
 	if(message.content === "Hello from ElWatch!" && message.author.bot && message.author.id === "898255769827430460") return message.reply("coucou bg :eye:")
 
+	// Si on a désactivé les commandes par message, ignorer la suite du code
+	if(disableTextCommand) return
+
 	// Empêcher les bots
 	if(message.author.bot) return
 
 	// Uniquement si c'est le bon prefix
-	if(!message.content.startsWith(bacheroFunctions.config.getValue('bachero', 'prefix'))) return
+	if(!message.content.startsWith(botPrefix)) return
 
-	// Si c'est une commande sous forme de message
-	var args = message.content?.split(bacheroFunctions.config.getValue('bachero', 'prefix'))?.[1]?.trim()?.split(' ')
-	var commandName = args?.[0]?.toLowerCase(); // on peut pas faire de commande slash avec majuscules
-	args = args?.slice(1)
+	// Obtenir le nom de la commande
+	var args = message.content?.split(botPrefix)?.[1]?.trim()?.split(' ')
+	var commandName = args?.[0]?.toLowerCase() // on peut pas faire de commande slash avec majuscules
+	delete args // on a plus besoin de ça finalement
 
 	// Vérifier si la commande existe sous forme de commande slash
-	var command = client.textcommands.get(commandName)
+	var command = client.textCommands.get(commandName)
+
 	// Si aucune commande trouvé
 	if(!command){
-		console.log(chalk.yellow("[WARN] ") + `${message.author.tag} a exécuté la commande ${chalk.yellow(commandName)} qui n'existe pas.`)
 		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Commande inexistante").setDescription(`Cette commande est introuvable dans ${botName}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] })
 	}
 
@@ -323,235 +364,323 @@ client.on('messageCreate', async message => {
 		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Serveur interdit").setDescription(`Cette commande ne peut pas être exécuté puisque ce serveur n'est pas autorisé.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 	}
 
+	// Si la commande n'est pas autorisé en tant que commande texte
+	if(command?.file?.disableSlashToText){
+		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Utilisation interdite").setDescription(`Cette commande ne peut pas être exécuté de cette manière puisqu'elle ne fonctionne que par commande slash.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+	}
+
 	// Préparer la variable qui contiendra le message de réponse
-	var messageResponse;
+	var messageResponse
+
+	// Fonction pour dire que la méthode voulue n'existe pas
+	async function methodNotExists(message, method){
+		if(messageResponse) messageResponse.edit(`La méthode \`${method}\` n'est pas disponible dans cet environnement. Demander au créateur de ce module de porter la méthode dans le type d'environnement \`text command\`.`)
+		else message.reply(`La méthode \`${method}\` n'est pas disponible dans cet environnement. Demander au créateur de ce module de porter la méthode dans le type d'environnement \`text command\`.`)
+		throw new Error('Méthode non disponible dans cette environnement.')
+	}
 
 	// Modifier le message pour qu'il ressemble un peu plus à une interaction
 	message.user = message.author
 	delete message.author
-	message.deferReply = async () => {
-		messageResponse = await message.reply('Veuillez patienter...')
+	message.sourceType = 'textCommand'
+	message.options = {}
+	message.awaitModalSubmit = () => methodNotExists(message, 'awaitModalSubmit')
+	message.showModal = () => methodNotExists(message, 'awaitModalSubmit')
+	message.deferReply = async (options) => {
+		if(options?.ephemeral) messageResponse = await message.user.send('Veuillez patienter pendant l\'exécution de la commande...')
+		else messageResponse = await message.reply('Veuillez patienter pendant l\'exécution de la commande...')
 		return messageResponse
 	}
+	message.fetchReply = async () => {
+		return messageResponse
+	}
+	message.followUp = async (options) => {
+		messageResponse.send(options)
+	}
+	message.deleteReply = async () => {
+		messageResponse.delete()
+	}
 	message.editReply = async (content) => {
-		// check if messageResponse is editable
-		if(messageResponse?.editable) {
-			// if new content dont have new content remove "Veuillez patienter..." from messageResponse with an invisible character
-			if(!content?.content) content.content = "​";
-			// edit messageResponse
-			await messageResponse.edit(content);
+		// Si on peut modifier le message, le modifier
+		if(messageResponse?.editable){
+			if(!content?.content) content.content = "​"
+			await messageResponse.edit(content)
 		} else {
-			// check if messageResponse is removable
-			if(messageResponse?.deletable) {
-				await messageResponse.delete();
-			}
-			messageResponse = await message.reply(content);
+			// Sinon, on vérifie qu'on peut le supprimer (et si oui, on le fait)
+			if(messageResponse?.deletable) await messageResponse.delete()
+			messageResponse = await message.reply(content)
 		}
 	}
 
-	message.options = {};
-	function getargs(parametername) {
-		// get arguments from message content
-		var arguments = message.content.replace(bacheroFunctions.config.getValue('bachero', 'prefix') + ' ', '');
-		// check if prefix is still in arguments
-		if(arguments.startsWith(bacheroFunctions.config.getValue('bachero', 'prefix'))) {
-			arguments = arguments.replace(bacheroFunctions.config.getValue('bachero', 'prefix'), '');
-		}
-		// remove command name from arguments
-		arguments = arguments.replace(commandName + ' ', '');
-		// check if arguments start with commandName
-		if(arguments.startsWith(commandName)) {
-			arguments = arguments.replace(commandName, '');
-		}
-		// divide arguments by comma
-		if(arguments.includes(',')) {
-			if(arguments.includes(', ')) {
-				arguments = arguments.split(', ');
-			} else {
-				arguments = arguments.split(',');
-			}
-			// split each argument by : and check if the first part is the parametername
-			for(var i = 0; i < arguments.length; i++) {
-				if(arguments[i].includes(': ')) {
-					argument = arguments[i].split(': ');
-				} else {
-					argument = arguments[i].split(':');
-				}
-				if(argument[0] === parametername) {
-					return argument[1];
-				}
-			}
-		} else {
-			// split arguments by : and check if the first part is the parametername
-			var argument;
-			if(arguments.includes(': ')) {
-				argument = arguments.split(': ');
-			} else {
-				argument = arguments.split(':');
-			}
-			if(argument[0] === parametername) {
-				return argument[1];
-			}
-		}
-		// return null if no argument with the parametername was found
-		return null;
-	}
+	// Obtenir le contenu d'un argument par son nom
+	function getArg(argName){
+		// Obtenir les arguments à partir du contenu du message
+		var args = message.content.replace(bacheroFunctions.config.getValue('bachero', 'prefix') + ' ', '')
+
+		// Si ça commence par le préfixe, on l'enlève
+		if(args.startsWith(botPrefix)) args = args.replace(bacheroFunctions.config.getValue('bachero', 'prefix'), '')
+
+		// Enlever le nom de la commande des arguments
+		args = args.replace(commandName + ' ', '')
+		if(args.startsWith(commandName)) args = args.replace(commandName, '')
 		
+		// Diviser les arguments avec des ";"
+		if(args.includes(';')){
+			// Diviser
+			if(args.includes('; ')) args = args.split('; ')
+			else args = args.split(';')
+		}
+		// Sinon, on créé un array avec le seul argument
+		else args = [args]
+
+		// Diviser chaque argument par un ":"
+		for(var i = 0; i < args.length; i++){
+			if(args[i].includes(': ')) argument = args[i].split(': ')
+			else argument = args[i].split(':')
+			if(argument[0] === argName) return argument.slice(1).join(':')
+		}
+
+		// Retourner null si aucune valeur n'est trouvé
+		return null
+	}
+
+	// Recréé les fonctions pour obtenir une option
+	message.options.get = (parametername) => {
+		return getArg(parametername)?.toString() || null
+	}
 	message.options.getString = (parametername) => {
-		return getargs(parametername);
+		return getArg(parametername)?.toString() || null
 	}
 	message.options.getBoolean = (parametername) => {
-		var argument = getargs(parametername);
-		if(argument === 'true') {
-			return true
-		} else if(argument === 'false') {
-			return false
-		} else {
-			return null
-		}
+		var argument = getArg(parametername)
+		if(argument && argument.toLowerCase() != 'false') return true
+		else false
 	}
 	message.options.getUser = (parametername) => {
-		var argument = getargs(parametername)
-		if(argument) {
-			// get member or role from mention
-			var mention = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '');
-			// remove all but numbers
-			mention = mention.replace(/[^0-9]/g, '');
-			// get member, channel or role from id
-			var member = message.guild.members.cache.get(mention);
-			// get user from member
-			return member.user;
-		} else {
-			return null
-		}
+		var argument = getArg(parametername)
+		if(argument){
+			// Obtenir l'identifiant
+			var id = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '')
+			id = id.replace(/[^0-9]/g, '')
+			
+			// Obtenir l'utilisateur
+			var user
+			try {
+				user = client.users.fetch(id).catch(err => {})
+			} catch (error){}
+			
+			// Et le retourner
+			return user?.user || user
+		} else return null
 	}
 	message.options.getMember = (parametername) => {
-		var argument = getargs(parametername)
-		if(argument) {
-			// get member or role from mention
-			var mention = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '');
-			// remove all but numbers
-			mention = mention.replace(/[^0-9]/g, '');
-			// get member, channel or role from id
-			var member = message.guild.members.cache.get(mention);
-			return member;
-		} else {
-			return null
-		}
+		var argument = getArg(parametername)
+		if(argument){
+			// Obtenir l'identifiant
+			var id = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '')
+			id = id.replace(/[^0-9]/g, '')
+			
+			// Obtenir le membre
+			var member
+			try {
+				member = message.guild.members.fetch(id).catch(err => {})
+			} catch (error){}
+
+			// Et le retourner
+			return member
+		} else return null
 	}
 	message.options.getChannel = (parametername) => {
-		var argument = getargs(parametername)
-		if(argument) {
-			// get member or role from mention
-			var mention = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '');
-			// remove all but numbers
-			mention = mention.replace(/[^0-9]/g, '');
-			// get member, channel or role from id
-			var channel = message.guild.channels.cache.get(mention);
-			return channel;
-		} else {
-			return null
-		}
+		var argument = getArg(parametername)
+		if(argument){
+			// Obtenir l'identifiant
+			var id = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '')
+			id = id.replace(/[^0-9]/g, '')
+
+			// Obtenir le salon
+			var channel
+			try {
+				channel = message.guild.channels.fetch(id).catch(err => {})
+			} catch (error){}
+
+			// Et le retourner
+			return channel
+		} else return null
 	}
 	message.options.getRole = (parametername) => {
-		var argument = getargs(parametername)
-		if(argument) {
-			// get member or role from mention
-			var mention = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '');
-			// remove all but numbers
-			mention = mention.replace(/[^0-9]/g, '');
-			// get member, channel or role from id
-			var role = message.guild.roles.cache.get(mention);
-			return role;
-		} else {
-			return null
-		}
-	}
-	message.options.getInteger = (parametername) => {
-		var argument = getargs(parametername)
-		if(argument) {
-			return parseInt(argument);
-		} else {
-			return null
-		}
-	}
-	message.options.getNumber = (parametername) => {
-		var argument = getargs(parametername)
-		if(argument) {
-			return parseFloat(argument);
-		} else {
-			return null
-		}
+		var argument = getArg(parametername)
+		if(argument){
+			// Obtenir l'identifiant
+			var id = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '')
+			id = id.replace(/[^0-9]/g, '')
+			
+			// Obtenir le rôle
+			var role
+			try {
+				role = message.guild.roles.fetch(id).catch(err => {})
+			} catch (error){}
+
+			// Et le retourner
+			return role
+		} else return null
 	}
 	message.options.getMentionable = (parametername) => {
-		var argument = getargs(parametername)
-		if(argument) {
-			// get member or role from mention
-			var mention = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '');
-			// remove all but numbers
-			mention = mention.replace(/[^0-9]/g, '');
-			// get member, channel or role from id
-			var member = message.guild.members.cache.get(mention);
-			var role = message.guild.roles.cache.get(mention);
-			var channel = message.guild.channels.cache.get(mention);
-			if(member) {
-				return member;
-			}
-			if(role) {
-				return role;
-			}
-			if(channel) {
-				return channel;
-			}
-			return null;
-		} else {
+		var argument = getArg(parametername)
+		if(argument){
+			// Obtenir l'identifiant
+			var id = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '')
+			id = id.replace(/[^0-9]/g, '')
+
+			// Obtenir le membre ou le rôle (les seuls valeurs que la fonction originale est censé retourner)
+			var member = message?.guild?.members?.cache?.get(id)
+			if(member) return member
+			var role = message?.guild?.roles?.cache?.get(id)
+			if(role) return role
+
+			// Et si on a rien, on retourne null
 			return null
-		}
+		} else return null
 	}
-	message.options.getAttachment = (parametername) => {
-		// get attachment from message
-		var attachment = message.attachments.array()[0];
-		return attachment;
+	message.options.getInteger = (parametername) => {
+		var argument = getArg(parametername)
+		if(argument && !isNaN(parseInt(argument))) return parseInt(argument)
+		else return null
+	}
+	message.options.getNumber = (parametername) => {
+		var argument = getArg(parametername)
+		if(argument && !isNaN(parseFloat(argument))) return parseFloat(argument)
+		else return null
+	}
+	message.options.getAttachment = () => {
+		// Obtenir le premier attachement (pas ouf cette fonction, venez faire une PR les reufs qui regarde le code)
+		var attachment = message?.attachments?.first()
+		return attachment
 	}
 
-	message.isSlash = false;
+	// Si la commande ne doit pas être exécutée en message privé, mais qu'on est en message privé
+	if(command?.file?.slashInfo?.dm_permission == false && (message.channel.type == 1 || message.channel.type == 3)){
+		return message.reply({ embeds: [new EmbedBuilder().setTitle("Salon invalide").setDescription(`Vous ne pouvez pas exécuter cette commande en message privée. Réessayer depuis un serveur.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+	}
+
+	// Vérifier les permissions de l'utilisateur
+	if(command?.file?.slashInfo?.default_member_permissions){
+		// Obtenir les permissions
+		var permissions = new PermissionsBitField(command?.file?.slashInfo?.default_member_permissions)
+
+		// Vérifier les permissions si on est pas en dm
+		if(message.channel.type != 1 && message.channel.type != 3 && !message?.guild?.members?.cache?.get(message.user.id)?.permissions?.has(permissions)){
+			var array = permissions.toArray()
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Permissions insuffisantes").setDescription(`Vous n'avez pas ${array.length > 1 ? 'les' : 'la'} permission${array.length > 1 ? 's' : ''} nécessaire${array.length > 1 ? 's' : ''} pour exécuter cette commande. Vous devez avoir ${array.length > 1 ? 'les' : 'la'} permission${array.length > 1 ? 's' : ''} suivante${array.length > 1 ? 's' : ''} : \`${array.join(', ')}\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+	}
+
+	// Vérifier qu'on ai rempli toutes les options requises
+	var needToStopExecution = false;
+	(command?.file?.slashInfo?.options || []).some(option => {
+		// Si l'options est requise, vérifier qu'on l'a bien entrer
+		if(option.required && !getArg(option.name)){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument manquant").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` n'est pas spécifié dans la commande que vous venez d'exécuter. Veuillez utiliser la commande comme ça : \`${botPrefix} ${commandName} ${command?.file?.slashInfo?.options.filter(op => op.required).map(op => `${op.name}:<un contenu>`).join(', ')}\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] })
+		}
+
+		// Si l'option n'est pas du bon type
+		if(option.type == 3 && typeof message.options.getString(option.name) == 'undefined'){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être un \`texte\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+		if(option.type == 4 && typeof message.options.getInteger(option.name) == 'undefined'){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être un \`nombre entier\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+		if(option.type == 6 && typeof message.options.getUser(option.name) == 'undefined'){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être une \`mention vers un utilisateur\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+		if(option.type == 7 && typeof message.options.getChannel(option.name) == 'undefined'){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être une \`mention vers un salon\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+		if(option.type == 8 && typeof message.options.getRole(option.name) == 'undefined'){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être une \`mention vers un rôle\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+		if(option.type == 9 && typeof message.options.getMentionable(option.name) == 'undefined'){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être une \`mention vers un utilisateur ou un rôle\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+		if(option.type == 10 && typeof message.options.getNumber(option.name) == 'undefined'){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être un \`nombre\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+
+		// Si c'est un nombre ou un int, vérifier les valeurs minimum
+		if(option.type == 10 && message.options.getNumber(option.name) < option.min_value){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit être un nombre supérieure à ${option.min_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+		if(option.type == 4 && message.options.getInteger(option.name) < option.min_value){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit être un nombre entier supérieure à ${option.min_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+
+		// Si c'est un nombre ou un int, vérifier les valeurs MAXIMUM
+		if(option.type == 10 && option.min_value && message.options.getNumber(option.name) > option.max_value){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit être un nombre inférieure à ${option.max_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+		if(option.type == 4 && option.max_value && message.options.getInteger(option.name) > option.max_value){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit être un nombre entier inférieure à ${option.max_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+
+		// Si c'est un string, vérifier la taille minimal et maximal
+		if(option.type == 3 && option.min_length && message.options.getString(option.name).length < option.min_length){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit faire au moins ${option.min_length} caractères.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+		if(option.type == 3 && option.max_length && message.options.getString(option.name).length > option.max_length){
+			needToStopExecution = true
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit faire moins de ${option.max_length} caractères.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+	})
+	if(needToStopExecution == true) return
 
 	// Exécuter la commande
 	try {
 		await command.file.execute(message)
-	} catch (error) {
-		console.log(chalk.yellow("[WARN] ") + `${message.user.tag} a exécuté la commande ${chalk.yellow(command)} qui a fini en une erreur :`)
+	} catch (error){
+		console.log(chalk.yellow("[WARN] ") + `${message.user.tag} a exécuté la commande texte ${chalk.yellow(commandName)} qui a fini en une erreur :`)
 		console.log(error)
 		try {
 			messageResponse = message.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] }).catch(err => {})
-		} catch (error) {
+		} catch (error){
 			await messageResponse.edit({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] }).catch(err => {})
 		}
 	}
 })
 
-function textcommandcompatibility(filename) {
-	// read file
-	var file = fs.readFileSync(filename, 'utf8');
-	// add compatibility with text commands
-	file = file.replaceAll('../../', `${__dirname.replaceAll('\\', '\\\\')}\\\\`);
-	file = file.replaceAll('interaction?.message?.interaction', 'interaction.message.interaction');
-	file = file.replaceAll('interaction.message.interaction', 'interaction?.message');
-	// replied to message
-	file = file.replaceAll('interaction?.message?.user', '(await interaction?.message?.channel?.messages.fetch(interaction?.message?.reference?.messageId))?.author');
-	file = file.replaceAll(`customId != '`, `customId != '`);
-	file = file.replaceAll(`customId == '`, `customId == '`);
-	file = file.replaceAll(`customId != '`, `customId != 'text:`);
-	file = file.replaceAll(`customId == '`, `customId == 'text:`);
-	file = file.replaceAll('customId == `', 'customId == `text:');
-	file = file.replaceAll('customId != `', 'customId != `text:');
-	file = file.replaceAll('interactionListener', 'interactionListenerText');
-	file = file.replaceAll('.setCustomId(`', '.setCustomId(`text:');
-	// create temp folder in case it doesn't exist
-	fs.mkdirSync(path.join(__dirname, 'TEMP', 'bachero_textcommandcompatibility', `${path.join(filename.replace(__dirname, ''), '..')}`), { recursive: true })
-	// save
-	fs.writeFileSync(path.join(__dirname, 'TEMP', 'bachero_textcommandcompatibility', `${filename.replace(__dirname, '')}`), file);
-	return path.join(__dirname, 'TEMP', 'bachero_textcommandcompatibility', `${filename.replace(__dirname, '')}`);
+// Générer un fichier pour les commandes slash
+function textCommandCompatibility(fileName){
+	// Lire le fichier
+	var file = fs.readFileSync(fileName, 'utf8')
+
+	// Modifier quelques éléments du code pour une meilleure compatibilité
+	// btw si vous voulez contribuer à faire un meilleur truc que ce machin tout sauf optimisé, je suis preneur
+	file = file.replaceAll('interaction?.message?.interaction', 'interaction.message.interaction')
+	file = file.replaceAll('interaction.message.interaction', 'interaction?.message')
+	file = file.replaceAll('interactionListener(', 'interactionListenerText(')
+	file = file.replaceAll('interactionListener (', 'interactionListenerText (')
+	file = file.replaceAll('interaction?.message?.user', '(await interaction?.message?.channel?.messages.fetch(interaction?.message?.reference?.messageId))?.author')
+
+	// Créé un dossier temporaire qui contiendra les fichiers modifiés
+	fs.mkdirSync(path.join(__dirname, 'TEMP_bachero_textcommandcompatibility', `${path.join(fileName.replace(path.join(__dirname, 'modules'), ''), '..')}`), { recursive: true })
+
+	// Minifier le code et l'enregistrer
+	var compressedJS = UglifyJS.minify(file)
+	fs.writeFileSync(path.join(__dirname, 'TEMP_bachero_textcommandcompatibility', `${fileName.replace(path.join(__dirname, 'modules'), '')}`), compressedJS.code || file)
+
+	// Retourner le chemin du fichier
+	return path.join(__dirname, 'TEMP_bachero_textcommandcompatibility', `${fileName.replace(path.join(__dirname, 'modules'), '')}`)
 }
 
 // Une fois connecté à Discord
