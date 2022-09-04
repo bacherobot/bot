@@ -35,6 +35,12 @@
 			"type": "boolean", // boolean, string, number, array, object, null
 			"default": false,
 			"description": "Désactive l'intégration de Discord WhoIs et ElWatch dans la commande"
+		},
+		{
+			"name": "disableBadges",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "N'affiche pas les badges (recommendé lorsqu'on selfhost puisque les émojis peuvent ne pas être disponible)"
 		}
 	]
 }

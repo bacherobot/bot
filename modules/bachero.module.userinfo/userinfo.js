@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, Butt
 const bacheroFunctions = require('../../functions')
 var botName = bacheroFunctions.config.getValue('bachero', 'botName')
 const alwaysShowMinimal = bacheroFunctions.config.getValue('bachero.module.userinfo', 'alwaysShowMinimal')
+const disableBadges = bacheroFunctions.config.getValue('bachero.module.userinfo', 'disableBadges')
 const fetch = require('node-fetch')
 
 // Créé la commande slash
@@ -31,15 +32,15 @@ module.exports = {
 		if(await interaction.deferReply().catch(err => { return 'stop' }) == 'stop') return
 
 		// Obtenir l'identifiant de l'utilisateur
-		var userId = (interaction.options.getUser('user'))?.id || interaction.user.id
+		var userId = (await interaction.options.getUser('user'))?.id || interaction.user.id
 
 		// Obtenir l'option pour savoir si on n'affiche que des informations minimales
-		if(alwaysShowMinimal == true) var showMinimal = true;
-		else var showMinimal = interaction.options.getBoolean('showminimal') || false
+		if(alwaysShowMinimal == true) var showMinimal = true
+		else var showMinimal = await interaction.options.getBoolean('showminimal') || false
 
 		// Obtenir les informations de l'utilisateur
-		if(!showMinimal) var userInfo = await fetch(`https://discord-whois.johanstickman.com/api/getDiscord?discordId=${userId}&showBadges=true&requestBotInfo=true`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
-		else var userInfo = interaction.options.getUser('user') || interaction.user
+		if(!showMinimal) var userInfo = await fetch(`https://discord-whois.johanstickman.com/api/getDiscord?discordId=${userId}${disableBadges ? '' : '&showBadges=true'}&requestBotInfo=true`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
+		else var userInfo = await interaction.options.getUser('user') || interaction.user
 
 		// Si on a une erreur
 		if(userInfo.error){
@@ -144,6 +145,11 @@ module.exports = {
 		if(!userInfo?.avatar_url && userInfo?.avatar) userInfo.avatar_url = `https://cdn.discordapp.com/avatars/${userInfo.id}/${userInfo.avatar}?size=512`
 		if(!userInfo?.banner_url && userInfo?.banner) userInfo.banner_url = `https://cdn.discordapp.com/banners/${userInfo.id}/${userInfo.banner}?size=512`
 
+		// Définir la description
+		var description = ""
+		if(badges?.length) description += badges.map(b => b.link ? `[${b.emoji} ${b.name}](${b.link})` : `${b.emoji} ${b.name}`).join('\n')
+		if(userInfo?.bio && !badges?.length) description += `${userInfo.bio}`; else if(userInfo?.bio && badges?.length) description += `\n\n${userInfo.bio}` // N'est disponible que sur les bots
+
 		// Créé un embed contenant toute les informations
 		var embed = new EmbedBuilder()
 		.setTitle(`${userInfo?.username}#${userInfo?.discriminator}`)
@@ -151,7 +157,7 @@ module.exports = {
 		if(!showMinimal) embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ' et ElWatch' : ''}` })
 		if(userInfo.avatar_url) embed.setThumbnail(userInfo.avatar_url)
 		if(userInfo.banner_url) embed.setImage(userInfo.banner_url)
-		if(badges?.length || userInfo?.bio) embed.setDescription(badges?.length ? badges.map(b => b.link ? `[${b.emoji} ${b.name}](${b.link})` : `${b.emoji} ${b.name}`).join('\n') + userInfo?.bio ? '\n\n' : '' : '' + userInfo?.bio)
+		if(badges?.length || userInfo?.bio) embed.setDescription(description)
 
 		// Créé une liste de champs à ajouter (et l'ajouter à l'embed du coup)
 		var listFields = [
