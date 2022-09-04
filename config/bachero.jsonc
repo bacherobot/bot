@@ -51,6 +51,27 @@
             "default": "online",
             "value": "online",
             "description": "Définit le statut de bot parmi : online, idle, dnd, offline"
+        },
+        {
+            "name": "prefix",
+            "type": "string",
+            "default": "bc",
+            "value": "bc",
+            "description": "Modifie le préfixe du bot lors de l'utilisation de commandes par message"
+        },
+        {
+            "name": "disableTextCommand",
+            "type": "boolean",
+            "default": false,
+            "value": false,
+            "description": "Désactive l'utilisation de commande par messages"
+        },
+        {
+            "name": "disableCheckUpdate",
+            "type": "boolean",
+            "default": false,
+            "value": false,
+            "description": "Désactive la vérification automatique de mises à jour de Bachero"
         }
     ]
 }

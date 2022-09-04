@@ -5,3 +5,4 @@ node_modules
 database
 config/*
 !config/bachero.jsonc
+TEMP_bachero_textcommandcompatibility
