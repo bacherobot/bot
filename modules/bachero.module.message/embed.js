@@ -109,7 +109,7 @@ module.exports = {
 				botClient.channels.cache.get(interaction.channelId).send({ embeds: [embed] })
 
 				// Obtenir une astuce
-				var astucesList = ["Vous pouvez écrire `\\n` pour faire un saut de ligne.", "Pour un message classique, vous pouvez utiliser la commande `/say`.", embedShowAuthor ? null : "Personne ne sait que vous êtes l'auteur de cette commande 🤫", "Certains textes sont automatiquements remplacés par des raccourcis, vous pouvez écrire `%DATE%` pour ajouter la date du jour.", "Il est possible d'ajouter des liens cliquables dans la description : `[texte](lien)`"].filter(a => a != null)
+				var astucesList = ["Vous pouvez écrire `\\n` pour faire un saut de ligne.", "Pour un message classique, vous pouvez utiliser la commande `/say`.", embedShowAuthor ? null : "Personne ne sait que vous êtes l'auteur de cette commande 🤫", "Certains textes sont automatiquements remplacés par des raccourcis, vous pouvez écrire `%DATE%` pour ajouter la date du jour.", "Il est possible d'ajouter des liens cliquables dans la description : `[texte](lien)`", "Le champ permettant d'ajouter une couleur à l'embed accepte des couleurs hexédécimales"].filter(a => a != null)
 				var randomAstuce = astucesList[Math.floor(Math.random() * astucesList.length)]
 
 				// Répondre à l'interaction
