@@ -168,10 +168,12 @@ function loadModules(){
 					console.log(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : une commande slash avec le même nom existe déjà.`)
 					return process.exit()
 				}
-				client.commands.set(file.slashInfo.toJSON().name, { file: file, whitelistedGuildIds: manifest.whitelistedGuildIds })
+				var slashInfoJSON = file.slashInfo.toJSON()
+				slashInfoJSON.slashToText = file.slashToText
 				if(disableTextCommand != true) client.textCommands.set(editedfile.slashInfo.toJSON().name, { file: editedfile, whitelistedGuildIds: manifest.whitelistedGuildIds })
-				allSlashCommands.push(file.slashInfo.toJSON())
-				thisModuleAllCommands.push(file.slashInfo.toJSON())
+				client.commands.set(slashInfoJSON.name, { file: file, whitelistedGuildIds: manifest.whitelistedGuildIds })
+				allSlashCommands.push(slashInfoJSON)
+				thisModuleAllCommands.push(slashInfoJSON)
 			}
 
 			// Si il y a des menus contextuel
@@ -235,9 +237,6 @@ async function checkUpdates(){
 	// Mettre à jour la date de dernière vérification
 	await bacheroFunctions.database.set(statsDatabase, 'lastUpdateCheck', Date.now())
 
-	// Log
-	console.log(chalk.blue("[INFO] (MAJ) ") + `Début de la vérification des mises à jour...`)
-
 	// Obtenir les mises à jour
 	var latestPackageJson = await require('node-fetch')('https://raw.githubusercontent.com/bacherobot/bot/master/package.json').then(res => res.text())
 
@@ -245,7 +244,7 @@ async function checkUpdates(){
 	try {
 		latestPackageJson = JSON.parse(latestPackageJson)
 	} catch (e){
-		console.log(chalk.yellow("[WARN] (MAJ) ") + "Impossible d'obtenir le package.json de la dernière version :")
+		console.log(chalk.yellow("[WARN] (MAJ) ") + "Vérifications des mises à jours annulées, impossible d'obtenir le package.json de la dernière version :")
 		console.error(e)
 		latestPackageJson = {}
 	}
