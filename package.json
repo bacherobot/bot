@@ -1,6 +1,6 @@
 {
 	"name": "bachero-bot",
-	"version": "0.2.0-beta",
+	"version": "0.3.0-beta",
 	"description": "Bachero est le meilleur bot multifonction, modulaire et open-source de Discord",
 	"main": "index.js",
 	"scripts": {
