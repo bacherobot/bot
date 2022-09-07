@@ -19,6 +19,9 @@ if(!embedWithoutPermissions) slashInfo.setDefaultMemberPermissions(PermissionFla
 
 // Exporter certaines fonctions
 module.exports = {
+	// Propriétés additionnelles
+	slashToText: false,
+
 	// Définir les infos de la commande slash
 	slashInfo: slashInfo,
 
@@ -136,7 +139,7 @@ module.exports = {
 			// Tenter d'obtenir certaines sources
 			source = { all: source }
 			source.hastebin = source?.all?.match(/hastebin.com\/.{2,99}/g)?.toString()?.replace('hastebin.com/','')
-			source.text = source?.all?.match(/text.johanstickman.com\/v\/\d*-\w*/g)?.toString()?.replace('/v/','/raw/')
+			source.text = source?.all?.match(/text.johanstick.me\/v\/\d*-\w*/g)?.toString()?.replace('/v/','/raw/')
 
 			// Si on a réussi à obtenir un hastebin, obtenir son contenu
 			if(source?.hastebin){
