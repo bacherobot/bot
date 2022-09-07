@@ -66,5 +66,10 @@ module.exports = {
 			.setFooter({ text: `Si vous pensez que ce problème a quelque chose à voir avec ${botName}, n'hésitez pas à le signaler` })
 			return interaction.editReply({ embeds: [embed], components: [], content: null })
 		}
+
+		// Si c'est une commande texte, tenter de supprimer le message d'invocation
+		if(interaction.sourceType == 'textCommand'){
+			try { interaction.delete().catch(err => {}) } catch(err) {} // Le choix de la sécurité
+		}
 	}
 }
