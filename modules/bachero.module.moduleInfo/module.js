@@ -38,7 +38,6 @@ module.exports = {
 			// Répondre avec l'embed
 			interaction.reply({ embeds: [embed] }).catch(err => {})
 		}
-
 		// Sinon, obtenir les infos sur le module
 		else {
 			// Obtenir le module
@@ -53,7 +52,7 @@ module.exports = {
 				return interaction.reply({ embeds: [embed] }).catch(err => {})
 			}
 
-			// Sinon, créér un embed pour afficher les infos du module
+			// Sinon, créer un embed pour afficher les infos du module
 			var embed = new EmbedBuilder()
 			.setTitle(module.name)
 			.setDescription(`> ${module.shortDescription.replace(/\n/g, '  ').replace(/`/g, "`" + String.fromCharCode(8203))}\n\n**Nom de packet :** ${module.packageName}\n**Auteur${module.authors.length > 1 ? 's' : ''} :** ${module.authors.join(', ')}\n**Commande${module.commands.length > 1 ? 's' : ''} :** ${(module?.commands?.length > 0 ? module.commands : [{name:'Aucune'}]).map(c => c.name).join(', ')}`)
