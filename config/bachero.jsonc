@@ -35,7 +35,7 @@
             "name": "botActivityContent",
             "type": "string",
             "default": null,
-            "value": "bachero.johanstickman.com",
+            "value": "bachero.johanstick.me",
             "description": "Définit le contenu du statut d'activité au bot, aucun si non défini."
         },
         {

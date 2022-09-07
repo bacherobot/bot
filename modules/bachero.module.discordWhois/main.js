@@ -40,7 +40,7 @@ new CronJob('21 4 * * *', async function() {
 		// Faire une requête vers Discord WhoIs
 		setTimeout(async () => {
 			verified.push(userId)
-			await fetch(`https://discord-whois.johanstickman.com/api/getDiscord?discordId=${userId}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).catch(err => {})
+			await fetch(`https://discord-whois.vercel.app/api/getDiscord?discordId=${userId}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).catch(err => {})
 		}, i * 2000)
 	})
 })
@@ -63,7 +63,7 @@ var getBotInterval = setInterval(async () => {
 			if(oldUser.username && newUser.username && oldUser.username == newUser.username) return
 
 			// Ajouter dans l'historique WhoIs
-			if(newUser.id || oldUser.id) await fetch(`https://discord-whois.johanstickman.com/api/getDiscord?discordId=${newUser.id || oldUser.id}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).catch(err => {})
+			if(newUser.id || oldUser.id) await fetch(`https://discord-whois.vercel.app/api/getDiscord?discordId=${newUser.id || oldUser.id}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).catch(err => {})
 		})
 	}
 }, 30000)

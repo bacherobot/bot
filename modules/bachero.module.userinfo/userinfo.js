@@ -39,7 +39,7 @@ module.exports = {
 		else var showMinimal = await interaction.options.getBoolean('showminimal') || false
 
 		// Obtenir les informations de l'utilisateur
-		if(!showMinimal) var userInfo = await fetch(`https://discord-whois.johanstickman.com/api/getDiscord?discordId=${userId}${disableBadges ? '' : '&showBadges=true'}&requestBotInfo=true`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
+		if(!showMinimal) var userInfo = await fetch(`https://discord-whois.vercel.app/api/getDiscord?discordId=${userId}${disableBadges ? '' : '&showBadges=true'}&requestBotInfo=true`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
 		else var userInfo = await interaction.options.getUser('user') || interaction.user
 
 		// Si on a une erreur
@@ -186,7 +186,7 @@ module.exports = {
 				row.components[0].setDisabled(true)
 
 				// Récupérer la liste des pseudos
-				var usernameHistory = await fetch(`https://discord-whois.johanstickman.com/api/getUsernameHistory?discordId=${userId}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
+				var usernameHistory = await fetch(`https://discord-whois.vercel.app/api/getUsernameHistory?discordId=${userId}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
 
 				// Si on a une erreur
 				if(usernameHistory.error){
@@ -207,7 +207,7 @@ module.exports = {
 				// Créé un embed
 				var embed = new EmbedBuilder()
 				embed.setTitle("Histoire de pseudos")
-				embed.setDescription(usernameHistory.map(u => `<t:${Math.round(u.date / 1000)}:f> | ${u.username}`).join('\n').slice(0, 3800) + "\n\n> L'historique de pseudos se base sur le moment auquel [Discord WhoIs](https://bachero.johanstickman.com/blog/discord-whois) a été utilisé pour obtenir les informations de l'utilisateur.\n\n> À chaque fois qu'un utilisateur obtient les informations d'un autre utilisateur, le pseudo sera modifié dans l'historique.")
+				embed.setDescription(usernameHistory.map(u => `<t:${Math.round(u.date / 1000)}:f> | ${u.username}`).join('\n').slice(0, 3800) + "\n\n> L'historique de pseudos se base sur le moment auquel [Discord WhoIs](https://bachero.johanstick.me/blog/discord-whois) a été utilisé pour obtenir les informations de l'utilisateur.\n\n> À chaque fois qu'un utilisateur obtient les informations d'un autre utilisateur, le pseudo sera modifié dans l'historique.")
 				embed.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 				embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ' et ElWatch' : ''}` })
 

@@ -4,7 +4,7 @@ Bachero est un robot Discord dans le but de remplacer tous ceux qui existent dé
 
 👉 Libre — open source, gratuit et self hostable facilement
 
-👉 Modulaire — avec l'ajout de [modules complémentaires](https://bachero.johanstickman.com/docs/preinstalled)
+👉 Modulaire — avec l'ajout de [modules complémentaires](https://bachero.johanstick.me/docs/preinstalled)
 
 👉 Complet — tout ce que les autres bots possède, réunis dans un seul bot, et en mieux
 
@@ -31,8 +31,8 @@ Ces modules peuvent être créés par n'importe qui ayant quelques connaissances
 ### Liens
 
 * [Ajouter à son serveur](https://discord.com/api/oauth2/authorize?client_id=1004446432863981671&permissions=8&scope=bot%20applications.commands)  
-* [Blog](https://bachero.johanstickman.com/blog)  
-* [Documentation](https://bachero.johanstickman.com)  
-  * [Héberger soi-même](https://bachero.johanstickman.com/docs/intro#h%C3%A9berger-soi-m%C3%AAme)  
-  * [Modules préinstallés](https://bachero.johanstickman.com/docs/preinstalled)  
-  * [Contribution](https://bachero.johanstickman.com/docs/contribute)  
+* [Blog](https://bachero.johanstick.me/blog)  
+* [Documentation](https://bachero.johanstick.me)  
+  * [Héberger soi-même](https://bachero.johanstick.me/docs/intro#h%C3%A9berger-soi-m%C3%AAme)  
+  * [Modules préinstallés](https://bachero.johanstick.me/docs/preinstalled)  
+  * [Contribution](https://bachero.johanstick.me/docs/contribute)  

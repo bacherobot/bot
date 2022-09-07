@@ -7,7 +7,7 @@
 
 	// Description du module
 	"shortDescription": "Ajoute tout les membres des serveurs dans l'historique Discord WhoIs",
-	"longDescription": "Ce module ajoute tout les membres de tout les serveurs dans l'historique de pseudo Discord WhoIs accessible via https://discord-whois.johanstickman.com",
+	"longDescription": "Ce module ajoute tout les membres de tout les serveurs dans l'historique de pseudo Discord WhoIs accessible via https://discord-whois.johanstick.me",
 
 	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
 	"onloadMessage": "",
