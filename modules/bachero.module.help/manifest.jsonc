@@ -1,5 +1,4 @@
 {
-	"disabled": true,
 	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
 	"packageName": "bachero.module.help",
 
