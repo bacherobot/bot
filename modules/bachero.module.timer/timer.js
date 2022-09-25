@@ -60,7 +60,7 @@ module.exports = {
 		setInterval(async () => {
 			(await runningTimers()).forEach(async timer => {
 				// Vérifier que le minuteur soit écoulé
-				if(new Date(timer.endDate).getTime() < Date.now()){
+				if(new Date(timer?.endDate).getTime() < Date.now()){
 					// On supprime le minuteur
 					bacheroFunctions.database.delete(database, timer.timerId)
 
