@@ -15,8 +15,8 @@ var botPrefix = bacheroFunctions.config.getValue('bachero', 'prefix')
 var disableTextCommand = bacheroFunctions.config.getValue('bachero', 'disableTextCommand')
 var statsDatabase = bacheroFunctions.database.getDatabase('stats')
 
-// Créé un listener pour les modules
-var interactionListener = new events.EventEmitter()
+// Créé quelques listeners
+var interactionListener = new events.EventEmitter();
 var interactionListenerText = new events.EventEmitter()
 
 // Vérifier les cooldown persistants dans la base de données
@@ -197,7 +197,8 @@ function loadModules(){
 			commands: thisModuleAllCommands,
 			contextsMenus: thisModuleAllContextsMenu,
 			source: manifest.source,
-			whitelistedGuildIds: manifest.whitelistedGuildIds
+			whitelistedGuildIds: manifest.whitelistedGuildIds,
+			file: file
 		})
 
 		// Afficher le message une fois démarré
@@ -261,11 +262,13 @@ client.on('interactionCreate', async interaction => {
 	// Si c'est un bouton ou un modal, l'envoyer via le listener
 	if(interaction.isModalSubmit()){
 		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit('modal', interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
-		else return interactionListenerText.emit('modal', interaction)
+		else if(interaction?.message?.type) return interactionListenerText.emit('modal', interaction)
+		else interactionListener.emit('modal', interaction)
 	}
 	if(interaction.isButton()){
 		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit('button', interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
-		else return interactionListenerText.emit('button', interaction)
+		else if(interaction?.message?.type) return interactionListenerText.emit('button', interaction)
+		else return interactionListener.emit('button', interaction)
 	}
 
 	// Si c'est un menu contextuel
@@ -364,12 +367,15 @@ client.on('messageCreate', async message => {
 	}
 
 	// Si la commande n'est pas autorisé en tant que commande texte
-	if(command?.file?.disableSlashToText){
+	if(command?.file?.slashToText == false){
 		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Utilisation interdite").setDescription(`Cette commande ne peut pas être exécuté de cette manière puisqu'elle ne fonctionne que par commande slash.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 	}
 
 	// Préparer la variable qui contiendra le message de réponse
 	var messageResponse
+
+	// Vérifier si c'est une commande qui contient des sous commandes ou non
+	var containsSubcommand = (command?.file?.slashInfo?.options?.filter(op => !op.type)?.length ? true : false) || false
 
 	// Fonction pour dire que la méthode voulue n'existe pas
 	async function methodNotExists(message, method){
@@ -385,6 +391,11 @@ client.on('messageCreate', async message => {
 	message.options = {}
 	message.awaitModalSubmit = () => methodNotExists(message, 'awaitModalSubmit')
 	message.showModal = () => methodNotExists(message, 'awaitModalSubmit')
+	message._reply = message.reply; message.reply = async (content) => {
+		if(options?.ephemeral) messageResponse = await message.user.send(content)
+		else messageResponse = await message._reply(content)
+		return messageResponse
+	}
 	message.deferReply = async (options) => {
 		if(options?.ephemeral) messageResponse = await message.user.send('Veuillez patienter pendant l\'exécution de la commande...')
 		else messageResponse = await message.reply('Veuillez patienter pendant l\'exécution de la commande...')
@@ -397,45 +408,58 @@ client.on('messageCreate', async message => {
 		messageResponse.send(options)
 	}
 	message.deleteReply = async () => {
-		messageResponse.delete()
+		try { messageResponse.delete() } catch(err){}
 	}
 	message.editReply = async (content) => {
-		// Si on peut modifier le message, le modifier
-		if(messageResponse?.editable){
-			if(!content?.content) content.content = "​"
+		// On modifie le message
+		try {
+			if(!content?.content) content.content = "​" // caractère invisible
 			await messageResponse.edit(content)
-		} else {
-			// Sinon, on vérifie qu'on peut le supprimer (et si oui, on le fait)
+		} catch(err) {
+			// Si on a pas pu, on vérifie qu'on peut le supprimer (et si oui, on le fait)
 			if(messageResponse?.deletable) await messageResponse.delete()
+
+			// Puis on réponds
 			messageResponse = await message.reply(content)
 		}
 	}
 
+	// Obtenir les arguments à partir du contenu du message
+	var args = message.content.replace(bacheroFunctions.config.getValue('bachero', 'prefix') + ' ', '')
+	// Si ça commence par le préfixe, on l'enlève
+	if(args.startsWith(botPrefix)) args = args.replace(bacheroFunctions.config.getValue('bachero', 'prefix'), '')
+	// Enlever le nom de la commande des arguments
+	args = args.replace(commandName + ' ', '')
+	if(args.startsWith(commandName)) args = args.replace(commandName, '')
+	// Diviser les arguments avec des ";"
+	if(args.includes(';')){
+		// Diviser
+		if(args.includes('; ')) args = args.split('; ')
+		else args = args.split(';')
+	}
+	// Sinon, on créé un array avec le seul argument
+	else args = [args]
+
 	// Obtenir le contenu d'un argument par son nom
-	function getArg(argName){
-		// Obtenir les arguments à partir du contenu du message
-		var args = message.content.replace(bacheroFunctions.config.getValue('bachero', 'prefix') + ' ', '')
+	function getArg(argName, returnFirstName=false){
+		// Cloner les variables
+		var argsClone = JSON.parse(JSON.stringify(args)) // ne pas toucher
 
-		// Si ça commence par le préfixe, on l'enlève
-		if(args.startsWith(botPrefix)) args = args.replace(bacheroFunctions.config.getValue('bachero', 'prefix'), '')
+		// Si on veut retourner le nom du premier argument
+		if(returnFirstName) return argsClone?.[0]?.split(' ')?.[0] || argsClone?.[0]
 
-		// Enlever le nom de la commande des arguments
-		args = args.replace(commandName + ' ', '')
-		if(args.startsWith(commandName)) args = args.replace(commandName, '')
-		
-		// Diviser les arguments avec des ";"
-		if(args.includes(';')){
-			// Diviser
-			if(args.includes('; ')) args = args.split('; ')
-			else args = args.split(';')
+		// Si la commande contient des sous commande, enlever le premier argument avant un espace
+		if(containsSubcommand){
+			if(argsClone?.[0]) argsClone[0] = argsClone?.[0]?.split(' ')?.[1]
 		}
-		// Sinon, on créé un array avec le seul argument
-		else args = [args]
+
+		// Enlever les arguments vide
+		argsClone = argsClone.filter(arg => arg?.length)
 
 		// Diviser chaque argument par un ":"
-		for(var i = 0; i < args.length; i++){
-			if(args[i].includes(': ')) argument = args[i].split(': ')
-			else argument = args[i].split(':')
+		for(var i = 0; i < argsClone.length; i++){
+			if(argsClone[i].includes(': ')) argument = argsClone[i].split(': ')
+			else argument = argsClone[i].split(':')
 			if(argument[0] === argName) return argument.slice(1).join(':')
 		}
 
@@ -445,10 +469,10 @@ client.on('messageCreate', async message => {
 
 	// Recréé les fonctions pour obtenir une option
 	message.options.get = (parametername) => {
-		return getArg(parametername)?.toString() || null
+		return getArg(parametername)?.toString() ? getArg(parametername)?.toString() || {bacheroTypeFound:'incorrect'} : null
 	}
 	message.options.getString = (parametername) => {
-		return getArg(parametername)?.toString() || null
+		return getArg(parametername)?.toString() ? getArg(parametername)?.toString() || {bacheroTypeFound:'incorrect'} : null
 	}
 	message.options.getBoolean = (parametername) => {
 		var argument = getArg(parametername)
@@ -536,24 +560,32 @@ client.on('messageCreate', async message => {
 			var role = message?.guild?.roles?.cache?.get(id)
 			if(role) return role
 
-			// Et si on a rien, on retourne null
-			return null
+			// Et si on a rien
+			return {bacheroTypeFound:'incorrect'}
 		} else return null
 	}
 	message.options.getInteger = (parametername) => {
 		var argument = getArg(parametername)
+		if(!argument) return null
 		if(argument && !isNaN(parseInt(argument))) return parseInt(argument)
-		else return null
+		else return {bacheroTypeFound:'incorrect'}
 	}
 	message.options.getNumber = (parametername) => {
 		var argument = getArg(parametername)
+		if(!argument) return null
 		if(argument && !isNaN(parseFloat(argument))) return parseFloat(argument)
-		else return null
+		else return {bacheroTypeFound:'incorrect'}
 	}
 	message.options.getAttachment = () => {
 		// Obtenir le premier attachement (pas ouf cette fonction, venez faire une PR les reufs qui regarde le code)
 		var attachment = message?.attachments?.first()
-		return attachment
+		return attachment || null
+	}
+	message.options.getSubcommand = () => {
+		// Obtenir le premier argument
+		var argument = getArg(null, true)
+		if(argument?.length) return argument
+		else return null
 	}
 
 	// Si la commande ne doit pas être exécutée en message privé, mais qu'on est en message privé
@@ -573,73 +605,107 @@ client.on('messageCreate', async message => {
 		}
 	}
 
-	// Vérifier qu'on ai rempli toutes les options requises
+	// Stocker les options de la commande
+	var options = command?.file?.slashInfo?.options
+
+	// Si la commande contient des sous commandes
+	if(containsSubcommand){
+		// Vérifier qu'on ai entrer une sous commande
+		if(!message.options.getSubcommand()) return message.reply({ embeds: [new EmbedBuilder().setTitle("Sous commande manquante").setDescription(`Le nom de la sous commande à utiliser n'est pas spécifié. Veuillez utiliser la commande de cette façon : \`${botPrefix} ${commandName} ${options?.map(op => op.name)?.join('/')}\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+
+		// Ou si on a entré une sous commande, mais qu'elle ne fait pas partie de la liste
+		if(!options?.filter(op => op.name == message.options.getSubcommand())?.length) return message.reply({ embeds: [new EmbedBuilder().setTitle("Sous commande invalide").setDescription(`Le nom de la sous commande que vous avez entré n'existe pas. Veuillez utiliser la commande de cette façon : \`${botPrefix} ${commandName} ${options?.map(op => op.name)?.join('/')}\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+
+		// Modifier les options de la commande
+		options = options?.filter(op => op.name == message.options.getSubcommand())?.[0]?.options
+	}
+
+	// Vérifier une option
+	function check(value){
+		if(typeof value == 'object' && value?.bacheroTypeFound == 'incorrect') return true
+		return false
+	}
+
+	// Vérifier qu'on ait rempli toutes les options requises
 	var needToStopExecution = false;
-	(command?.file?.slashInfo?.options || []).some(option => {
+	(options || []).some(option => {
 		// Si l'options est requise, vérifier qu'on l'a bien entrer
 		if(option.required && !getArg(option.name)){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument manquant").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` n'est pas spécifié dans la commande que vous venez d'exécuter. Veuillez utiliser la commande comme ça : \`${botPrefix} ${commandName} ${command?.file?.slashInfo?.options.filter(op => op.required).map(op => `${op.name}:<un contenu>`).join(', ')}\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument manquant").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` n'est pas spécifié dans la commande que vous venez d'exécuter. Veuillez utiliser la commande de cette façon : \`${botPrefix} ${commandName}${message?.options?.getSubcommand()?.length ? ' ' + message.options.getSubcommand() : ''} ${options.filter(op => op.required).map(op => `${op.name}:<un contenu>`).join(', ')}\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
 
 		// Si l'option n'est pas du bon type
-		if(option.type == 3 && typeof message.options.getString(option.name) == 'undefined'){
+		if(option.type == 3 && check(message.options.getString(option.name), option.name)){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être un \`texte\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` est invalide, celui-ci doit être un \`texte\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
-		if(option.type == 4 && typeof message.options.getInteger(option.name) == 'undefined'){
+		if(option.type == 4 && check(message.options.getInteger(option.name))){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être un \`nombre entier\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` est invalide, celui-ci doit être un \`nombre entier\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
-		if(option.type == 6 && typeof message.options.getUser(option.name) == 'undefined'){
+		if(option.type == 6 && check(message.options.getUser(option.name))){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être une \`mention vers un utilisateur\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` est invalide, celui-ci doit être une \`mention vers un utilisateur\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
-		if(option.type == 7 && typeof message.options.getChannel(option.name) == 'undefined'){
+		if(option.type == 7 && check(message.options.getChannel(option.name))){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être une \`mention vers un salon\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` est invalide, celui-ci doit être une \`mention vers un salon\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
-		if(option.type == 8 && typeof message.options.getRole(option.name) == 'undefined'){
+		if(option.type == 8 && check(message.options.getRole(option.name))){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être une \`mention vers un rôle\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` est invalide, celui-ci doit être une \`mention vers un rôle\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
-		if(option.type == 9 && typeof message.options.getMentionable(option.name) == 'undefined'){
+		if(option.type == 9 && check(message.options.getMentionable(option.name))){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être une \`mention vers un utilisateur ou un rôle\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` est invalide, celui-ci doit être une \`mention vers un utilisateur ou un rôle\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
-		if(option.type == 10 && typeof message.options.getNumber(option.name) == 'undefined'){
+		if(option.type == 10 && check(message.options.getNumber(option.name))){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` est invalide, celui-ci doit être un \`nombre\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` est invalide, celui-ci doit être un \`nombre\`.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
 
 		// Si c'est un nombre ou un int, vérifier les valeurs minimum
 		if(option.type == 10 && message.options.getNumber(option.name) < option.min_value){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit être un nombre supérieure à ${option.min_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` doit être un nombre supérieure à ${option.min_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
 		if(option.type == 4 && message.options.getInteger(option.name) < option.min_value){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit être un nombre entier supérieure à ${option.min_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` doit être un nombre entier supérieure à ${option.min_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
 
 		// Si c'est un nombre ou un int, vérifier les valeurs MAXIMUM
 		if(option.type == 10 && option.min_value && message.options.getNumber(option.name) > option.max_value){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit être un nombre inférieure à ${option.max_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` doit être un nombre inférieure à ${option.max_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
 		if(option.type == 4 && option.max_value && message.options.getInteger(option.name) > option.max_value){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit être un nombre entier inférieure à ${option.max_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` doit être un nombre entier inférieure à ${option.max_value}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
 
 		// Si c'est un string, vérifier la taille minimal et maximal
-		if(option.type == 3 && option.min_length && message.options.getString(option.name).length < option.min_length){
+		if(option.type == 3 && option.min_length && message.options.getString(option.name)?.length < option.min_length){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit faire au moins ${option.min_length} caractères.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` doit faire au moins ${option.min_length} caractères.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
-		if(option.type == 3 && option.max_length && message.options.getString(option.name).length > option.max_length){
+		if(option.type == 3 && option.max_length && message.options.getString(option.name)?.length > option.max_length){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, ' `')}\` doit faire moins de ${option.max_length} caractères.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` doit faire moins de ${option.max_length} caractères.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		}
+
+		// Si c'est un string et qu'il a des choix disponibles, les vérifier
+		if(option.type == 3 && message.options.getString(option.name)?.length && option?.choices?.length){
+			// Si on a mit le nom au lieu de la valeur, modifier ça
+			var getChoice = option?.choices?.find(c => c?.name?.toLowerCase() == message.options.getString(option?.name)?.toLowerCase() || c?.value?.toLowerCase() == message.options.getString(option?.name)?.toLowerCase())
+			if(getChoice?.value) args[args.findIndex(a => a.startsWith(`${option.name}:`))] = `${option.name}:${getChoice?.value}`
+
+			// Si la valeur n'est pas dans les choix, envoyer une erreur
+			if(!option?.choices?.find(c => c?.value?.toLowerCase() == message.options.getString(option?.name)?.toLowerCase())){
+				needToStopExecution = true
+				return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` doit faire parti de la liste suivante : ${option.choices.map(c => c.name).join(', ')}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			}
 		}
 	})
 	if(needToStopExecution == true) return
@@ -648,7 +714,7 @@ client.on('messageCreate', async message => {
 	try {
 		await command.file.execute(message)
 	} catch (error){
-		console.log(chalk.yellow("[WARN] ") + `${message.user.tag} a exécuté la commande texte ${chalk.yellow(commandName)} qui a fini en une erreur :`)
+		console.log(chalk.yellow("[WARN] ") + `${message.user.tag} a exécuté la commande texte ${chalk.yellow(`${commandName}${message?.options?.getSubcommand()?.length ? ' ' + message.options.getSubcommand() : ''}`)} qui a fini en une erreur :`)
 		console.log(error)
 		try {
 			messageResponse = message.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] }).catch(err => {})
@@ -701,6 +767,11 @@ client.on('ready', () => {
 		'competing': ActivityType.Competing
 	}[botActivityType?.toLowerCase() || 'playing']
 	if(botActivityContent?.length) client.user.setPresence({ activities: [{ name: botActivityContent, type: botActivityType }], status: (bacheroFunctions.config.getValue('bachero', 'botStatus') || 'online') })
+
+	// Donner le client aux modules via la fonction exporté "getClient"
+	client.allModulesDetails.forEach(module => {
+		if(module?.file?.getClient) module.file.getClient(client)
+	})
 })
 
 // Connecter le bot à Discord
