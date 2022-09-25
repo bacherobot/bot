@@ -57,7 +57,7 @@ module.exports = {
 			var randomAstuce = astucesList[Math.floor(Math.random() * astucesList.length)]
 
 			// Répondre à l'interaction
-			interaction.editReply({ content: `Message envoyé !\n> ${randomAstuce}` }).catch(err => {})
+			interaction.editReply({ content: `Message envoyé !\n> **Tips :** ${randomAstuce}` }).catch(err => {})
 		} catch(err) {
 			var embed = new EmbedBuilder()
 			.setTitle("Envoi du message")
