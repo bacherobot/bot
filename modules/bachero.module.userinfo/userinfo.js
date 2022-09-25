@@ -161,7 +161,7 @@ module.exports = {
 
 		// Créé une liste de champs à ajouter (et l'ajouter à l'embed du coup)
 		var listFields = [
-			{ name: "Identifiant", value: `\`${userInfo.id.replace(/`/g, ' `')}\``, inline: true },
+			{ name: "Identifiant", value: `\`${userInfo.id.replace(/`/g, '')}\``, inline: true },
 			{ name: "Bot ?", value: userInfo.bot ? 'Oui' : 'Non', inline: true },
 			memberInfo?.nickname ? { name: "Surnom", value: memberInfo.nickname, inline: true } : null,
 			botInfo?.status ? { name: "Statut", value: botInfo.status.replace('online', 'En ligne').replace('idle','Inactif').replace('dnd', 'Ne pas déranger').replace('offline', 'Hors ligne'), inline: true } : null,
@@ -169,7 +169,7 @@ module.exports = {
 			userInfo?.created_at_unix ? { name: "Création du compte", value: `<t:${Math.round(userInfo.created_at_unix / 1000)}:f>`, inline: true } : null,
 			memberInfo?.joinedTimestamp ? { name: "Arrivée ici", value: `<t:${Math.round(memberInfo.joinedTimestamp / 1000)}:f>`, inline: true } : null,
 			botInfo?.ping ? { name: "Latence", value: `${botInfo?.ping} ms`, inline: true } : null,
-			userInfo?.tags?.length ? { name: "Tags", value: userInfo?.tags?.map(a => `\`${a.replace(/`/g, ' `')}\``)?.join(', '), inline: true } : null,
+			userInfo?.tags?.length ? { name: "Tags", value: userInfo?.tags?.map(a => `\`${a.replace(/`/g, '')}\``)?.join(', '), inline: true } : null,
 		]
 		embed.addFields(listFields.filter(field => field != null))
 
