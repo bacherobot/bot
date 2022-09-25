@@ -14,7 +14,7 @@ Bachero est un robot Discord dans le but de remplacer tous ceux qui existent dé
 
 ### Réinviter la roue peut être une bonne idée
 
-Beaucoup (sûrement plus de la moitié des bots encore actifs) proposent aux utilisateurs quelques commandes que la plupart des autres robots possèdent déjà, depuis plusieurs années pour certains, mais aucun n'arrive réellement à les concurrencer en aportant de réelles avancées.
+Beaucoup (sûrement plus de la moitié des bots encore actifs) proposent aux utilisateurs quelques commandes que la plupart des autres robots possèdent déjà, depuis plusieurs années pour certains, mais aucun n'arrive réellement à les concurrencer en apportant de réelles avancées.
 
 Bachero est là pour ça, en tentant de régler la plupart des problèmes existants et en apportant de meilleures solutions que les autres :
 
