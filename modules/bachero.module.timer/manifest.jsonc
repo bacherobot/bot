@@ -1,0 +1,30 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.timer",
+
+	// Nom du module
+	"name": "Minuteur",
+
+	// Description du module
+	"shortDescription": "Ce module rajoute la commande /timer",
+	"longDescription": "Ce module rajoute la possibilité de créer des minuteurs pour être rappeler de certains évènements",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"timer.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	]
+}
