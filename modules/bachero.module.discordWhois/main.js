@@ -5,8 +5,8 @@ var botClient
 
 // Tout les jours à 4h21 du matin
 new CronJob('21 4 * * *', async function() {
-	// Obtenir le client du bot
-	if(!botClient) botClient = bacheroFunctions.botClient.get()
+	// Si on a pas de client, on annule car c'est censé le définir automatiquement
+	if(!botClient) return
 
 	// Préparer la liste des gens à vérifier sur Discord WhoIs
 	var listToVerify = []
@@ -45,17 +45,10 @@ new CronJob('21 4 * * *', async function() {
 	})
 })
 
-// Définir dans le cache le client du bot
-var getBotInterval = setInterval(async () => {
-	// Si on a pas de client, le récupérer et mettre dans le cache
-	if(!botClient) botClient = bacheroFunctions.botClient.get()
-
-	// Si le client n'est pas prêt, le supprimer du cache
-	if(!botClient?.readyAt) botClient = null
-	// Sinon
-	else {
-		// Supprimer l'interval
-		clearInterval(getBotInterval)
+module.exports = {
+	async getClient(client){
+		// Définir le client dans le cache
+		botClient = client
 
 		// Quand quelqu'un change d'information sur son compte (event via le client)
 		botClient.on('userUpdate', async (oldUser, newUser) => {
@@ -66,4 +59,4 @@ var getBotInterval = setInterval(async () => {
 			if(newUser.id || oldUser.id) await fetch(`https://discord-whois.vercel.app/api/getDiscord?discordId=${newUser.id || oldUser.id}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).catch(err => {})
 		})
 	}
-}, 30000)
+}
