@@ -18,13 +18,10 @@ module.exports = {
 
 	// Code a executer quand la commande est appelée
 	async execute(interaction){
-		// Mettre la réponse en defer
-		if(await interaction.deferReply().catch(err => { return 'stop' }) == 'stop') return
-
 		// Obtenir le nombre de messages à supprimer
 		var count = interaction.options.getNumber('count')
 
-		// Créé un bouton pour confirmer qu'on sois sur de vouloir supprimer les messages
+		// Créé deux boutons pour confirmer qu'on sois sur de vouloir supprimer les messages
 		var date = Date.now()
 		const rowConfirm = new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
@@ -42,7 +39,7 @@ module.exports = {
 		.setTitle("Suppression des messages")
 		.setDescription(`T'es vraiment sûr de vouloir supprimer **${count == 1 ? "le dernier message" : "les " + count + " derniers messages"}** ?\n\nCette action est irréversible et ${count == 1 ? "le message ira" : "les messages iront"} dans les backrooms, force à ${count == 1 ? "lui" : "eux"}.`)
 		.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
-		interaction.editReply({ embeds: [embed], components: [rowConfirm] })
+		interaction.reply({ embeds: [embed], components: [rowConfirm] })
 
 		// Quand quelqu'un clique sur le bouton
 		const filter_confirm = i => i.customId == `confirm-askClear-${date}` || i.customId == `cancel-askClear-${date}`
