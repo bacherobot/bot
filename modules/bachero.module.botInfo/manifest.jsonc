@@ -1,0 +1,70 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.botInfo",
+
+	// Nom du module
+	"name": "Informations sur le bot",
+
+	// Description du module
+	"shortDescription": "Ce module renvoie des informations sur le robot",
+	"longDescription": "Ajoute une commande (/botinfo) qui envoie de nombreuses informations sur le robot et son hébergement.",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"botinfo.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "hideStartTime",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Masque l'élément 'Dernier démarrage' de la liste"
+		},
+		{
+			"name": "hideDiscordStats",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Masque l'élément 'Statistiques Discord' de la liste"
+		},
+		{
+			"name": "hideBacheroStats",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Masque l'élément 'Statistiques Bachero' de la liste"
+		},
+		{
+			"name": "hideRam",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Masque l'élément 'RAM' de la liste"
+		},
+		{
+			"name": "hideVersions",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Masque l'élément 'Versions' de la liste"
+		},
+		{
+			"name": "hideSystem",
+			"type": "boolean", // boolean, string, number, array, object, null
+			"default": false,
+			"description": "Masque l'élément 'Système' de la liste"
+		}
+	]
+}
