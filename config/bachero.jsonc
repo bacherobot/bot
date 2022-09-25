@@ -27,9 +27,9 @@
         {
             "name": "compressDatabase",
             "type": "boolean",
-            "default": true,
-            "value": true,
-            "description": "Détermine si la base de données doit être compressé, si vous modifiez ce paramètre, vous devrez supprimer les précédentes bases de données"
+            "default": false,
+            "value": false,
+            "description": "(EXPERIMENTALE) Détermine si la base de données doit être compressé, si vous modifiez ce paramètre, vous devrez supprimer les précédentes bases de données"
         },
         {
             "name": "botActivityContent",
