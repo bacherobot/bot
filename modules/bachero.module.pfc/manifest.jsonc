@@ -39,7 +39,7 @@
 		{
 			"name": "disableAutoResetLeaderboard",
 			"type": "boolean", // boolean, string, number, array, object, null
-			"default": false,
+			"default": true,
 			"description": "Ne pas réinitialiser le classement des joueurs automatiquement"
 		},
 		{
