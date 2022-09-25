@@ -1,6 +1,6 @@
 {
 	"name": "bachero-bot",
-	"version": "0.3.0-beta",
+	"version": "0.4.0-beta",
 	"description": "Bachero est le meilleur bot multifonction, modulaire et open-source de Discord",
 	"main": "index.js",
 	"scripts": {
@@ -12,6 +12,7 @@
 	"dependencies": {
 		"@discordjs/rest": "^1.0.1",
 		"@nastyox/rando.js": "^2.0.5",
+		"@tsmx/human-readable": "^1.0.7",
 		"chalk": "4.1.1",
 		"chart.js": "^3.9.1",
 		"chartjs-node-canvas": "^4.1.6",
@@ -20,10 +21,10 @@
 		"dotenv": "^10.0.0",
 		"jsonc": "^2.0.0",
 		"lz-string": "^1.4.4",
+		"nanoid": "2.1.11",
 		"node-fetch": "2.6.7",
 		"quickmongo": "3.0.2",
 		"simple-json-db": "^2.0.0",
-		"snowflake-generator": "^1.0.2",
 		"uglify-js": "^3.17.0"
 	},
 	"devDependencies": {
