@@ -142,7 +142,10 @@ function loadModules(){
 			}
 
 			// Si le fichier n'existe pas, le créer
-			if(!fs.existsSync(path.join(__dirname, 'config', `${module}.jsonc`))) fs.writeFileSync(path.join(__dirname, 'config', `${module}.jsonc`), JSON.stringify(config, null, 4))
+			if(!fs.existsSync(path.join(__dirname, 'config', `${module}.jsonc`))){
+				fs.writeFileSync(path.join(__dirname, 'config', `${module}.jsonc`), JSON.stringify(config, null, 4))
+				console.log(chalk.blue("[INFO] ") + `Un fichier de configuration a été créé pour le module ${chalk.yellow(module)}.`)
+			}
 		}
 
 		// Ajouter le module à la liste des modules
