@@ -46,7 +46,7 @@ module.exports = {
 		if(userInfo.error){
 			var embed = new EmbedBuilder()
 			.setTitle("Obtention des informations du compte impossible")
-			.setDescription("Un problème est survenu lors de l'obtention des informations de l'utilisateur :\n```\n" + (userInfo?.message?.replace(/`/g, ' `') || userInfo) + "\n```")
+			.setDescription("Un problème est survenu lors de l'obtention des informations de l'utilisateur :\n```\n" + ((userInfo?.message?.toString() || userInfo)?.replace(/`/g, ' `') || userInfo) + "\n```")
 			.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 			.setFooter({ text: `Si vous pensez que ce problème a quelque chose à voir avec ${botName}, n'hésitez pas à le signaler` })
 			return interaction.editReply({ embeds: [embed], components: [], content: null })
