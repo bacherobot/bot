@@ -65,6 +65,7 @@ module.exports = {
 		else {
 			// Obtenir le module
 			var module = listModules.find(m => m.packageName == packageName)
+			if(!module) var module = listModules.find(m => m.packageName.toLowerCase().replace(/[^a-zA-Z]+/g, '') == packageName.toLowerCase().replace(/[^a-zA-Z]+/g, ''))
 
 			// Si le module n'existe pas, répondre avec un message d'erreur
 			if(!module){
