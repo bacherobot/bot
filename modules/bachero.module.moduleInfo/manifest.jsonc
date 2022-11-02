@@ -3,7 +3,7 @@
 	"packageName": "bachero.module.moduleInfo",
 
 	// Nom du module
-	"name": "Informations modules",
+	"name": "Informations sur les modules",
 
 	// Description du module
 	"shortDescription": "Ce module rajoute la commande /module",
