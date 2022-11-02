@@ -96,21 +96,16 @@ async function sendToChannel(interaction, embedInfos){
 	// Finir l'exécution
 	try {
 		// Envoyer l'embed
-		botClient.channels.cache.get(interaction.channelId).send({ embeds: [embed] })
+		botClient.channels.cache.get(interaction.channelId).send({ embeds: [embed] }).catch(err => {})
 
 		// Obtenir une astuce
 		var astucesList = ["Vous pouvez écrire `\\n` pour faire un saut de ligne.", "Pour un message classique, vous pouvez utiliser la commande `/say`.", embedShowAuthor ? null : "Personne ne sait que vous êtes l'auteur de cette commande 🤫", "Certains textes sont automatiquements remplacés par des raccourcis, vous pouvez écrire `%DATE%` pour ajouter la date du jour.", "Il est possible d'ajouter des liens cliquables dans la description : `[texte](lien)`", "Le champ permettant d'ajouter une couleur à l'embed accepte des couleurs hexédécimales"].filter(a => a != null)
 		var randomAstuce = astucesList[Math.floor(Math.random() * astucesList.length)]
 
 		// Répondre à l'interaction
-		interaction.editReply({ content: `L'embed a été envoyé avec l'identifiant \`${uniqueId}\` !\n> **Tips :** ${notes.length ? notes.join(',') : randomAstuce}` })
+		interaction.editReply({ content: `L'embed a été envoyé avec l'identifiant \`${uniqueId}\` !\n> **Tips :** ${notes.length ? notes.join(',') : randomAstuce}` }).catch(err => {})
 	} catch(err) {
-		var embed = new EmbedBuilder()
-		.setTitle("Envoi du message")
-		.setDescription("Un problème est survenu lors de l'envoi du message :\n```\n" + (err?.toString()?.replace(/`/g, ' `') || err) + "\n```")
-		.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
-		.setFooter({ text: `Si vous pensez que ce problème a quelque chose à voir avec ${botName}, n'hésitez pas à le signaler` })
-		return interaction.editReply({ embeds: [embed], components: [], content: null })
+		return await bacheroFunctions.report.createAndReply("envoi du msesage", err, {}, interaction)
 	}
 }
 
@@ -152,7 +147,7 @@ module.exports = {
 				try {
 					content = JSON.parse(content)
 				} catch(err){}
-				if(typeof content == 'object') return interaction.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'obtention du Hastebin :\n```\n" + (content?.message?.toString()?.replace(/`/g, ' `') || content) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false }).catch(err => {})
+				if(typeof content == 'object') return await bacheroFunctions.report.createAndReply("obtention du hastebin", content?.message?.toString() || content, {}, interaction)
 
 				// Sinon, définir les informations de l'embed
 				embedInfos.description = content
@@ -164,7 +159,7 @@ module.exports = {
 				var content = await fetch(`https://${source.text}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.text()).catch(err => { return `/\\ ERREUR /\\\n\n${err}` })
 
 				// Si il y a une erreur
-				if(content?.toString()?.startsWith('/\\ ERREUR /\\')) return interaction.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'obtention du texte :\n```\n" + (content?.replace('/\\ ERREUR /\\\n\n','')?.toString()?.replace(/`/g, ' `') || content) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false }).catch(err => {})
+				if(content?.toString()?.startsWith('/\\ ERREUR /\\')) return await bacheroFunctions.report.createAndReply("obtention du texte", content?.replace('/\\ ERREUR /\\\n\n','')?.toString() || content, {}, interaction)
 
 				// Sinon, définir les informations de l'embed
 				embedInfos.description = content

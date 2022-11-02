@@ -59,12 +59,7 @@ module.exports = {
 			// Répondre à l'interaction
 			interaction.editReply({ content: `Message envoyé !\n> **Tips :** ${randomAstuce}` }).catch(err => {})
 		} catch(err) {
-			var embed = new EmbedBuilder()
-			.setTitle("Envoi du message")
-			.setDescription("Un problème est survenu lors de l'envoi du message :\n```\n" + (err?.toString()?.replace(/`/g, ' `') || err) + "\n```")
-			.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
-			.setFooter({ text: `Si vous pensez que ce problème a quelque chose à voir avec ${botName}, n'hésitez pas à le signaler` })
-			return interaction.editReply({ embeds: [embed], components: [], content: null })
+			return await bacheroFunctions.report.createAndReply("envoi du msesage", err, {}, interaction)
 		}
 
 		// Si c'est une commande texte, tenter de supprimer le message d'invocation
