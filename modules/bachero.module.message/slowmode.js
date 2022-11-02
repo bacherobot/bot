@@ -38,7 +38,8 @@ module.exports = {
 			interaction.channel.setRateLimitPerUser(nextTime, `${interaction.user.tag} (ID : ${interaction.user.id}) a modifié le slowmode via la commande /slowmode`).catch(err => { return err })
 			interaction.editReply({ content: `Le temps à attendre entre chaque message est passé de ${currentTime} ${currentTime > 1 ? 'secondes' : 'seconde'} à ${nextTime} ${nextTime > 1 ? 'secondes' : 'seconde'}.` })
 		} catch(err) {
-			// Si il y a eu une erreur
+			// S’il y a eu une erreur
+			// Note : cet embed est assez commun lorsque le bot n'a pas la permission, pour éviter de créer trop de rapports d'erreurs, cette méthode ne sera pas utilisée
 			var embed = new EmbedBuilder()
 			.setTitle("Impossible de modifier le mode lent")
 			.setDescription("Un problème est survenu lors de la modification des paramètres du salon :\n```\n" + (err?.toString()?.replace(/`/g, ' `').replace('Missing Permissions', "Je n'ai pas la permission de gérer ce salon.") || err) + "\n```")
