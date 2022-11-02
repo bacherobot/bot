@@ -72,6 +72,13 @@
             "default": false,
             "value": false,
             "description": "Désactive la vérification automatique de mises à jour de Bachero"
+        },
+        {
+            "name": "disableReport",
+            "type": "boolean",
+            "default": false,
+            "value": false,
+            "description": "Empêche la création de rapports d'erreurs par les modules"
         }
     ]
 }
