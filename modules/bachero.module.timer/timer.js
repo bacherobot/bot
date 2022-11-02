@@ -30,7 +30,8 @@ module.exports = {
 					{ name: 'Milliseconde', value: 'ms' },
 					{ name: 'Seconde', value: 'sec' },
 					{ name: 'Minute', value: 'min' },
-					{ name: 'Heure', value: 'hour' }
+					{ name: 'Heure', value: 'hour' },
+					{ name: 'Jour', value: 'day' }
 				)
 				.setRequired(false)
 			)
@@ -70,6 +71,7 @@ module.exports = {
 							// Créer un embed
 							var listFields = [
 								timer.userDuration ? { name: 'Durée', value: timer.userDuration, inline: true } : null,
+								timer.startDate ? { name: 'Début', value: `<t:${Math.round(timer?.startDate / 1000)}:R>`, inline: true } : null,
 								timer.reason ? { name: 'Raison', value: timer.reason, inline: true } : null,
 								timer.timerId ? { name: 'Identifiant', value: `\`${timer.timerId}\``, inline: true } : null,
 							]
@@ -116,6 +118,7 @@ module.exports = {
 				// Et sinon lets go ajouter les infos du minuteur dans une variable
 				var timerInfo = {
 					duration: button?.duration,
+					startDate: button?.startDate,
 					endDate: button?.endDate,
 					reason: button?.reason,
 					authorId: button?.authorId,
@@ -158,10 +161,11 @@ module.exports = {
 			if(type == 'sec') duration = duration * 1000
 			if(type == 'min') duration = duration * 1000 * 60
 			if(type == 'hour') duration = duration * 1000 * 60 * 60
+			if(type == 'day') duration = duration * 1000 * 60 * 60 * 24
 
 			// Vérifier que la durée soit valide
 			if(duration < 1) return interaction.reply({ content: 'La durée doit être supérieure à 0', ephemeral: true })
-			if(duration > 3.456e+8) return interaction.reply({ content: 'La durée doit être inférieure à 4 jours', ephemeral: true })
+			if(duration > 14 * 86400000) return interaction.reply({ content: 'La durée doit être inférieure à 14 jours', ephemeral: true })
 
 			// Déterminer la date de fin du minuteur
 			var endDate = new Date()
@@ -185,7 +189,7 @@ module.exports = {
 				.setLabel('Finalement non')
 				.setStyle(ButtonStyle.Danger),
 			)
-			buttonsIds.push({ customId: `confirm-createTimer-${date}`, interaction: interaction, userDuration: userDuration, duration: duration, endDate: endDate, reason: reason, authorId: interaction.user.id, timerId: nanoid() }, { customId: `cancel-createTimer-${date}`, interaction: interaction, userDuration: userDuration, duration: duration, endDate: endDate, reason: reason, authorId: interaction.user.id, timerId: nanoid() })
+			buttonsIds.push({ customId: `confirm-createTimer-${date}`, interaction: interaction, userDuration: userDuration, duration: duration, startDate: Date.now(), endDate: endDate, reason: reason, authorId: interaction.user.id, timerId: nanoid() }, { customId: `cancel-createTimer-${date}`, interaction: interaction, userDuration: userDuration, duration: duration, endDate: endDate, reason: reason, authorId: interaction.user.id, timerId: nanoid() })
 
 			// Répondre avec l'embed et les boutons
 			interaction.reply({ embeds: [embed], components: [rowConfirm] })
