@@ -73,11 +73,12 @@ module.exports = {
 			try {
 				await interaction.channel.bulkDelete(count == 100 ? count : count + 1, true) // ajouter +1 (car on inclus l'interaction)
 				successMessage = await interaction.channel.send({ content: `Tout est bon <@${interaction.user.id}>, ${count} message${count == 1 ? '' : 's'} devrait avoir été supprimé${count == 1 ? '' : 's'} !` })
-				setTimeout(() => successMessage.edit({ components: [rowDeleteMessageSuccess] }).catch(err => {}), 4000)
+				setTimeout(() => successMessage.edit({ components: [rowDeleteMessageSuccess] }).catch(err => {}), 2000)
 			} catch(err) {
-				// Si il y a eu une erreur
+				// S’il y a eu une erreur
+				// Note : cet embed est assez commun lorsque le bot n'a pas la permission, pour éviter de créer trop de rapports d'erreurs, cette méthode ne sera pas utilisée
 				var embed = new EmbedBuilder()
-				.setTitle("Impossible de supprimer")
+				.setTitle("Impossible de supprimer les messages")
 				.setDescription("Un problème est survenu lors de la suppression des messages :\n```\n" + (err?.toString()?.replace(/`/g, ' `').replace('Missing Permissions', "Je n'ai pas la permission de gérer ce salon.") || err) + "\n```")
 				.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 				.setFooter({ text: `Si vous pensez que ce problème a quelque chose à voir avec ${botName}, n'hésitez pas à le signaler` })
