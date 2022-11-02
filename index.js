@@ -13,7 +13,7 @@ require('dotenv').config()
 var botName = bacheroFunctions.config.getValue('bachero', 'botName')
 var botPrefix = bacheroFunctions.config.getValue('bachero', 'prefix')
 var disableTextCommand = bacheroFunctions.config.getValue('bachero', 'disableTextCommand')
-var statsDatabase = bacheroFunctions.database.getDatabase('stats')
+var statsDatabase = bacheroFunctions.database.getDatabase('internalBachero.stats')
 
 // Créé quelques listeners
 var interactionListener = new events.EventEmitter();
@@ -72,10 +72,11 @@ client.textCommands = new Map()
 var modulesFolder = fs.readdirSync(path.join(__dirname, 'modules'))
 var allModules = []
 var allSlashCommands = []
+var allGetClientsFunctions = []
 
 // Charger et vérifier tout les modules
 function loadModules(){
-	for (var module of modulesFolder){
+	for(var module of modulesFolder){
 		// Lire le fichier manifest.jsonc
 		var manifest
 		try {
@@ -189,6 +190,9 @@ function loadModules(){
 				allSlashCommands.push(file.contextInfo.toJSON()) // oui je met ça dans la variable des cmd slash, ça marche donc go
 				thisModuleAllContextsMenu.push(file.contextInfo.toJSON())
 			}
+
+			// Si il y a une fonction pour obtenir le client
+			if(file?.getClient) allGetClientsFunctions.push(file.getClient)
 		}
 
 		// Ajouter les informations détaillées du module
@@ -390,6 +394,7 @@ client.on('messageCreate', async message => {
 	// Modifier le message pour qu'il ressemble un peu plus à une interaction
 	message.user = message.author
 	delete message.author
+	message.commandName = commandName
 	message.sourceType = 'textCommand'
 	message.options = {}
 	message.awaitModalSubmit = () => methodNotExists(message, 'awaitModalSubmit')
@@ -433,7 +438,7 @@ client.on('messageCreate', async message => {
 	if(args.startsWith(botPrefix)) args = args.replace(bacheroFunctions.config.getValue('bachero', 'prefix'), '')
 	// Enlever le nom de la commande des arguments
 	args = args.replace(commandName + ' ', '')
-	if(args.startsWith(commandName)) args = args.replace(commandName, '')
+	// if(args.startsWith(commandName)) args = args.replace(commandName, '') // casse la commande color quand on utilise l'argument "color" (même nom que la cmd)
 	// Diviser les arguments avec des ";"
 	if(args.includes(';')){
 		// Diviser
@@ -771,9 +776,9 @@ client.on('ready', () => {
 	}[botActivityType?.toLowerCase() || 'playing']
 	if(botActivityContent?.length) client.user.setPresence({ activities: [{ name: botActivityContent, type: botActivityType }], status: (bacheroFunctions.config.getValue('bachero', 'botStatus') || 'online') })
 
-	// Donner le client aux modules via la fonction exporté "getClient"
-	client.allModulesDetails.forEach(module => {
-		if(module?.file?.getClient) module.file.getClient(client)
+	// Donner le client aux modules via la fonction exporté
+	allGetClientsFunctions.forEach(func => {
+		func(client)
 	})
 })
 
