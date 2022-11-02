@@ -1,0 +1,30 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.colorInfo",
+
+	// Nom du module
+	"name": "Informations sur une couleur",
+
+	// Description du module
+	"shortDescription": "Ce module vous donne des informations sur une couleure",
+	"longDescription": "Ce module récupère et vous affiche des informations sur une couleur",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"color.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	]
+}
