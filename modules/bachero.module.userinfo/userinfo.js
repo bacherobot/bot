@@ -43,14 +43,7 @@ module.exports = {
 		else var userInfo = await interaction.options.getUser('user') || interaction.user
 
 		// Si on a une erreur
-		if(userInfo.error){
-			var embed = new EmbedBuilder()
-			.setTitle("Obtention des informations du compte impossible")
-			.setDescription("Un problème est survenu lors de l'obtention des informations de l'utilisateur :\n```\n" + ((userInfo?.message?.toString() || userInfo)?.replace(/`/g, ' `') || userInfo) + "\n```")
-			.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
-			.setFooter({ text: `Si vous pensez que ce problème a quelque chose à voir avec ${botName}, n'hésitez pas à le signaler` })
-			return interaction.editReply({ embeds: [embed], components: [], content: null })
-		}
+		if(userInfo.error) return await bacheroFunctions.report.createAndReply("requête vers l'API de Discord WhoIs", userInfo?.message?.toString() || userInfo, {}, interaction)
 
 		// Utiliser les informations fournis par WhoIs
 		userInfo = userInfo?.advancedInfo || userInfo
@@ -123,7 +116,6 @@ module.exports = {
 			if(userInfo?.badges?.discord) for(var i = 0; i < userInfo?.badges?.discord.length; i++){
 				if(discordIntegratedBadge[userInfo?.badges?.discord[i]]?.emoji) badges.push({ from: 'discord', emoji: discordIntegratedBadge[userInfo?.badges?.discord[i]].emoji, name: discordIntegratedBadge[userInfo?.badges?.discord[i]].name, link: discordIntegratedBadge[userInfo?.badges?.discord[i]].link })
 			}
-			if(userInfo?.badges?.replugged_user) badges.push({ from: 'replugged', name: 'Utilisateur Replugged', emoji: '<:UtilisateurReplugged:1008809332122595439>', link: "https://replugged.dev/" })
 			if(userInfo?.badges?.replugged_developer) badges.push({ from: 'replugged', name: 'Développeur Replugged', emoji: '<:DveloppeurReplugged:1008809294189305896>', link: "https://replugged.dev/" })
 			if(userInfo?.badges?.replugged_staff) badges.push({ from: 'replugged', name: 'Équipe Replugged', emoji: '<:quipeReplugged:1008809298442326037>', link: "https://replugged.dev/" })
 			if(userInfo?.badges?.replugged_support) badges.push({ from: 'replugged', name: 'Support Replugged', emoji: '<:SupportReplugged:1008809321368404150>', link: "https://replugged.dev/" })
@@ -186,19 +178,12 @@ module.exports = {
 				row.components[0].setDisabled(true)
 
 				// Récupérer la liste des pseudos
-				var usernameHistory = await fetch(`https://discord-whois.vercel.app/api/getUsernameHistory?discordId=${userId}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
+				var usernameHistory = await fetch(`https//discord-whois.vercel.app/api/getUsernameHistory?discordId=${userId}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
 
 				// Si on a une erreur
 				if(usernameHistory.error){
-					// Si c'est un certain message, le retourner simplement
 					if(usernameHistory.message == "L'historique de pseudo est vide") return i.update({ content: usernameHistory.message, embeds: [], components: [] })
-					// Sinon, créer un embed et l'envoyer
-					else var embed = new EmbedBuilder()
-					.setTitle("Impossible d'obtenir l'histoire de pseudos")
-					.setDescription("Un problème est survenu lors de l'obtention des informations de l'utilisateur :\n```\n" + (userInfo?.message?.replace(/`/g, ' `') || userInfo) + "\n```")
-					.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
-					.setFooter({ text: `Si vous pensez que ce problème a quelque chose à voir avec ${botName}, n'hésitez pas à le signaler` })
-					return i.update({ embeds: [embed], components: [], content: null })
+					else return await bacheroFunctions.report.createAndReply("obtention de l'historique de pseudos", usernameHistory?.message?.toString() || usernameHistory, {}, i)
 				}
 
 				// Utiliser les informations que l'API nous renvoie
@@ -206,7 +191,7 @@ module.exports = {
 
 				// Créé un embed
 				var embed = new EmbedBuilder()
-				embed.setTitle("Histoire de pseudos")
+				embed.setTitle("Historique de pseudos")
 				embed.setDescription(usernameHistory.map(u => `<t:${Math.round(u.date / 1000)}:f> | ${u.username}`).join('\n').slice(0, 3800) + "\n\n> L'historique de pseudos se base sur le moment auquel [Discord WhoIs](https://bachero.johanstick.me/blog/discord-whois) a été utilisé pour obtenir les informations de l'utilisateur.\n\n> À chaque fois qu'un utilisateur obtient les informations d'un autre utilisateur, le pseudo sera modifié dans l'historique.")
 				embed.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 				embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ' et ElWatch' : ''}` })
