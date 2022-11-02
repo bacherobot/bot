@@ -1,0 +1,40 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.showReports",
+
+	// Nom du module
+	"name": "Affichage des rapports",
+
+	// Description du module
+	"shortDescription": "Permet à l'hébergeur de Bachero d'obtenir des informations sur un rapport d'erreur",
+	"longDescription": "Ce module permet à la personne hébergant Bachero d'afficher des rapports d'erreurs via une commande secrète",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"showInfo.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "secretPassword",
+			"type": "string", // boolean, string, number, array, object, null
+			"default": "password",
+			"description": "Mot de passe permettant d'accéder aux rapports d'erreurs, envoyer 'bachero-send-reports' à Bachero en message privé"
+		}
+	]
+}
