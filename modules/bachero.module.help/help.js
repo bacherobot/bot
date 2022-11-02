@@ -79,7 +79,6 @@ module.exports = {
 			var commandBeforeClone = listCommand.find(m => m.name == (commandName?.split(' ')[0] || commandName))
 			var command = commandBeforeClone ? JSON.parse(JSON.stringify(commandBeforeClone)) : null
 			if(commandName?.split(' ')[1] && command?.command?.options?.find(m => m.type == 1 && m.name == commandName?.split(' ')[1])){
-				console.log(commandName?.split(' ')[1])
 				var _command = command;
 				command = command.command.options.find(m => m.name == commandName?.split(' ')[1]);
 				command.command = _command;
@@ -101,7 +100,6 @@ module.exports = {
 
 			// Faire une variable qui contiendra les indications sur les arguments
 			if(command.options) command.command.options = command.options
-			console.log(command.command)
 			if(command?.command?.options?.length && interaction.sourceType == 'textCommand') var argumentsText = command?.command?.options?.map(o => (o.required ? '<' : '[') + o.name + ':' + o.type?.toString()?.replace('3', 'contenu').replace('4', 'nombre entier').replace('5', 'true/false').replace('6', 'utilisateur').replace('7', 'salon').replace('8', 'rôle').replace('9', 'utilisateur ou rôle').replace('10', 'nombre').replace('11', 'attachement') + (o.required ? '>' : ']')).join('; ')
 			else if(command?.command?.options?.length) var argumentsText = `\nㅤ  • ${command?.command?.options?.map(o => o.name).join('\nㅤ  • ')}`
 			if(argumentsText) argumentsText = `\n**Arguments** : ${argumentsText}`
