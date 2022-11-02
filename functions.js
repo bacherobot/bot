@@ -5,6 +5,8 @@ const jsonc = require('jsonc')
 const JSONdb = require('simple-json-db')
 const quickmongo = require("quickmongo")
 const LZString = require('lz-string')
+const nanoid = require('nanoid')
+const { EmbedBuilder } = require('discord.js')
 
 // Variable pour savoir si la base de données doit être compressé ou non
 var compressDatabase
@@ -286,18 +288,101 @@ async function deleteCooldown(cooldownId, userId, waitForDelete=true){
 // Fonction pour répondre à une interaction si la personne est limité par le cooldown
 async function checkCooldownAndReply(interaction, cooldownId){
 	// Vérifier si la personne est limité
-	var cooldownTime = await checkCooldown(cooldownId, interaction.user.id)
+	var cooldownTime = await checkCooldown(cooldownId, interaction.user.id || interaction.author.id)
 	if(!cooldownTime) return false
 
+	// Décider si on doit répondre ou modifier
+	if(!interaction.replied && !interaction.deferred) interaction.action = interaction.reply
+	else interaction.action = interaction.editReply
+
 	// Répondre
-	interaction.reply({ embeds: [{
+	interaction.action({ embeds: [{
 		title: "Vous êtes limité",
 		description: `Cette commande est limitée à un certain nombre d'utilisations, veuillez patienter jusqu'à <t:${Math.round((Date.now() + cooldownTime) / 1000)}:T> avant de réessayer.`,
 		color: parseInt(config_getValue('bachero', 'embedColor').replace('#',''), 16)
-	}], ephemeral: true })
+	}], ephemeral: true, components: [], content: null })
 
 	// Retourner true
 	return true
+}
+
+// Fonction pour obtenir un rapport d'erreur
+async function report_get(id){
+	// Si le système est désactivé
+	if(config_getValue('bachero', 'disableReport') == true) return "Le système de rapport d'erreur est désactivé."
+
+	// Obtenir le rapport depuis la BDD
+	var report;
+	try {
+		if(config_getValue('bachero', 'databaseType') == 'mongodb'){
+			var db = getDatabase('internalBachero.reports')
+			var report = await database_get(db, randomid)
+		} else {
+			if(!fs.existsSync(path.join(__dirname, 'reports'))) fs.mkdirSync(path.join(__dirname, 'reports'))
+			var report = fs.readFileSync(path.join(__dirname, 'reports', `${id}.txt`)).toString()
+		}
+	} catch (e) {
+		return "Ce rapport n'existe pas."
+	}
+
+	// Retourner l'identifiant du rapport
+	return report
+}
+
+// Fonction pour créé un rapport d'erreur
+async function report_create(context, error, moreInfos, interaction){
+	// Si le système est désactivé
+	if(config_getValue('bachero', 'disableReport') == true) return false
+
+	// Préparer les informations facultatives
+	if(!error) var error = "Impossible d'obtenir des détails sur l'erreur."
+	if(!context) var context = "contexte inconnu"
+	if(!moreInfos) var moreInfos = {}
+
+	// Informations facultatives sur l'interaction
+	if(!interaction) interaction = {}
+	if(interaction) interaction = {
+		authorId: interaction?.user?.id || interaction?.author?.id,
+		guildId: interaction?.guild?.id,
+		channelId: interaction?.channel?.id,
+		sourceType: `${interaction?.sourceType} (type: ${interaction?.type})`,
+		commandName: interaction?.commandName,
+	}
+
+	// Préparer les informations de base
+	var randomid = nanoid(14)
+	var date = new Date().toLocaleString()
+
+	// Créer le rapport sous forme de texte
+	var report = `${randomid} | Rapport (${context}) générée le ${date}.\n\nIdentifiants en rapport avec l'interaction :\n•   Auteur: ${interaction.authorId}\n•   Serveur: ${interaction.guildId}\n•   Salon: ${interaction.channelId}\n•   Source: ${interaction.sourceType}\n•   Nom de la commande: ${interaction.commandName}\n\nInformations supplémentaires apportées par le module :\n   ${JSON.stringify(moreInfos) || moreInfos}\n\n${'='.repeat(15)}\n\n${error.stack || error.message || error.toString() || error}`
+
+	// L'enregistrer dans la BDD
+	if(config_getValue('bachero', 'databaseType') == 'mongodb'){
+		var db = getDatabase('internalBachero.reports')
+		await database_set(db, randomid, report)
+	} else {
+		if(!fs.existsSync(path.join(__dirname, 'reports'))) fs.mkdirSync(path.join(__dirname, 'reports'))
+		fs.writeFileSync(path.join(__dirname, 'reports', `${randomid}.txt`), report)
+	}
+
+	// Retourner l'identifiant du rapport
+	return randomid
+}
+
+// Fonction pour créé un rapport d'erreur et le rapporter
+async function report_createAndReply(context, error, moreInfos, interaction){
+	// Décider si on doit répondre ou modifier
+	if(!interaction.replied && !interaction.deferred) interaction.action = interaction.reply
+	else interaction.action = interaction.editReply
+
+	// Si le système est désactivé
+	if(config_getValue('bachero', 'disableReport') == true) return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande (" + context + ") :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(config_getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: true }).catch(err => {})
+
+	// Créer le rapport
+	var reportId = await report_create(context, error, moreInfos, interaction)
+
+	// Répondre
+	return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande (" + context + ") :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```\nEn cas de besoin, vous pourrez communiquer l'identifiant `" + reportId + "` au support pour les aider dans la résolution de problème.").setColor(config_getValue('bachero', 'embedColor'))], ephemeral: true })
 }
 
 // Exporter les fonctions
@@ -340,6 +425,11 @@ module.exports = {
 		allContextsMenus: function(){
 			return botClient?.contextsMenus || new Map()
 		}
+	},
+	report: {
+		create: report_create,
+		createAndReply: report_createAndReply,
+		get: report_get,
 	},
 	parseUserFromString: parseUserFromString,
 }
