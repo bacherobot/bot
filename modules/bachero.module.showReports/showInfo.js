@@ -24,8 +24,8 @@ module.exports = {
 
 				// Demander l'identifiant du rapport
 				var filter = m => m.author.id == message.author.id
-				var reportId = message.channel.createMessageCollector({ filter, time: 15000 })
-				var tempAskMessage = await message.reply("Veuillez entrer l'identifiant du rapport que vous souhaitez voir. Vous pouvez également envoyer `cancel` pour annuler la commande, ou patienter 15 secondes.")
+				var reportId = message.channel.createMessageCollector({ filter, time: 30000 })
+				var tempAskMessage = await message.reply("Veuillez entrer l'identifiant du rapport que vous souhaitez voir. Vous pouvez également envoyer `cancel` pour annuler la commande, ou patienter 30 secondes.")
 				reportId.on('collect', async m => {
 					// Si on annule
 					if(m.content == 'cancel'){
