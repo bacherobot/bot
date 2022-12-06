@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js')
 const bacheroFunctions = require('../../functions')
-var botName = bacheroFunctions.config.getValue('bachero', 'botName')
 const alwaysShowMinimal = bacheroFunctions.config.getValue('bachero.module.userinfo', 'alwaysShowMinimal')
 const disableBadges = bacheroFunctions.config.getValue('bachero.module.userinfo', 'disableBadges')
+const fetchPronouns = bacheroFunctions.config.getValue('bachero.module.userinfo', 'fetchPronouns')
 const fetch = require('node-fetch')
 
 // Créé la commande slash
@@ -54,6 +54,30 @@ module.exports = {
 		if(botInfo?.info) botInfo = botInfo?.info
 		if(botInfo?.username == 'Inconnu' && botInfo?.discriminator == '0000') botInfo = {}
 		if(botInfo?.ping == '-1') botInfo.ping = null
+
+		// Obtenir les pronoms de l'utilisateur
+		if(!showMinimal && !userInfo.bot && fetchPronouns == true) var { pronouns } = await fetch(`https://pronoundb.org/api/v1/lookup?platform=discord&id=${userId}`).then(res => res.json()).catch(err => { return '' }); else var pronouns = ''
+		var listPronounsFR = {
+			'unspecified': '',
+			'hh': 'he/him',
+			'hi': 'he/it',
+			'hs': 'he/she',
+			'ht': 'he/they',
+			'ih': 'it/him',
+			'ii': 'it/its',
+			'is': 'it/she',
+			'it': 'it/they',
+			'shh': 'she/he',
+			'sh': 'she/her',
+			'si': 'she/it',
+			'st': 'she/they',
+			'th': 'they/he',
+			'ti': 'they/it',
+			'ts': 'they/she',
+			'tt': 'they/them',
+			'any': '', 'other': '', 'ask': '', 'avoid': ''
+		}
+		pronouns = listPronounsFR[pronouns] || ''
 
 		// Créer une ligne de boutons (pour les actions principales)
 		var date = Date.now()
@@ -124,10 +148,8 @@ module.exports = {
 			if(userInfo?.badges?.replugged_hunter) badges.push({ from: 'replugged', name: 'Chasseur de Bug Replugged', emoji: '<:ChasseurdeBugReplugged:1008809278884294716>', link: "https://replugged.dev/" })
 			if(userInfo?.badges?.replugged_early) badges.push({ from: 'replugged', name: 'Utilisateur Replugged de la première heure', emoji: '<:UtilisateurRepluggeddelapremireh:1008809329677320303>', link: "https://replugged.dev/" })
 			if(userInfo?.badges?.replugged_booster) badges.push({ from: 'replugged', name: 'Replugged Server Booster', emoji: '<:RepluggedServerBooster:1008809313818660864>', link: "https://replugged.dev/" })
-			if(userInfo?.badges?.goosemod_sponsor) badges.push({ from: 'goosemod', name: 'Sponsor Goosemod', emoji: '<:SponsorGoosemod:1008809319044747284>', link: "https://goosemod.com/" })
-			if(userInfo?.badges?.goosemod_developer) badges.push({ from: 'goosemod', name: 'Développeur Goosemod', emoji: '<:DveloppeurGoosemod:1008809292306059385>', link: "https://goosemod.com/" })
-			if(userInfo?.badges?.goosemod_translator) badges.push({ from: 'goosemod', name: 'Traducteur Goosemod', emoji: '<:TraducteurGoosemod:1008809324270866492>', link: "https://goosemod.com/" })
-			if(userInfo?.badges?.aliucord_contributor) badges.push({ from: 'aliucord', name: 'Contributeur Aliucord', emoji: '<:ContributeurAliucord:1008809283435118624>', link: "https://github.com/Aliucord/Aliucord" }) // ouais il manque le aliucord développeur mais j'ai pas trouvé l'icône, emoji: 'BBBBBBBBBBBBB' :/
+			if(userInfo?.badges?.aliucord_contributor) badges.push({ from: 'aliucord', name: 'Contributeur Aliucord', emoji: '<:ContributeurAliucord:1008809283435118624>', link: "https://github.com/Aliucord/Aliucord" }) // ouais il manque le aliucord développeur mais j'ai pas trouvé l'icône :/
+			if(userInfo?.badges?.bachero_ogSupporter) badges.push({ from: 'bachero', name: 'OG Supporter', emoji: '<:BacheroLogo:1046404634023047240>', link: "https://bachero.johanstick.me" })
 			if(userInfo?.badges?.custom?.emoji && userInfo?.badges?.custom?.name) badges.push({ from: 'discord-whois', emoji: userInfo?.badges?.custom?.emoji, name: userInfo?.badges?.custom?.name })
 
 		// Fetch le membre du serveur
@@ -144,9 +166,9 @@ module.exports = {
 
 		// Créé un embed contenant toute les informations
 		var embed = new EmbedBuilder()
-		.setTitle(`${userInfo?.username}#${userInfo?.discriminator}`)
+		.setTitle(`${userInfo?.username}#${userInfo?.discriminator}${pronouns?.length ? ` *(${pronouns})*` : ''}`)
 		.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
-		if(!showMinimal) embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ' et ElWatch' : ''}` })
+		if(!showMinimal) embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ', ElWatch' : ''}${pronouns?.length ? ', PronounDB' : ''}` })
 		if(userInfo.avatar_url) embed.setThumbnail(userInfo.avatar_url)
 		if(userInfo.banner_url) embed.setImage(userInfo.banner_url)
 		if(badges?.length || userInfo?.bio) embed.setDescription(description)
@@ -178,7 +200,7 @@ module.exports = {
 				row.components[0].setDisabled(true)
 
 				// Récupérer la liste des pseudos
-				var usernameHistory = await fetch(`https//discord-whois.vercel.app/api/getUsernameHistory?discordId=${userId}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
+				var usernameHistory = await fetch(`https://discord-whois.vercel.app/api/getUsernameHistory?discordId=${userId}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
 
 				// Si on a une erreur
 				if(usernameHistory.error){
