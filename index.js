@@ -76,6 +76,7 @@ var allGetClientsFunctions = []
 
 // Charger et vérifier tout les modules
 function loadModules(){
+	if(!modulesFolder.length) createCommands() // Si on a aucun module, on met à jour les commandes (pour supprimer celles qui sont déjà présentes côté Discord)
 	for(var module of modulesFolder){
 		// Lire le fichier manifest.jsonc
 		var manifest
@@ -370,12 +371,12 @@ client.on('messageCreate', async message => {
 
 	// Vérifier qu'on est sur un serveur autorisé
 	if(command?.whitelistedGuildIds?.length && !command.whitelistedGuildIds.includes(message.guildId)){
-		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Serveur interdit").setDescription(`Cette commande ne peut pas être exécuté puisque ce serveur n'est pas autorisé.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Serveur interdit").setDescription(`Cette commande ne peut pas être exécutée puisque ce serveur n'est pas autorisé.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 	}
 
 	// Si la commande n'est pas autorisé en tant que commande texte
 	if(command?.file?.slashToText == false){
-		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Utilisation interdite").setDescription(`Cette commande ne peut pas être exécuté de cette manière puisqu'elle ne fonctionne que par commande slash.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Utilisation interdite").setDescription(`Cette commande ne peut pas être exécutée de cette manière puisqu'elle ne fonctionne que par commande slash.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 	}
 
 	// Préparer la variable qui contiendra le message de réponse
@@ -454,7 +455,8 @@ client.on('messageCreate', async message => {
 		var argsClone = JSON.parse(JSON.stringify(args)) // ne pas toucher
 
 		// Si on veut retourner le nom du premier argument
-		if(returnFirstName) return argsClone?.[0]?.split(' ')?.[0] || argsClone?.[0]
+		if(returnFirstName && containsSubcommand) return argsClone?.[0]?.split(' ')?.[0] || argsClone?.[0]
+		else if(returnFirstName) return argsClone?.[1]?.split(' ')?.[0] || argsClone?.[1]
 
 		// Si la commande contient des sous commande, enlever le premier argument avant un espace
 		if(containsSubcommand){
