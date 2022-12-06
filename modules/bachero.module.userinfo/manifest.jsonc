@@ -17,7 +17,8 @@
 
 	// Liste des fichiers à charger
 	"files": [
-		"userinfo.js"
+		"userinfo.js",
+		"photo.js"
 	],
 
 	// Liste du/des auteurs du module
@@ -32,15 +33,21 @@
 	"config": [
 		{
 			"name": "alwaysShowMinimal",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
-			"description": "Désactive l'intégration de Discord WhoIs et ElWatch dans la commande"
+			"description": "Désactive l'intégration de Discord WhoIs, ElWatch et PronounDB dans la commande"
 		},
 		{
 			"name": "disableBadges",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "N'affiche pas les badges (recommandé lorsqu'on selfhost puisque les émojis peuvent ne pas être disponible)"
+		},
+		{
+			"name": "fetchPronouns",
+			"type": "boolean",
+			"default": false,
+			"description": "Récupère les pronoms des utilisateurs en utilisant l'API de PronounDB"
 		}
 	]
 }
