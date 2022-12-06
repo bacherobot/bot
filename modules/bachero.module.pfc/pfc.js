@@ -8,6 +8,43 @@ const disableCooldown = bacheroFunctions.config.getValue('bachero.module.pfc', '
 const disableAutoResetLeaderboard = bacheroFunctions.config.getValue('bachero.module.pfc', 'disableAutoResetLeaderboard')
 const disableGraphicLeaderboard = bacheroFunctions.config.getValue('bachero.module.pfc', 'disableGraphicLeaderboard')
 
+// Fonction qui permet de déterminer si un joueur a gagné ou perdu
+function determineWinner(playerChoice, playerWinRatio){
+	// Enlever le "pfc-" au début du choix du joueur
+	playerChoice = playerChoice.replace('pfc-', '')
+
+	// Liste des possibilités du bot
+	var botChoices = [
+		{ name: 'pierre', rate: 50 },
+		{ name: 'feuille', rate: 50 },
+		{ name: 'ciseau', rate: 50 }
+	]
+	botChoices.find(choice => choice.name == playerChoice).rate = 15 // baisser la probabilité que le bot trouve le même résultat que l'utilisateur
+
+	// Si le joueur gagne très peu, augmenter faiblement ses chances de gagner
+	if(playerWinRatio < 40) botChoices.find(choice => choice.name == playerChoice).rate -= 10
+
+	// Obtenir une réponse aléatoire du bot
+	botChoices = botChoices.flatMap(choice => Array(choice.rate).fill(choice)) // faire un vrai tableau à partir des probabilités
+	var botAnswer = rando(botChoices)
+	botAnswer = botAnswer.value.name
+
+	// Déterminer si le joueur a gagné, ou perdu
+	var winner = ''
+	if(playerChoice == 'pierre' && botAnswer == 'feuille') winner = 'bot'
+	if(playerChoice == 'feuille' && botAnswer == 'ciseau') winner = 'bot'
+	if(playerChoice == 'ciseau' && botAnswer == 'pierre') winner = 'bot'
+	if(playerChoice == 'pierre' && botAnswer == 'ciseau') winner = 'player'
+	if(playerChoice == 'feuille' && botAnswer == 'pierre') winner = 'player'
+	if(playerChoice == 'ciseau' && botAnswer == 'feuille') winner = 'player'
+	if(playerChoice == 'pierre' && botAnswer == 'pierre') winner = 'draw'
+	if(playerChoice == 'feuille' && botAnswer == 'feuille') winner = 'draw'
+	if(playerChoice == 'ciseau' && botAnswer == 'ciseau') winner = 'draw'
+
+	// Retourner le résultat
+	return { winner, botAnswer }
+}
+
 // Fonction pour réinitialiser les scores
 async function resetScores(){
 	// Obtenir toute la base de données
@@ -60,25 +97,12 @@ module.exports = {
 				if(checkAndReply) return; else await bacheroFunctions.cooldown.set('pfcPlay', interaction.user.id, 1000)
 			}
 
-			// Obtenir une réponse aléatoire du bot
-			var botAnswer = rando(['pierre', 'feuille', 'ciseau'])
-			botAnswer = botAnswer.value
-
-			// Déterminer si le joueur a gagné, ou perdu
-			var winner = ''
-			if(interaction.customId == 'pfc-pierre' && botAnswer == 'feuille') winner = 'bot'
-			if(interaction.customId == 'pfc-feuille' && botAnswer == 'ciseau') winner = 'bot'
-			if(interaction.customId == 'pfc-ciseau' && botAnswer == 'pierre') winner = 'bot'
-			if(interaction.customId == 'pfc-pierre' && botAnswer == 'ciseau') winner = 'player'
-			if(interaction.customId == 'pfc-feuille' && botAnswer == 'pierre') winner = 'player'
-			if(interaction.customId == 'pfc-ciseau' && botAnswer == 'feuille') winner = 'player'
-			if(interaction.customId == 'pfc-pierre' && botAnswer == 'pierre') winner = 'draw'
-			if(interaction.customId == 'pfc-feuille' && botAnswer == 'feuille') winner = 'draw'
-			if(interaction.customId == 'pfc-ciseau' && botAnswer == 'ciseau') winner = 'draw'
-
 			// Obtenir le nombre de victoire/défaite
 			var winCount = (await bacheroFunctions.database.get(database, `winCount-${interaction?.user?.id}`)) || 0
 			var loseCount = (await bacheroFunctions.database.get(database, `loseCount-${interaction?.user?.id}`)) || 0
+
+			// Déterminer le vainqueur
+			var { winner, botAnswer } = determineWinner(interaction.customId, (winCount / (winCount + loseCount)) * 100)
 
 			// Le redéfinir
 			if(winner == 'player'){
