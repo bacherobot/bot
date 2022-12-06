@@ -1,0 +1,40 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.issue",
+
+	// Nom du module
+	"name": "Rapporter des problèmes",	
+
+	// Description du module
+	"shortDescription": "Permet de rapporter des problèmes en rapport avec le robot",
+	"longDescription": "Permet de rapporter des problèmes à l'administrateur de cette instance Bachero, ou au développeur du bot",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"report.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan (Développeur de Bachero)",
+			"discordId": "277825082334773251"
+		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "webhookLink",
+			"type": "string",
+			"default": "",
+			"description": "Lien du webhook utilisé pour envoyer les rapports"
+		}
+	]
+}
