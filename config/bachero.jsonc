@@ -18,6 +18,13 @@
             "description": "Quel est la couleur utilisée dans les embeds envoyer ?"
         },
         {
+            "name": "secondEmbedColor",
+            "type": "string",
+            "default": "#EAB464",
+            "value": "#EAB464",
+            "description": "Couleur secondaire utilisée dans certains embeds"
+        },
+        {
             "name": "databaseType",
             "type": "string",
             "default": "json",
