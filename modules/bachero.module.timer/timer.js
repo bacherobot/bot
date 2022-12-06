@@ -63,7 +63,7 @@ module.exports = {
 				// Vérifier que le minuteur soit écoulé
 				if(new Date(timer?.endDate).getTime() < Date.now()){
 					// On supprime le minuteur
-					bacheroFunctions.database.delete(database, timer.timerId)
+					await bacheroFunctions.database.delete(database, timer.timerId)
 
 					// On déduit que le minuteur est terminé, et on envoie un message au créateur du minuteur
 					try {
@@ -77,7 +77,7 @@ module.exports = {
 							]
 							const embed = new EmbedBuilder()
 							.setTitle('Minuteur terminé')
-							.setDescription(`Ding dong, votre minuteur est terminé !${(new Date(timer.endDate).getTime() + 5000) < Date.now() ? `\n*En raison d'un problème avec Bachero, du retard a pu être causé (${Date.now() - (new Date(timer.endDate).getTime()) / 1000} secondes)*` : ''}`)
+							.setDescription(`Ding dong, votre minuteur est terminé !${(new Date(timer.endDate).getTime() + 5000) < Date.now() ? `\n*En raison d'un problème avec Bachero, du retard a pu être causé (${Math.round(Date.now() - (new Date(timer.endDate).getTime()) / 1000)} secondes)*` : ''}`)
 							.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 							.addFields(listFields.filter(field => field != null))
 
@@ -157,7 +157,7 @@ module.exports = {
 			var reason = interaction.options.getString('reason')
 
 			// Convertir la durée en millisecondes
-			userDuration = `${duration} ${type.replace('sec', 'secondes').replace('ms', 'millisecondes').replace('min', 'minutes').replace('hour', 'heures')}`
+			userDuration = `${duration} ${type.replace('sec', 'secondes').replace('ms', 'millisecondes').replace('min', 'minutes').replace('hour', 'heures').replace('day', 'jours')}`
 			if(type == 'sec') duration = duration * 1000
 			if(type == 'min') duration = duration * 1000 * 60
 			if(type == 'hour') duration = duration * 1000 * 60 * 60
