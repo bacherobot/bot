@@ -36,25 +36,25 @@
 	"config": [
 		{
 			"name": "sayWithoutPermissions",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Active la commande /SAY même sans avoir la permission de gérer les messages, peut être utilisé pour mentionner sans avoir la permission."
 		},
 		{
 			"name": "embedWithoutPermissions",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Active la commande /EMBED même sans avoir la permission de gérer les messages, peut être utilisé pour mentionner sans avoir la permission."
 		},
 		{
 			"name": "sayShowAuthor",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Affiche l'auteur des messages envoyés via la commande /SAY"
 		},
 		{
 			"name": "embedShowAuthor",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Affiche l'auteur des messages envoyés via la commande /EMBED"
 		}

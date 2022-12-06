@@ -32,13 +32,13 @@
 	"config": [
 		{
 			"name": "showPingFromDatabase",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "La commande devrait afficher le ping de la base de données ?"
 		},
 		{
 			"name": "monitoredByElwatch",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Es-ce que Bachero est sous la surveillance d'ElWatch (https://elwatch.fr) ?"
 		}

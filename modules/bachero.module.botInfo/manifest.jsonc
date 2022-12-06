@@ -32,37 +32,37 @@
 	"config": [
 		{
 			"name": "hideStartTime",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Masque l'élément 'Dernier démarrage' de la liste"
 		},
 		{
 			"name": "hideDiscordStats",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Masque l'élément 'Statistiques Discord' de la liste"
 		},
 		{
 			"name": "hideBacheroStats",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Masque l'élément 'Statistiques Bachero' de la liste"
 		},
 		{
 			"name": "hideRam",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Masque l'élément 'RAM' de la liste"
 		},
 		{
 			"name": "hideVersions",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Masque l'élément 'Versions' de la liste"
 		},
 		{
 			"name": "hideSystem",
-			"type": "boolean", // boolean, string, number, array, object, null
+			"type": "boolean",
 			"default": false,
 			"description": "Masque l'élément 'Système' de la liste"
 		}

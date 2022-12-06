@@ -32,7 +32,7 @@
 	"config": [
 		{
 			"name": "secretPassword",
-			"type": "string", // boolean, string, number, array, object, null
+			"type": "string",
 			"default": "password",
 			"description": "Mot de passe permettant d'accéder aux rapports d'erreurs, envoyer 'bachero-send-reports' à Bachero en message privé"
 		}

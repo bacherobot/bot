@@ -32,7 +32,7 @@
 	"config": [
 		{
 			"name": "authorizedIds",
-			"type": "array", // boolean, string, number, array, object, null
+			"type": "array",
 			"default": [],
 			"description": "Empêche tous les utilisateurs (sauf ceux dont l'identifient est dans la liste) d'utiliser la commande. Si la liste est vide, tout le monde pourra l'utiliser."
 		}
