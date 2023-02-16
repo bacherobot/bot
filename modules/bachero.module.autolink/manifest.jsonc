@@ -1,0 +1,34 @@
+{
+	// Désactivé par défaut, par sécurité
+	"enabled": false,
+
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.autolink",
+
+	// Nom du module
+	"name": "AutoLink",
+
+	// Description du module
+	"shortDescription": "Détecte lorsqu'un utilisateur envoie un lien, et affiche des informations sur certains sites lorsque cela peut être utile",
+	"longDescription": "Détecte les messages contenant un lien, récupère des informations à partir de celui-ci et les envoie via un embed détaillé",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"autolink.js",
+		"autolink-config.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251"
+		}
+	]
+}
