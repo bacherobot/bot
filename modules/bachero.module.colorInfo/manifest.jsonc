@@ -6,7 +6,7 @@
 	"name": "Informations sur une couleur",
 
 	// Description du module
-	"shortDescription": "Ce module vous donne des informations sur une couleure",
+	"shortDescription": "Ce module vous donne des informations sur une couleur",
 	"longDescription": "Ce module récupère et vous affiche des informations sur une couleur",
 
 	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
@@ -23,7 +23,7 @@
 	// Liste du/des auteurs du module
 	"authors": [
 		{
-			"name": "Johan (Développeur de Bachero)",
+			"name": "Johan",
 			"discordId": "277825082334773251"
 		}
 	]
