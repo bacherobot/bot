@@ -6,10 +6,14 @@ const JSONdb = require('simple-json-db')
 const quickmongo = require("quickmongo")
 const LZString = require('lz-string')
 const nanoid = require('nanoid')
+const { EventEmitter2 } = require('eventemitter2');
 const { EmbedBuilder } = require('discord.js')
 
 // Variable pour savoir si la base de données doit être compressé ou non
 var compressDatabase
+
+// Listener pour partager des messages entre modules
+var listener = new EventEmitter2({ wildcard: true })
 
 // Liste des cooldowns
 var cooldowns = new Map()
@@ -430,6 +434,12 @@ module.exports = {
 		create: report_create,
 		createAndReply: report_createAndReply,
 		get: report_get,
+	},
+	message: {
+		listener: listener,
+		send: function(identifier, content){
+			return listener.emit(identifier, content)
+		}
 	},
 	parseUserFromString: parseUserFromString,
 }
