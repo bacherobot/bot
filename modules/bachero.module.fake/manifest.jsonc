@@ -1,0 +1,31 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.fake",
+
+	// Nom du module
+	"name": "Usurpation par messages",
+
+	// Description du module
+	"shortDescription": "Envoie un message avec le nom et la photo de profil d'un membre du serveur",
+	"longDescription": "Créer un webhook sur un serveur, et l'utilise pour envoyer un message avec le nom et la photo de profil d'un membre mentionné sur ce serveur",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"fake.js",
+		"fake-config.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251"
+		}
+	]
+}
