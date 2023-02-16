@@ -1,12 +1,13 @@
 {
 	"private": true,
 	"name": "bachero-bot",
-	"version": "0.6.1-beta",
+	"version": "0.7.0-beta",
 	"description": "Bachero est le meilleur bot multifonction, modulaire et open-source de Discord",
 	"main": "index.js",
 	"scripts": {
 		"start": "node index.js",
-		"dev": "nodemon index.js"
+		"dev": "nodemon index.js",
+		"dev-optimize": "nodemon index.js --optimize"
 	},
 	"author": "JohanStickman",
 	"license": "MIT",
@@ -23,6 +24,8 @@
 		"diff": "^5.1.0",
 		"discord.js": "14.2.0",
 		"dotenv": "^10.0.0",
+		"eventemitter2": "^6.4.9",
+		"genius-lyrics": "^4.4.3",
 		"jsonc": "^2.0.0",
 		"lz-string": "^1.4.4",
 		"nanoid": "2.1.11",
