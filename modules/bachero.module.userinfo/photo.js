@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js')
-const bacheroFunctions = require('../../functions')
+const { config } = require('../../functions')
 
 // Exporter certaines fonctions
 module.exports = {
@@ -25,18 +25,21 @@ module.exports = {
 		var userId = (await interaction.options.getUser('user'))?.id || interaction.user.id
 
 		// Obtenir l'utilisateur
-		var user = await interaction.client.users.fetch(userId)
+		var user = await interaction.client.users.fetch(userId, { force: true }) // forcer le fetch pour avoir la bannière
 		var avatar = user.displayAvatarURL({ dynamic: true, size: 512 })
 		avatar = avatar.replace('.webp?size', '.png?size') // le "?size" sert juste à éviter de remplacer le ".webp" au mauvaise endroit, par mesure de prudence
+
+		// Si on a pas de bannière, on essaye de l'obtenir
+		if(user.banner) user.banner = await user.bannerURL({ dynamic: true, size: 512 })
 
 		// Créé un embed contenant la photo de profil
 		var embed = new EmbedBuilder()
 		.setTitle(`${user?.username}#${user?.discriminator}`)
-		.setDescription(`[Lien direct vers la photo de profil](${avatar})${user.banner ? `\n[Lien direct vers la bannière](https://cdn.discordapp.com/banners/${userId}/${user.banner}?size=512)` : ''}`)
-		.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
+		.setDescription(`[Lien direct vers la photo de profil](${avatar})${user.banner ? `\n[Lien direct vers la bannière](${user.banner})` : ''}`)
+		.setColor(config.getValue('bachero', 'embedColor'))
 		.setFooter({ text: `${!user.avatar ? "Affichage d'un avatar par défaut • " : ""}Identifiant : ${userId}` })
-		embed.setThumbnail(avatar)
-		if(user.banner) embed.setImage(`https://cdn.discordapp.com/banners/${userId}/${user.banner}?size=512`)
+		if(user.banner) embed.setThumbnail(avatar); else embed.setImage(avatar)
+		if(user.banner) embed.setImage(user.banner)
 
 		// Envoyer l'embed
 		await interaction.editReply({ embeds: [embed] })
