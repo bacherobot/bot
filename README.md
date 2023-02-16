@@ -32,7 +32,7 @@ Ces modules peuvent être créés par n'importe qui ayant quelques connaissances
 
 * [Ajouter à son serveur](https://discord.com/api/oauth2/authorize?client_id=1004446432863981671&permissions=8&scope=bot%20applications.commands)  
 * [Blog](https://bachero.johanstick.me/blog)  
-* [Documentation](https://bachero.johanstick.me)  
+* [Documentation](https://bachero.johanstick.me/docs/intro)  
   * [Héberger soi-même](https://bachero.johanstick.me/docs/intro#h%C3%A9berger-soi-m%C3%AAme)  
   * [Modules préinstallés](https://bachero.johanstick.me/docs/preinstalled)  
   * [Contribution](https://bachero.johanstick.me/docs/contribute)  
