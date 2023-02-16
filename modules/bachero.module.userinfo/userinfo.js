@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js')
-const bacheroFunctions = require('../../functions')
-const alwaysShowMinimal = bacheroFunctions.config.getValue('bachero.module.userinfo', 'alwaysShowMinimal')
-const disableBadges = bacheroFunctions.config.getValue('bachero.module.userinfo', 'disableBadges')
-const fetchPronouns = bacheroFunctions.config.getValue('bachero.module.userinfo', 'fetchPronouns')
+const { config, report } = require('../../functions')
+const alwaysShowMinimal = config.getValue('bachero.module.userinfo', 'alwaysShowMinimal')
+const disableBadges = config.getValue('bachero.module.userinfo', 'disableBadges')
+const fetchPronouns = config.getValue('bachero.module.userinfo', 'fetchPronouns')
 const fetch = require('node-fetch')
 
 // Créé la commande slash
@@ -43,7 +43,7 @@ module.exports = {
 		else var userInfo = await interaction.options.getUser('user') || interaction.user
 
 		// Si on a une erreur
-		if(userInfo.error) return await bacheroFunctions.report.createAndReply("requête vers l'API de Discord WhoIs", userInfo?.message?.toString() || userInfo, {}, interaction)
+		if(userInfo.error) return await report.createAndReply("requête vers l'API de Discord WhoIs", userInfo?.message?.toString() || userInfo, {}, interaction)
 
 		// Utiliser les informations fournis par WhoIs
 		userInfo = userInfo?.advancedInfo || userInfo
@@ -167,7 +167,7 @@ module.exports = {
 		// Créé un embed contenant toute les informations
 		var embed = new EmbedBuilder()
 		.setTitle(`${userInfo?.username}#${userInfo?.discriminator}${pronouns?.length ? ` *(${pronouns})*` : ''}`)
-		.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
+		.setColor(config.getValue('bachero', 'embedColor'))
 		if(!showMinimal) embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ', ElWatch' : ''}${pronouns?.length ? ', PronounDB' : ''}` })
 		if(userInfo.avatar_url) embed.setThumbnail(userInfo.avatar_url)
 		if(userInfo.banner_url) embed.setImage(userInfo.banner_url)
@@ -205,7 +205,7 @@ module.exports = {
 				// Si on a une erreur
 				if(usernameHistory.error){
 					if(usernameHistory.message == "L'historique de pseudo est vide") return i.update({ content: usernameHistory.message, embeds: [], components: [] })
-					else return await bacheroFunctions.report.createAndReply("obtention de l'historique de pseudos", usernameHistory?.message?.toString() || usernameHistory, {}, i)
+					else return await report.createAndReply("obtention de l'historique de pseudos", usernameHistory?.message?.toString() || usernameHistory, {}, i)
 				}
 
 				// Utiliser les informations que l'API nous renvoie
@@ -215,7 +215,7 @@ module.exports = {
 				var embed = new EmbedBuilder()
 				embed.setTitle("Historique de pseudos")
 				embed.setDescription(usernameHistory.map(u => `<t:${Math.round(u.date / 1000)}:f> | ${u.username}`).join('\n').slice(0, 3800) + "\n\n> L'historique de pseudos se base sur le moment auquel [Discord WhoIs](https://bachero.johanstick.me/blog/discord-whois) a été utilisé pour obtenir les informations de l'utilisateur.\n\n> À chaque fois qu'un utilisateur obtient les informations d'un autre utilisateur, le pseudo sera modifié dans l'historique.")
-				embed.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
+				embed.setColor(config.getValue('bachero', 'embedColor'))
 				embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ' et ElWatch' : ''}` })
 
 				// Répondre et modifier l'ancienne réponse pour enlever le bouton
