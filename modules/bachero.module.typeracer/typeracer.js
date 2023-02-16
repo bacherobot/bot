@@ -1,12 +1,13 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js')
 const { rando } = require('@nastyox/rando.js')
 const { diffWords } = require('diff')
-const bacheroFunctions = require('../../functions')
+const { config } = require('../../functions')
 const listPhrases = [
 	{ text: `L'Homme est ci, l'Homme est ça, mais quand il commet l'homicide, l'Homme est sale.`, source: `https://genius.com/Lefa-fils-dadam-lyrics` },
 	{ text: `C'est bien beau de tourner des clips sur des yachts ou en hélico, ça c'est l'image, mais vos sons ont toujours besoin de soins médicaux.`, source: `https://genius.com/Lefa-plus-ltime-lyrics` },
 	{ text: `Il y aura du ciment sur mes mains pour bâtir ton avenir. Il y aura du sang sur mes mains si un homme te fait souffrir.`, source: `https://genius.com/Soprano-je-serai-la-lyrics` },
 	{ text: `Je n'ai pas révélé la moitié de ce que j'ai vu, car je savais qu'on ne me croirait pas...`, source: `https://citation-celebre.leparisien.fr/citations/271852` },
+	{ text: `Tu étais formidable, j'étais fort minable\nNous étions formidables`, source: `https://genius.com/Stromae-formidable-lyrics` },
 	{ text: `Cette fois c'était la dernière, tu peux croire que c'est qu'une crise.`, source: `https://genius.com/Stromae-tous-les-memes-lyrics` },
 	{ text: `Simius n'avait pas entendu, mais ses pensées cheminaient dans la même direction. Ils arrivaient aux premiers tombeaux de la nécropole. La porte sud de la ville.`, source: null },
 	{ text: `Pourquoi tu veux me mettre un bébé dans les bras ? J'ai déjà du mal à m'occuper de moi.`, source: `https://genius.com/Orelsan-san-lyrics` },
@@ -37,7 +38,13 @@ const listPhrases = [
 	{ text: `Juste pour voir, viens faire un tour dans nos têtes`, source: `https://genius.com/Spri-noir-juste-pour-voir-lyrics` },
 	{ text: `Si le monsieur dort dehors, c'est qu'il aime le bruit des voitures\nS'il s'amuse à faire le mort, c'est qu'il joue avec les statues`, source: `` },
 	{ text: `Si la voisine crie très fort, c'est qu'elle a pas bien entendu`, source: `https://genius.com/Orelsan-tout-va-bien-lyrics` },
-	{ text: `Et si, un jour, ils ont disparu, c'est qu'ils s'amusaient tellement bien\nQu'ils sont partis loin faire une ronde, tous en treillis, main dans la main`, source: `https://genius.com/Orelsan-tout-va-bien-lyrics` }
+	{ text: `Et si, un jour, ils ont disparu, c'est qu'ils s'amusaient tellement bien\nQu'ils sont partis loin faire une ronde, tous en treillis, main dans la main`, source: `https://genius.com/Orelsan-tout-va-bien-lyrics` },
+	{ text: `On trinque à nos balafres, à nos crochets tous les soirs.`, source: `https://genius.com/Booba-92i-veyron-lyrics` },
+	{ text: `Il me semble que je sombre depuis quelques mois\nTellement sombre que mon ombre est plus claire que moi`, source: `https://genius.com/Nekfeu-energie-sombre-lyrics` },
+	{ text: `Toute cette émotion fait que je sombre depuis quelques mois\nTellement sombre que mon ombre est plus claire que moi`, source: `https://genius.com/Nekfeu-energie-sombre-lyrics` },
+	{ text: `J'te préfère avec une balle dans la tête au moins j't'écouterai plus raconter ta vie`, source: `https://genius.com/Damso-javais-juste-envie-decrire-lyrics` },
+	{ text: `J'suis tellement loin que même les bruits qui courent se sont arrêtés`, source: `https://genius.com/Damso-javais-juste-envie-decrire-lyrics` },
+	{ text: `La voix de la sagesse est muette, elle parle en langage des signes`, source: `https://genius.com/Damso-javais-juste-envie-decrire-lyrics` },
 ]
 
 // Exporter certaines fonctions
@@ -71,7 +78,7 @@ module.exports = {
 		.setTitle("Demande de duel d'écriture")
 		.setDescription(`${opponentMention}, **${interaction.user.tag}** vous défie à un duel d'écriture !\n\nUn texte sera envoyé, le premier à le recopier et l'envoyer dans ce salon deviendra vainqueur !`)
 		.setFooter({ text: "Vous avez 30 secondes pour accepter cette demande" })
-		.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
+		.setColor(config.getValue('bachero', 'embedColor'))
 
 		// Créé des boutons
 		var date = Date.now()
@@ -107,7 +114,7 @@ module.exports = {
 			var phrase = rando(listPhrases).value
 
 			// Envoyer le message
-			await interaction.editReply({ embeds: [embed.setTitle(`${interaction.user.username} VS ${opponent.username}`).setDescription(`> ${phrase.text.replaceAll('\n', '\n> ')}`).setColor(bacheroFunctions.config.getValue('bachero', 'secondEmbedColor'))] }).catch(err => {})
+			await interaction.editReply({ embeds: [embed.setTitle(`${interaction.user.username} VS ${opponent.username}`).setDescription(`> ${phrase.text.replaceAll('\n', '\n> ')}`).setColor(config.getValue('bachero', 'secondEmbedColor'))] }).catch(err => {})
 			var dateStartGame = Date.now()
 
 			// Attendre une réponse
@@ -126,7 +133,7 @@ module.exports = {
 			})
 			collector2.on('end', async (collected, reason) => {
 				// Si le temps est écoulé
-				if(reason == 'time') interaction.editReply({ embeds: [embed.setTitle("Duel d'écriture").setDescription(`La partie vient de se terminer après deux minutes en raison d'une inactivité. Aucun vainqueur n'a pu être désigné.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] }).catch(err => {})
+				if(reason == 'time') interaction.editReply({ embeds: [embed.setTitle("Duel d'écriture").setDescription(`La partie vient de se terminer après deux minutes en raison d'une inactivité. Aucun vainqueur n'a pu être désigné.`).setColor(config.getValue('bachero', 'embedColor'))] }).catch(err => {})
 
 				// Sinon, on calcule la vitesse de chaque joueur
 				else {
@@ -135,8 +142,8 @@ module.exports = {
 					var message2 = collected.filter(m => m.author.id == opponent.id).first()
 
 					// Calculer le temps pris par chaque joueur pour répondre
-					var taken1 = ((message1.createdTimestamp - dateStartGame) / 1000).toFixed(2)
-					var taken2 = ((message2.createdTimestamp - dateStartGame) / 1000).toFixed(2)
+					var taken1 = parseFloat(((message1.createdTimestamp - dateStartGame) / 1000).toFixed(2))
+					var taken2 = parseFloat(((message2.createdTimestamp - dateStartGame) / 1000).toFixed(2))
 
 					// Déterminer le nombre d'erreurs dans le texte
 					var errors1 = diffWords(message1.content.replace(/[^a-zA-Z0-9', çéêèà]/g, ''), phrase.text.replace(/[^a-zA-Z0-9', çéêèà]/g, ''), { ignoreCase: true }).length - 1
@@ -153,7 +160,7 @@ module.exports = {
 					var embed = new EmbedBuilder()
 					.setTitle("Duel d'écriture")
 					.setDescription(`:tada: Victoire de **${winner}** !\n\n• ${message1.author} : ${taken1} secondes, ${errors1} erreur(s)\n• ${message2.author} : ${taken2} secondes, ${errors2} erreur(s).`)
-					.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
+					.setColor(config.getValue('bachero', 'embedColor'))
 					.setFooter({ text: phrase.source ? "Les résultats peuvent différer de la réalité en raison de latence avec Discord" : "Impossible de trouver la source de ce texte" })
 
 					// Créer un bouton
