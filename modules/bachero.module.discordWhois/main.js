@@ -1,4 +1,3 @@
-const bacheroFunctions = require('../../functions')
 const fetch = require('node-fetch')
 var CronJob = require('cron').CronJob
 var botClient
