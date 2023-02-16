@@ -6,7 +6,7 @@ const bacheroFunctions = require('../../functions')
 module.exports = {
 	// Quand le bot est prêt
 	getClient(){
-		if(!bacheroFunctions.config.getValue('bachero.module.issue', 'webhookLink')) return console.log(chalk.yellow("[WARN] ") + `Le lien du webhook entré pour le module "bachero.module.issue" n'a pas été défini. Pour recevoir des signalements de la part des utilisateurs en rapport avec votre instance Bachero, veuillez définir un lien de webhook dans le fichier de configuration. Vous pouvez également supprimer ce module.`)
+		if(!bacheroFunctions.config.getValue('bachero.module.issue', 'webhookLink')) return console.warn(chalk.yellow("[WARN] ") + `Le lien du webhook entré pour le module "bachero.module.issue" n'a pas été défini. Pour recevoir des signalements de la part des utilisateurs en rapport avec votre instance Bachero, veuillez définir un lien de webhook dans le fichier de configuration. Vous pouvez également supprimer ce module.`)
 	},
 
 	// Définir les infos de la commande slash

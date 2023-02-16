@@ -7,7 +7,7 @@ const secretPassword = bacheroFunctions.config.getValue('bachero.module.showRepo
 module.exports = {
 	async getClient(client){
 		// Vérifier le mot de passe définit dans le fichier de configuration
-		if(secretPassword == 'password') console.log(chalk.yellow("[WARN] ") + `Le mot de passe entré pour le module "bachero.module.showReports" n'a pas été changé. Pour plus de sécurité, veuillez le changer dans le fichier de configuration associé au module.`)
+		if(secretPassword == 'password') console.warn(chalk.yellow("[WARN] ") + `Le mot de passe entré pour le module "bachero.module.showReports" n'a pas été changé. Pour plus de sécurité, veuillez le changer dans le fichier de configuration associé au module.`)
 
 		// Quand on reçoit un message
 		client.on('messageCreate', async (message) => {

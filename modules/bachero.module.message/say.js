@@ -36,7 +36,7 @@ module.exports = {
 		if(sayShowAuthor) text = `\`${interaction.user.tag}\`\n${text}`
 
 		// Vérifier sa taille
-		if(text.length > 1999) return interaction.editReply({ content: 'Votre message dépasse la limite de caractère' }).catch(err => {})
+		if(text.length > 1999) return interaction.editReply({ content: 'Votre message dépasse la limite de caractère (2000 caractères)' }).catch(err => {})
 
 		// Obtenir l'attachement
 		var attachment = await interaction.options.getAttachment('attachment')
