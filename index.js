@@ -1,23 +1,40 @@
+// Commencer à mesurer le temps que le bot a pris pour s'allumer
+var performanceStart = performance.now()
+
 // Importer quelques librairies
-const os = require('os')
 const fs = require('fs')
 const path = require('path')
-const chalk = require('chalk')
 const jsonc = require('jsonc')
-const events = require('events')
-const UglifyJS = require("uglify-js")
+const { EventEmitter } = require('events')
 const bacheroFunctions = require('./functions')
 require('dotenv').config()
 
-// Obtenir quelques trucs
-var botName = bacheroFunctions.config.getValue('bachero', 'botName')
+// Obtenir quelques variables en plus
+var optimized = process.argv.includes('--optimize')
+var hideUnimportantLogs = process.argv.includes('--hide-unimportant-logs')
 var botPrefix = bacheroFunctions.config.getValue('bachero', 'prefix')
-var disableTextCommand = bacheroFunctions.config.getValue('bachero', 'disableTextCommand')
-var statsDatabase = bacheroFunctions.database.getDatabase('internalBachero.stats')
+
+// Importer des modules et définir des variables en fonction du mode optimisé
+var chalk
+var UglifyJS
+var statsDatabase
+var botName
+var disableTextCommand
+if(optimized){
+	chalk = { red: (text) => text, yellow: (text) => text, green: (text) => text, blue: (text) => text }
+	botName = "Bachero"
+	disableTextCommand = true
+} else {
+	chalk = require('chalk')
+	UglifyJS = require('uglify-js')
+	botName = bacheroFunctions.config.getValue('bachero', 'botName')
+	statsDatabase = bacheroFunctions.database.getDatabase('internalBachero.stats')
+	disableTextCommand = bacheroFunctions.config.getValue('bachero', 'disableTextCommand')
+}
 
 // Créé quelques listeners
-var interactionListener = new events.EventEmitter();
-var interactionListenerText = new events.EventEmitter()
+var interactionListener = new EventEmitter();
+var interactionListenerText = new EventEmitter()
 
 // Vérifier les cooldown persistants dans la base de données
 async function checkPersistentCooldowns(){
@@ -69,7 +86,7 @@ client.allModulesDetails = new Map()
 client.textCommands = new Map()
 
 // Obtenir la liste des modules et préparer une variable
-var modulesFolder = fs.readdirSync(path.join(__dirname, 'modules'))
+var modulesFolder = process.argv.find(arg => arg.startsWith('--load-modules='))?.split('=')?.[1]?.split(',') || fs.readdirSync(path.join(__dirname, 'modules'))
 var allModules = []
 var allSlashCommands = []
 var allGetClientsFunctions = []
@@ -95,37 +112,40 @@ function loadModules(){
 		// Si le fichier est désactivé, passer au prochain
 		if(manifest?.disabled) continue
 
-		// Vérifier qu'il contient les valeurs nécessaires
-		if(!manifest?.packageName) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier manifest.jsonc ne contient pas la valeur ${chalk.yellow('packageName')}.`)
-		if(!manifest?.name) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier manifest.jsonc ne contient pas la valeur ${chalk.yellow('name')}.`)
-		if(!manifest?.shortDescription) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier manifest.jsonc ne contient pas la valeur ${chalk.yellow('shortDescription')}.`)
-		if(!manifest?.authors) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier manifest.jsonc ne contient pas la valeur ${chalk.yellow('authors')}.`)
-		if(!manifest?.files) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier manifest.jsonc ne contient pas la valeur ${chalk.yellow('files')}.`)
+		// Si on est en mode optimisé, ne pas vérifier les valeurs du manifeste
+		if(!optimized){
+			// Vérifier qu'il contient les valeurs nécessaires
+			if(!manifest?.packageName) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier manifest.jsonc ne contient pas la valeur ${chalk.yellow('packageName')}.`)
+			if(!manifest?.name) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier manifest.jsonc ne contient pas la valeur ${chalk.yellow('name')}.`)
+			if(!manifest?.shortDescription) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier manifest.jsonc ne contient pas la valeur ${chalk.yellow('shortDescription')}.`)
+			if(!manifest?.authors) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier manifest.jsonc ne contient pas la valeur ${chalk.yellow('authors')}.`)
+			if(!manifest?.files) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier manifest.jsonc ne contient pas la valeur ${chalk.yellow('files')}.`)
 
-		// Vérifier que les valeurs nécessaires sont de bon type
-		if(typeof manifest?.packageName != 'string') errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow('packageName')} n'est pas de type ${chalk.yellow('string')}.`)
-		if(typeof manifest?.name != 'string') errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow('name')} n'est pas de type ${chalk.yellow('string')}.`)
-		if(typeof manifest?.shortDescription != 'string') errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow('shortDescription')} n'est pas de type ${chalk.yellow('string')}.`)
-		if(typeof manifest?.authors != 'object') errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow('authors')} n'est pas de type ${chalk.yellow('array')}.`)
-		if(typeof manifest?.files != 'object') errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow('files')} n'est pas de type ${chalk.yellow('array')}.`)
+			// Vérifier que les valeurs nécessaires sont de bon type
+			if(typeof manifest?.packageName != 'string') errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow('packageName')} n'est pas de type ${chalk.yellow('string')}.`)
+			if(typeof manifest?.name != 'string') errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow('name')} n'est pas de type ${chalk.yellow('string')}.`)
+			if(typeof manifest?.shortDescription != 'string') errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow('shortDescription')} n'est pas de type ${chalk.yellow('string')}.`)
+			if(typeof manifest?.authors != 'object') errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow('authors')} n'est pas de type ${chalk.yellow('array')}.`)
+			if(typeof manifest?.files != 'object') errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow('files')} n'est pas de type ${chalk.yellow('array')}.`)
 
-		// Si un module avec le même nom de packet existe déjà
-		if(allModules.find(moduleA => moduleA.packageName == manifest.packageName)) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : un module avec le même nom de packet existe déjà.`)
-		if(allModules.find(moduleA => moduleA.packageName == module)) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : un module avec le même nom de packet existe déjà.`)
+			// Si un module avec le même nom de packet existe déjà
+			if(allModules.find(moduleA => moduleA.packageName == manifest.packageName)) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : un module avec le même nom de packet existe déjà.`)
+			if(allModules.find(moduleA => moduleA.packageName == module)) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : un module avec le même nom de packet existe déjà.`)
 
-		// Vérifier que les librairies nécessaires existent
-		if(manifest?.dependencies) for(var dependencie of manifest.dependencies){
-			if(!moduleExists(dependencie)) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la librairie ${chalk.yellow(dependencie)} n'est pas installée (${chalk.yellow('npm i ' + dependencie)}).`)
-		}
+			// Vérifier que les librairies nécessaires existent
+			if(manifest?.dependencies) for(var dependencie of manifest.dependencies){
+				if(!moduleExists(dependencie)) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : la librairie ${chalk.yellow(dependencie)} n'est pas installée (${chalk.yellow('npm i ' + dependencie)}).`)
+			}
 
-		// Vérifier que les ficheirs existent
-		for(var file of manifest?.files || []){
-			if(!fs.existsSync(path.join(__dirname, 'modules', module, file))) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier ${chalk.yellow(file)} n'existe pas.`)
+			// Vérifier que les fichiers existent
+			for(var file of manifest?.files || []){
+				if(!fs.existsSync(path.join(__dirname, 'modules', module, file))) errors.push(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : le fichier ${chalk.yellow(file)} n'existe pas.`)
+			}
 		}
 
 		// Si il y a des erreurs
 		if(errors.length > 0){
-			console.log(errors.join('\n'))
+			console.error(errors.join('\n'))
 			return process.exit()
 		}
 
@@ -146,7 +166,7 @@ function loadModules(){
 			// Si le fichier n'existe pas, le créer
 			if(!fs.existsSync(path.join(__dirname, 'config', `${module}.jsonc`))){
 				fs.writeFileSync(path.join(__dirname, 'config', `${module}.jsonc`), JSON.stringify(config, null, 4))
-				console.log(chalk.blue("[INFO] ") + `Un fichier de configuration a été créé pour le module ${chalk.yellow(module)}.`)
+				if(!hideUnimportantLogs) console.log(chalk.blue("[INFO] ") + `Un fichier de configuration a été créé pour le module ${chalk.yellow(module)}.`)
 			}
 		}
 
@@ -159,7 +179,7 @@ function loadModules(){
 		for(var fileName of manifest?.files){
 			// Obtenir le fichier
 			var file = require(path.join(__dirname, 'modules', module, fileName))
-			
+
 			// Modifier le fichier pour la compatibilité des text commands
 			if(disableTextCommand != true) var editedfile = require(textCommandCompatibility(path.join(__dirname, 'modules', module, fileName)))
 
@@ -170,7 +190,7 @@ function loadModules(){
 			// Si il y a des commandes slash
 			if(file?.slashInfo && file?.execute){
 				if(allSlashCommands.find(slashCommand => slashCommand.name == file.slashInfo.name)){
-					console.log(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : une commande slash avec le même nom existe déjà.`)
+					console.error(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : une commande slash avec le même nom existe déjà.`)
 					return process.exit()
 				}
 				var slashInfoJSON = file.slashInfo.toJSON()
@@ -184,7 +204,7 @@ function loadModules(){
 			// Si il y a des menus contextuel
 			if(file?.contextInfo && file?.execute){
 				if(thisModuleAllContextsMenu.find(slashCommand => slashCommand.name == file.contextInfo.name)){
-					console.log(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : un menu cotnextuel avec le même nom existe déjà.`)
+					console.error(chalk.red("[ERROR] ") + `Impossible de charger le module ${chalk.yellow(module)} : un menu cotnextuel avec le même nom existe déjà.`)
 					return process.exit()
 				}
 				client.contextsMenus.set(file.contextInfo.toJSON().name, { file: file, whitelistedGuildIds: manifest.whitelistedGuildIds })
@@ -210,7 +230,7 @@ function loadModules(){
 		})
 
 		// Afficher le message une fois démarré
-		console.log(chalk.green("[OK] ") + `Module ${chalk.yellow(manifest.packageName)} chargé${manifest?.onloadMessage ? ` (${manifest?.onloadMessage})` : ''}.`)
+		if(!hideUnimportantLogs) console.log(chalk.green("[OK] ") + `Module ${chalk.yellow(manifest.packageName)} chargé${manifest?.onloadMessage ? ` (${manifest?.onloadMessage})` : ''}.`)
 
 		// Si c'était le dernier module de la liste
 		if(module == modulesFolder[modulesFolder.length - 1]) createCommands()
@@ -220,16 +240,16 @@ function loadModules(){
 // Crée les commandes
 async function createCommands(){
 	try {
-		console.log(chalk.blue("[INFO] ") + 'Actualisation des commandes slashs commencées...')
+		if(!hideUnimportantLogs) console.log(chalk.blue("[INFO] ") + 'Actualisation des commandes slashs commencées...')
 		await rest.put(Routes.applicationCommands(process.env.DISCORD_CLIENT_ID), { body: allSlashCommands })
 		console.log(chalk.blue("[INFO] ") + 'Actualisation des commandes slashs terminées')
 	} catch (error){
-		console.log(chalk.red("[ERROR] ") + "Impossible d'actualiser les commandes slashs.")
-		console.error(error)
+		console.warn(chalk.yellow("[WARN] ") + "Impossible d'actualiser les commandes slashs.")
+		console.warn(error)
 	}
 
 	// Une fois que tout ça est fait, on vérifie les mises à jour
-	checkUpdates()
+	if(!optimized) checkUpdates()
 }
 
 // Vérifier les mises à jour
@@ -253,8 +273,8 @@ async function checkUpdates(){
 	try {
 		latestPackageJson = JSON.parse(latestPackageJson)
 	} catch (e){
-		console.log(chalk.yellow("[WARN] (MAJ) ") + "Vérifications des mises à jours annulées, impossible d'obtenir le package.json de la dernière version :")
-		console.error(e)
+		console.warn(chalk.yellow("[WARN] (MAJ) ") + "Vérifications des mises à jours annulées, impossible d'obtenir le package.json de la dernière version :")
+		console.warn(e)
 		latestPackageJson = {}
 	}
 
@@ -286,7 +306,7 @@ client.on('interactionCreate', async interaction => {
 
 		// Si aucune résultat
 		if(!contextMenu){
-			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui n'existe pas.`)
+			console.warn(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui n'existe pas.`)
 			return await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Menu contextuel inexistant").setDescription(`Ce menu contextuel est introuvable dans ${botName}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false })
 		}
 
@@ -300,8 +320,8 @@ client.on('interactionCreate', async interaction => {
 			interaction.sourceType = 'contextMenu'
 			await contextMenu.file.execute(interaction)
 		} catch (error){
-			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`)
-			console.log(error)
+			console.warn(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`)
+			console.warn(error)
 			try {
 				interaction.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution du menu contextuel :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false }).catch(err => {})
 			} catch (error){
@@ -317,7 +337,7 @@ client.on('interactionCreate', async interaction => {
 
 		// Si aucune commande trouvé
 		if(!command){
-			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui n'existe pas.`)
+			console.warn(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui n'existe pas.`)
 			return await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Commande inexistante").setDescription(`Cette commande est introuvable dans ${botName}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false })
 		}
 
@@ -331,8 +351,8 @@ client.on('interactionCreate', async interaction => {
 			interaction.sourceType = 'slashCommand'
 			await command.file.execute(interaction)
 		} catch (error){
-			console.log(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`)
-			console.log(error)
+			console.warn(chalk.yellow("[WARN] ") + `${interaction.user.tag} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`)
+			console.warn(error)
 			try {
 				interaction.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false }).catch(err => {})
 			} catch (error){
@@ -345,7 +365,7 @@ client.on('interactionCreate', async interaction => {
 // Quand le bot reçoit un message
 client.on('messageCreate', async message => {
 	// Répondre à ElWatch
-	if(message.content === "Hello from ElWatch!" && message.author.bot && message.author.id === "898255769827430460") return message.reply("coucou bg :eye:")
+	if(message.content === "Hello from ElWatch!" && message.author.bot && message.author.id === "898255769827430460") return message.reply(":eye:")
 
 	// Si on a désactivé les commandes par message, ignorer la suite du code
 	if(disableTextCommand) return
@@ -357,9 +377,8 @@ client.on('messageCreate', async message => {
 	if(!message.content.startsWith(botPrefix)) return
 
 	// Obtenir le nom de la commande
-	var args = message.content?.split(botPrefix)?.[1]?.trim()?.split(' ')
-	var commandName = args?.[0]?.toLowerCase() // on peut pas faire de commande slash avec majuscules
-	delete args // on a plus besoin de ça finalement
+	var cmdargs = message.content?.split(botPrefix)?.[1]?.trim()?.split(' ')
+	var commandName = cmdargs?.[0]?.toLowerCase() // on peut pas faire de commande slash avec majuscules
 
 	// Vérifier si la commande existe sous forme de commande slash
 	var command = client.textCommands.get(commandName)
@@ -495,13 +514,13 @@ client.on('messageCreate', async message => {
 			// Obtenir l'identifiant
 			var id = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '')
 			id = id.replace(/[^0-9]/g, '')
-			
+
 			// Obtenir l'utilisateur
 			var user
 			try {
 				user = client.users.fetch(id).catch(err => {})
 			} catch (error){}
-			
+
 			// Et le retourner
 			return user?.user || user
 		} else return null
@@ -512,7 +531,7 @@ client.on('messageCreate', async message => {
 			// Obtenir l'identifiant
 			var id = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '')
 			id = id.replace(/[^0-9]/g, '')
-			
+
 			// Obtenir le membre
 			var member
 			try {
@@ -546,7 +565,7 @@ client.on('messageCreate', async message => {
 			// Obtenir l'identifiant
 			var id = argument.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('&', '').replace('#', '').replace(' ', '')
 			id = id.replace(/[^0-9]/g, '')
-			
+
 			// Obtenir le rôle
 			var role
 			try {
@@ -611,7 +630,7 @@ client.on('messageCreate', async message => {
 		// Vérifier les permissions si on est pas en dm
 		if(message.channel.type != 1 && message.channel.type != 3 && !message?.guild?.members?.cache?.get(message.user.id)?.permissions?.has(permissions)){
 			var array = permissions.toArray()
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Permissions insuffisantes").setDescription(`Vous n'avez pas ${array.length > 1 ? 'les' : 'la'} permission${array.length > 1 ? 's' : ''} nécessaire${array.length > 1 ? 's' : ''} pour exécuter cette commande. Vous devez avoir ${array.length > 1 ? 'les' : 'la'} permission${array.length > 1 ? 's' : ''} suivante${array.length > 1 ? 's' : ''} : \`${array.join(', ')}\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Permissions insuffisantes").setDescription(`Vous n'avez pas ${array.length > 1 ? 'les' : 'la'} permission${array.length > 1 ? 's' : ''} nécessaire${array.length > 1 ? 's' : ''} pour exécuter cette commande. Vous devez avoir ${array.length > 1 ? 'les' : 'la'} permission${array.length > 1 ? 's' : ''} suivante${array.length > 1 ? 's' : ''} : \`${array.join('; ')}\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
 	}
 
@@ -642,7 +661,7 @@ client.on('messageCreate', async message => {
 		// Si l'options est requise, vérifier qu'on l'a bien entrer
 		if(option.required && !getArg(option.name)){
 			needToStopExecution = true
-			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument manquant").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` n'est pas spécifié dans la commande que vous venez d'exécuter. Veuillez utiliser la commande de cette façon : \`${botPrefix} ${commandName}${message?.options?.getSubcommand()?.length ? ' ' + message.options.getSubcommand() : ''} ${options.filter(op => op.required).map(op => `${op.name}:<un contenu>`).join(', ')}\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+			return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument manquant").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` n'est pas spécifié dans la commande que vous venez d'exécuter. Veuillez utiliser la commande de cette façon : \`${botPrefix} ${commandName}${message?.options?.getSubcommand()?.length ? ' ' + message.options.getSubcommand() : ''} ${options.filter(op => op.required).map(op => `${op.name}:<un contenu>`).join('; ')}\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 		}
 
 		// Si l'option n'est pas du bon type
@@ -714,7 +733,7 @@ client.on('messageCreate', async message => {
 			// Si la valeur n'est pas dans les choix, envoyer une erreur
 			if(!option?.choices?.find(c => c?.value?.toLowerCase() == message.options.getString(option?.name)?.toLowerCase())){
 				needToStopExecution = true
-				return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` doit faire parti de la liste suivante : ${option.choices.map(c => c.name).join(', ')}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
+				return message.reply({ embeds: [new EmbedBuilder().setTitle("Argument invalide").setDescription(`L'argument \`${option.name.replace(/`/g, '')}\` doit faire parti de la liste suivante : ${option.choices.map(c => c.name).join('; ')}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))] })
 			}
 		}
 	})
@@ -724,8 +743,8 @@ client.on('messageCreate', async message => {
 	try {
 		await command.file.execute(message)
 	} catch (error){
-		console.log(chalk.yellow("[WARN] ") + `${message.user.tag} a exécuté la commande texte ${chalk.yellow(`${commandName}${message?.options?.getSubcommand()?.length ? ' ' + message.options.getSubcommand() : ''}`)} qui a fini en une erreur :`)
-		console.log(error)
+		console.warn(chalk.yellow("[WARN] ") + `${message.user.tag} a exécuté la commande texte ${chalk.yellow(`${commandName}${message?.options?.getSubcommand()?.length ? ' ' + message.options.getSubcommand() : ''}`)} qui a fini en une erreur :`)
+		console.warn(error)
 		try {
 			messageResponse = message.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] }).catch(err => {})
 		} catch (error){
@@ -751,8 +770,8 @@ function textCommandCompatibility(fileName){
 	fs.mkdirSync(path.join(__dirname, 'TEMP_bachero_textcommandcompatibility', `${path.join(fileName.replace(path.join(__dirname, 'modules'), ''), '..')}`), { recursive: true })
 
 	// Minifier le code et l'enregistrer
-	var compressedJS = UglifyJS.minify(file)
-	fs.writeFileSync(path.join(__dirname, 'TEMP_bachero_textcommandcompatibility', `${fileName.replace(path.join(__dirname, 'modules'), '')}`), compressedJS.code || file)
+	if(UglifyJS) var compressedJS = UglifyJS.minify(file)
+	fs.writeFileSync(path.join(__dirname, 'TEMP_bachero_textcommandcompatibility', `${fileName.replace(path.join(__dirname, 'modules'), '')}`), compressedJS?.code || file)
 
 	// Retourner le chemin du fichier
 	return path.join(__dirname, 'TEMP_bachero_textcommandcompatibility', `${fileName.replace(path.join(__dirname, 'modules'), '')}`)
@@ -761,7 +780,9 @@ function textCommandCompatibility(fileName){
 // Une fois connecté à Discord
 client.on('ready', () => {
 	// Afficher un message dans la console
-	console.log(chalk.blue("[INFO] ") + `Connecté à Discord en tant que ${chalk.yellow(client.user.tag)}`)
+	var performanceStop = performance.now()
+	var inSeconds = (performanceStop - performanceStart) / 1000
+	console.log(chalk.blue("[INFO] ") + `Connecté à Discord en tant que ${chalk.yellow(client.user.tag)} après ${chalk.yellow(Number(inSeconds).toFixed(3))} secondes`)
 
 	// Définir le bot dans la fonction
 	bacheroFunctions.botClient._set(client)
@@ -769,13 +790,7 @@ client.on('ready', () => {
 	// Changer le statut
 	var botActivityContent = bacheroFunctions.config.getValue('bachero', 'botActivityContent')
 	var botActivityType = bacheroFunctions.config.getValue('bachero', 'botActivityType')
-	botActivityType = {
-		'playing': ActivityType.Playing,
-		'streaming': ActivityType.Streaming,
-		'watching': ActivityType.Watching,
-		'listening': ActivityType.Listening,
-		'competing': ActivityType.Competing
-	}[botActivityType?.toLowerCase() || 'playing']
+	botActivityType = { 'playing': ActivityType.Playing, 'streaming': ActivityType.Streaming, 'watching': ActivityType.Watching, 'listening': ActivityType.Listening, 'competing': ActivityType.Competing }[botActivityType?.toLowerCase() || 'playing']
 	if(botActivityContent?.length) client.user.setPresence({ activities: [{ name: botActivityContent, type: botActivityType }], status: (bacheroFunctions.config.getValue('bachero', 'botStatus') || 'online') })
 
 	// Donner le client aux modules via la fonction exporté
