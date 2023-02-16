@@ -50,7 +50,7 @@ async function resetScores(){
 	// Obtenir toute la base de données
 	var databaseJSON = await bacheroFunctions.database.getAll(database)	
 
-	// Si la dernière fois qu'on a réinisialisé les scores n'était pas il y a plus de 6 jours et 20 heures, ne rien faire
+	// Si la dernière fois qu'on a réinitialisé les scores n'était pas il y a plus de 6 jours et 20 heures, ne rien faire
 	var lastReset = databaseJSON.lastReset
 	if(lastReset && lastReset > Date.now() - (6 * 24 * 60 * 60 * 1000 + 20 * 60 * 60 * 1000)) return; else databaseJSON.lastReset = Date.now()
 
@@ -64,7 +64,7 @@ async function resetScores(){
 	bacheroFunctions.database.set(database, 'lastReset', Date.now())
 }
 if(disableAutoResetLeaderboard != true){
-	// Tout les jours à sept heures, tenter de réinisialiser les scores
+	// Tous les jours à sept heures, tenter de réinitialiser les scores
 	new CronJob('0 7 * * *', async function(){
 		resetScores()
 	})
