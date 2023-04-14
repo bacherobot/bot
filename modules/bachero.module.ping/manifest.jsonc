@@ -6,8 +6,8 @@
 	"name": "Ping",
 
 	// Description du module
-	"shortDescription": "Ce module rajoute une commande ping",
-	"longDescription": "Ce module rajoute une commande affichant le temps de latence entre Bachero et Discord une fois executé",
+	"shortDescription": "Ce module rajoute une commande ping, pour obtenir le temps de latence du bot",
+	"longDescription": "Ce module rajoute une commande affichant le temps de latence entre Bachero et Discord une fois exécuté",
 
 	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
 	"onloadMessage": "",

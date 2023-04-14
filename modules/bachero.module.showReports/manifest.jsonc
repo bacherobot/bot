@@ -7,7 +7,7 @@
 
 	// Description du module
 	"shortDescription": "Permet à l'hébergeur de Bachero d'obtenir des informations sur un rapport d'erreur",
-	"longDescription": "Ce module permet à la personne hébergant Bachero d'afficher des rapports d'erreurs via une commande secrète",
+	"longDescription": "Ce module permet à la personne hébergeant Bachero d'afficher des rapports d'erreurs via une commande secrète",
 
 	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
 	"onloadMessage": "",
