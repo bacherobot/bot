@@ -1,0 +1,30 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.textCommand",
+
+	// Nom du module
+	"name": "Commande texte",
+
+	// Description du module
+	"shortDescription": "Permet d'activer ou désactiver l'utilisation des commandes textes sur votre serveur",
+	"longDescription": "Ce module permet de configurer si l'utilisation de commande texte est activée ou non sur un serveur, en modifiant le contenu d'une base de donnée interne",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"slashtotext.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251"
+		}
+	]
+}
