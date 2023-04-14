@@ -1,6 +1,6 @@
 {
 	// Désactivé par défaut, par sécurité
-	"enabled": false,
+	"disabled": true,
 
 	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
 	"packageName": "bachero.module.autolink",
