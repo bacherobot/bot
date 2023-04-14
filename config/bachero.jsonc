@@ -86,6 +86,20 @@
             "default": false,
             "value": false,
             "description": "Empêche la création de rapports d'erreurs par les modules"
+        },
+        {
+            "name": "outputLogsInFile",
+            "type": "boolean",
+            "default": true,
+            "value": true,
+            "description": "Enregistre les logs dans un fichier sur le disque, non recommandé sur les serveurs avec stockage non persistant"
+        },
+        {
+            "name": "logBlockedIds",
+            "type": "array",
+            "default": [],
+            "value": [],
+            "description": "Masque l'affichage dans les logs de certains messages, à partir de leurs identifiants (une liste partielle est disponible dans la documentation)"
         }
     ]
 }
