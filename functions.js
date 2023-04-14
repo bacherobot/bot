@@ -8,6 +8,8 @@ const LZString = require('lz-string')
 const nanoid = require('nanoid')
 const { EventEmitter2 } = require('eventemitter2');
 const { EmbedBuilder } = require('discord.js')
+var chalk;
+if(!process.argv.includes('--optimize')) chalk = require('chalk')
 
 // Variable pour savoir si la base de données doit être compressé ou non
 var compressDatabase
@@ -203,6 +205,32 @@ async function parseUserFromString(string, returnType){
 	else return await botClient.users.fetch(returnValueId)
 }
 
+// Fonction pour afficher quelque chose dans la console
+var outputLogsInFile
+var showedLog = false
+function showLog(type, content, id="noid", showInConsole=true, hideDetails=false){
+	// Si l'identifiant est bloqué
+	if(config_getValue('bachero', 'logBlockedIds').includes(id)) return false;
+
+	// Type à afficher
+	if(chalk) coloredType = chalk[type == 'ok' ? 'green' : type == 'info' ? 'blue' : type == 'error' ? 'red' : type == 'warn' ? 'yellow' : 'reset']; else coloredType = type => type
+	var type = type ? `[${type.toUpperCase()}]` : ''
+
+	// Si on doit afficher dans la console, on le fait
+	if(showInConsole) console[type == 'error' ? 'error' : type == 'warn' ? 'warn' : 'log'](hideDetails ? '' : `${new Date().toLocaleTimeString()} ${coloredType(type)}`, content)
+
+	// L'ajouter à un fichier de log si on doit le faire
+	if(outputLogsInFile == undefined) outputLogsInFile = config_getValue('bachero', 'outputLogsInFile')
+	if(outputLogsInFile){
+		if(!fs.existsSync(path.join(__dirname, 'logs'))) fs.mkdirSync(path.join(__dirname, 'logs'))
+		fs.appendFileSync(path.join(__dirname, 'logs', `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================\ Début des logs ================================\n" : ''}${hideDetails ? '' : `[${new Date().toLocaleTimeString()}] ${type}   `}${typeof content == 'object' ? JSON.stringify(content) : content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '')}\n`)
+	}
+
+	// Retourner true
+	if(!showedLog) showedLog = true
+	return true
+}
+
 // Fonction pour définir un cooldown à un utilisateur
 async function setCooldown(cooldownId, userId, cooldownTime){
 	// Si la durée est supérieure à 100000 (100 secondes)
@@ -320,7 +348,7 @@ async function report_get(id){
 	try {
 		if(config_getValue('bachero', 'databaseType') == 'mongodb'){
 			var db = getDatabase('internalBachero.reports')
-			var report = await database_get(db, randomid)
+			var report = await database_get(db, id)
 		} else {
 			if(!fs.existsSync(path.join(__dirname, 'reports'))) fs.mkdirSync(path.join(__dirname, 'reports'))
 			var report = fs.readFileSync(path.join(__dirname, 'reports', `${id}.txt`)).toString()
@@ -441,5 +469,6 @@ module.exports = {
 			return listener.emit(identifier, content)
 		}
 	},
+	showLog: showLog,
 	parseUserFromString: parseUserFromString,
 }
