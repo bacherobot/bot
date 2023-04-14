@@ -69,7 +69,7 @@ module.exports = {
 
 		// Créer un embed pour afficher les informations
 		var embed = new EmbedBuilder()
-		.setTitle(`Informations sur Bachero`) // voulu que ça utilise pas le nom du bot, histoire de créditer un peu
+		.setTitle(`Informations sur ${bacheroFunctions.config.getValue('bachero', 'botName')}${bacheroFunctions.config.getValue('bachero', 'botName').trim().toLowerCase() == 'bachero' ? '' : ' *(par Bachero)*'}`)
 		.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 		var listFields = [
 			!hideStartTime ? { name: 'Dernier démarrage', value: `<t:${Math.round(botClient.readyTimestamp / 1000)}:f>`, inline: true } : null,
