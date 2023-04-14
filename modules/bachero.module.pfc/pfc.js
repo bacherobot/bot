@@ -50,9 +50,9 @@ async function resetScores(){
 	// Obtenir toute la base de données
 	var databaseJSON = await bacheroFunctions.database.getAll(database)	
 
-	// Si la dernière fois qu'on a réinitialisé les scores n'était pas il y a plus de 6 jours et 20 heures, ne rien faire
+	// Si la dernière fois qu'on a réinitialisé les scores n'était pas il y a plus de 30 jours et 20 heures, ne rien faire
 	var lastReset = databaseJSON.lastReset
-	if(lastReset && lastReset > Date.now() - (6 * 24 * 60 * 60 * 1000 + 20 * 60 * 60 * 1000)) return; else databaseJSON.lastReset = Date.now()
+	if(lastReset && lastReset > Date.now() - (30 * 24 * 60 * 60 * 1000 + 20 * 60 * 60 * 1000)) return; else databaseJSON.lastReset = Date.now()
 
 	// Réinisialiser les scores de tout le monde
 	for(var key of Object.keys(databaseJSON)){
@@ -168,7 +168,7 @@ module.exports = {
 				.setTitle('Classement')
 				.setDescription(`Impossible d'obtenir le classement puisque personne n'y a encore participé. ${databaseJSON.lastReset ? `Le classement a été réinitialisé pour la dernière fois le <t:${Math.round(databaseJSON.lastReset/1000)}:f>` : ''}`)
 				.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
-				return interaction.reply({ embeds: [embed] })
+				return interaction.reply({ embeds: [embed] }).catch(err => {})
 			}
 
 			// Trier pour que les utilisateurs avec le pourcentage le plus élevé soit au début
