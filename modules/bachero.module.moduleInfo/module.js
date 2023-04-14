@@ -21,7 +21,7 @@ module.exports = {
 	// Code a executer quand la commande est appelée
 	async execute(interaction){
 		// Vérifier que la personne est autorisé
-		if(authorizedIds?.length && !authorizedIds?.includes(interaction.user.id)) return interaction.reply({ ephemeral: true, content: "Oupsi, tu n'as pas le droit d'utiliser cette commande..." })
+		if(authorizedIds?.length && !authorizedIds?.includes(interaction.user.id)) return interaction.reply({ ephemeral: true, content: "Oupsi, tu n'as pas le droit d'utiliser cette commande..." }).catch(err => {})
 
 		// Si on a pas encore la liste des modules, le définir
 		if(!allModulesDetails) allModulesDetails = bacheroFunctions.modules.allModulesDetails()

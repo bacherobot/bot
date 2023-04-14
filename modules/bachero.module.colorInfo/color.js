@@ -201,6 +201,6 @@ module.exports = {
 		)
 
 		// Envoyer l'embed
-		interaction.reply({ embeds: [embed], components: [row] })
+		interaction.reply({ embeds: [embed], components: [row] }).catch(err => {})
 	}
 }

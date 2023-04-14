@@ -22,7 +22,7 @@ module.exports = {
 		var first = await interaction.channel.messages.fetch({
 			after: 1,
 			limit: 1,
-		})
+		}).catch(err => {})
 		var first = first.first()
 
 		// Créer un embed

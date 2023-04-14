@@ -16,7 +16,7 @@ module.exports = {
 		listener.on('button', async (interaction) => {
 			// Vérifier l'identifiant du bouton, puis defer l'interaction
 			if(interaction.customId != 'fakeConfig-disableForAll' && interaction.customId != 'fakeConfig-enableForAll') return
-			if(interaction.user.id != interaction?.message?.interaction?.user?.id && interaction.user.id != interaction?.message?.mentions?.repliedUser?.id) return interaction.reply({ content: "Il semblerait que tu ne sois pas la personne que j'attendais...", ephemeral: true })
+			if(interaction.user.id != interaction?.message?.interaction?.user?.id && interaction.user.id != interaction?.message?.mentions?.repliedUser?.id) return interaction.reply({ content: "Il semblerait que tu ne sois pas la personne que j'attendais...", ephemeral: true }).catch(err => {})
 			await interaction.deferReply().catch(err => {})
 
 			// Modifier la valeur dans la base de données

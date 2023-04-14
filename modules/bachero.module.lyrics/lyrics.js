@@ -19,12 +19,12 @@ module.exports = {
 
 		// Obtenir le terme de recherche, et en faire une recherche
 		var searchResult = await GeniusClient.songs.search(interaction.options.getString('search'))
-		if(!searchResult?.length) return interaction.editReply({ content: "Aucun résultat n'a pu être trouvé pour ce terme de résultat." })
+		if(!searchResult?.length) return interaction.editReply({ content: "Aucun résultat n'a pu être trouvé pour ce terme de résultat." }).catch(err => {})
 		searchResult = searchResult[0]
 
 		// Obtenir les paroles
 		var lyrics = await searchResult.lyrics()
-		if(!lyrics) return interaction.editReply({ content: "Aucune paroles n'a pu être trouvé pour ce terme de résultat." })
+		if(!lyrics) return interaction.editReply({ content: "Aucune paroles n'a pu être trouvé pour ce terme de résultat." }).catch(err => {})
 
 		// Créer l'embed
 		var embed = new EmbedBuilder()

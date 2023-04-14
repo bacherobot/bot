@@ -42,6 +42,6 @@ module.exports = {
 		if(user.banner) embed.setImage(user.banner)
 
 		// Envoyer l'embed
-		await interaction.editReply({ embeds: [embed] })
+		await interaction.editReply({ embeds: [embed] }).catch(err => {})
 	}
 }

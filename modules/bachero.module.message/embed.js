@@ -13,7 +13,7 @@ var slashInfo = new SlashCommandBuilder()
 .setName('embed')
 .setDescription(`Envoie un embed ${embedShowAuthor ? '' : 'anonymement '}sur le serveur en tant que ${botName}`)
 .addStringOption(option => option.setName('source')
-	.setDescription("Préremplit les informations à partir d'une source (identifiant, hastebin, Johan Text)")
+	.setDescription("Préremplit les informations à partir d'une source (identifiant, hastebin, ...)")
 	.setRequired(false))
 if(!embedWithoutPermissions) slashInfo.setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
 
@@ -41,7 +41,7 @@ async function sendToChannel(interaction, embedInfos){
 	if(description) description = description.replace(/\\n/g, '\n').replace(/%JUMP%/g, '\n').replace(/%DATE%/g, `<t:${Math.round(Date.now() / 1000)}:f>`)
 
 	// Faire quelques vérifications
-	if(!title && !description) return interaction.editReply({ content: "Vous devez entrer un titre ou une description lors de la création d'un embed" })
+	if(!title && !description) return interaction.editReply({ content: "Vous devez entrer un titre ou une description lors de la création d'un embed" }).catch(err => {})
 	if((title?.length + description?.length + footer?.length) > 6000) return interaction.editReply({ content: `Un embed ne peut pas dépasser la limite de 6000 caractères (titre, description et footer inclus), cependant votre embed contient un total de ${title.length + description.length + footer.length} caractères.\n${title.length ? '\n**Titre : **' + title.length + ' caractères' : ''}${description.length ? '\n**Description : **' + description.length + ' caractères' : ''}${footer.length ? '\n**Footer : **' + footer.length + ' caractères' : ''}` }).catch(err => {})
 
 	// Déterminer la couleur à utiliser
@@ -139,6 +139,7 @@ module.exports = {
 			source.text = source?.all?.match(/text.johanstick.me\/v\/\d*-\w*/g)?.toString()?.replace('/v/','/raw/')
 
 			// Si on a réussi à obtenir un hastebin, obtenir son contenu
+			// TODO: supporter l'utilisation de clé d'api, qui est forcé depuis quelques jours
 			if(source?.hastebin){
 				// Obtenir le contenu
 				var content = await fetch(`https://hastebin.com/raw/${source.hastebin}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.text()).catch(err => { return { message: err } })

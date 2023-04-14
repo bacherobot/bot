@@ -39,7 +39,7 @@ module.exports = {
 		.setTitle("Suppression des messages")
 		.setDescription(`T'es vraiment sûr de vouloir supprimer **${count == 1 ? "le dernier message" : "les " + count + " derniers messages"}** ?\n\nCette action est irréversible et ${count == 1 ? "le message ira" : "les messages iront"} dans les backrooms, force à ${count == 1 ? "lui" : "eux"}.`)
 		.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
-		interaction.reply({ embeds: [embed], components: [rowConfirm] })
+		interaction.reply({ embeds: [embed], components: [rowConfirm] }).catch(err => {})
 
 		// Quand quelqu'un clique sur le bouton
 		const filter_confirm = i => i.customId == `confirm-askClear-${date}` || i.customId == `cancel-askClear-${date}`
