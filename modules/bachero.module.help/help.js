@@ -24,7 +24,17 @@ module.exports = {
 		client.on('messageCreate', async message => {
 			// Si on mentionne le bot, et que le message ne contient que ça
 			if(message.mentions.has(client.user) && (message.content == `<@!${client.user.id}>` || message.content == `<@${client.user.id}>`)){
-				message.reply({ embeds: [new EmbedBuilder().setTitle("Tient, c'est moi").setDescription(disableTextCommand ? `${botName} ne fonctionne qu'avec des commandes slash. Tu peux commencer à écrire \`/\` et Discord complétera les commandes pour toi. Sinon, tu peux utiliser la commande \`/help\` !` : `Tu peux utiliser la commande \`/help\` pour obtenir la liste des commandes, ou utiliser la commande via message classique, en envoyant \`${botPrefix} help\``).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))], ephemeral: false }).catch(err => {})
+				// Vérifier si les commandes textes sont activés sur ce serveur
+				if(!disableTextCommand) var isTextCommandDisabledGuild = await bacheroFunctions.database.get(bacheroFunctions.database.getDatabase('internalBachero.textCommandDisabledGuilds'), message.guild.id)
+				else var isTextCommandDisabledGuild = true
+
+				// Répondre
+				message.reply({ embeds: [
+					new EmbedBuilder()
+					.setTitle("Oh c'est moi")
+					.setDescription(disableTextCommand ? `${botName} ne fonctionne qu'avec des commandes slash. Tu peux commencer à écrire \`/\` et Discord complétera les commandes pour toi. Sinon, tu peux utiliser la commande \`/help\` !` : `Tu peux utiliser la commande \`/help\` pour obtenir la liste des commandes disponibles, ou l'utiliser via message classique, en envoyant \`${botPrefix} help\`${isTextCommandDisabledGuild ? ".\nNote : la fonctionnalité d'utilisation des commandes via message a été désactivé sur ce serveur par un membre du staff." : ''}`)
+					.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
+				], ephemeral: false }).catch(err => {})
 			}
 		})
 	},
