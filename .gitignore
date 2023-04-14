@@ -7,4 +7,5 @@ config/*
 !config/bachero.jsonc
 TEMP_bachero_textcommandcompatibility
 reports
+logs
 modules/temporary.module.ogbadge
