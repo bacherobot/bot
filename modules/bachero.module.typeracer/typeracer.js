@@ -45,6 +45,25 @@ const listPhrases = [
 	{ text: `J'te préfère avec une balle dans la tête au moins j't'écouterai plus raconter ta vie`, source: `https://genius.com/Damso-javais-juste-envie-decrire-lyrics` },
 	{ text: `J'suis tellement loin que même les bruits qui courent se sont arrêtés`, source: `https://genius.com/Damso-javais-juste-envie-decrire-lyrics` },
 	{ text: `La voix de la sagesse est muette, elle parle en langage des signes`, source: `https://genius.com/Damso-javais-juste-envie-decrire-lyrics` },
+	{ text: `Sentiments égarés, on sourit pour ne pas pleurer`, source: `https://genius.com/Damso-silence-lyrics` },
+	{ text: `On s'oublie pour ne plus s'aimer, cherche la perfection pour fuir la réalité`, source: `https://genius.com/Damso-silence-lyrics` },
+	{ text: `Le vrai problème, c'est qu'à chaque fois qu'c'est le même problème`, source: `https://genius.com/Damso-silence-lyrics` },
+	{ text: `Je ne vois plus que des clones, ça a commencé à l'école\nÀ qui tu donnes de l'épaule pour t'en sortir ?`, source: `https://genius.com/Nekfeu-nique-les-clones-part-ii-lyrics` },
+	{ text: `Ici, tout l'monde joue des rôles en rêvant du million d'euros\nEt j'ai poussé comme une rose parmi les orties`, source: `https://genius.com/Nekfeu-nique-les-clones-part-ii-lyrics` },
+	{ text: `T'es malheureux quand t'as qu'un rêve et que tes parents ne veulent pas`, source: `https://genius.com/Nekfeu-nique-les-clones-part-ii-lyrics` },
+	{ text: `Non, je n'aime pas quand je me promène et que je vois\nCe petit qui se fait traquer pour des problèmes de poids`, source: `https://genius.com/Nekfeu-nique-les-clones-part-ii-lyrics` },
+	{ text: `T'as tes propres codes, t'as ta propre mode\nT'es tellement unique et ça c'est tout pour moi`, source: `https://genius.com/Luidji-pour-deux-ames-solitaires-part-1-lyrics` },
+	{ text: `Tu m'conseilles des séries, tu m'conseilles des films\nMais j'veux plus d'conseils, j'veux qu'on les mate ensemble`, source: `https://genius.com/Luidji-pour-deux-ames-solitaires-part-1-lyrics` },
+	{ text: `Tu réfléchis comme moi, souvent t'agis comme moi\nJ't'ai vu parler, penser, aimer\nJ't'ai vu rêver comme moi`, source: `https://genius.com/Luidji-pour-deux-ames-solitaires-part-1-lyrics` },
+	{ text: `Je me pose des questions sur le destin\nJe suis mon psy, ouais, mon propre médecin`, source: `https://genius.com/Luidji-pour-deux-ames-solitaires-part-2-lyrics` },
+	{ text: `Peut-être qu'elle se sert de moi pour oublier son ex hein\nMais j'me suis servi d'elle pour terminer mon texte hein`, source: `https://genius.com/Luidji-pour-deux-ames-solitaires-part-2-lyrics` },
+	{ text: `Maintenant j'suis tellement sûr de moi\nChaque fois que j'l'ouvre j'ai l'impression d'me vendre`, source: `https://genius.com/Luidji-pour-deux-ames-solitaires-part-2-lyrics` },
+	{ text: `J'avais trop de doutes et de questionnements, de motivations, de fréquentations\nMais j'ai médité assez longtemps`, source: `https://genius.com/Luidji-pour-deux-ames-solitaires-part-2-lyrics` },
+	{ text: `Ton corps m'inspire, fais ta valise, on s'tire`, source: `https://genius.com/Jokair-las-vegas-lyrics` },
+	{ text: `C'est comme ça, aucune meuf sur terre ne pourra m'changer\nTu n'es pas la première personne à avoir essayé`, source: `https://genius.com/Jokair-las-vegas-lyrics` },
+	{ text: `Pardonne-moi si j'suis une personne trop dure à aimer`, source: `https://genius.com/Jokair-las-vegas-lyrics` },
+	{ text: `J'accélère, on a la tête posée sur l'appuie-tête\nToute la nuit, les pneus brûlent sur la route 66`, source: `https://genius.com/Jokair-las-vegas-lyrics` },
+	{ text: `Au retour, mes draps avaient encore son odeur\nDur d'effacer nos souvenirs de ma tête`, source: `https://genius.com/Jokair-nos-souvenirs-lyrics` },
 ]
 
 // Exporter certaines fonctions
@@ -133,7 +152,7 @@ module.exports = {
 			})
 			collector2.on('end', async (collected, reason) => {
 				// Si le temps est écoulé
-				if(reason == 'time') interaction.editReply({ embeds: [embed.setTitle("Duel d'écriture").setDescription(`La partie vient de se terminer après deux minutes en raison d'une inactivité. Aucun vainqueur n'a pu être désigné.`).setColor(config.getValue('bachero', 'embedColor'))] }).catch(err => {})
+				if(reason == 'time') interaction.editReply({ embeds: [new EmbedBuilder().setTitle("Duel d'écriture").setDescription(`La partie vient de se terminer après deux minutes en raison d'une inactivité. Aucun vainqueur n'a pu être désigné.`).setColor(config.getValue('bachero', 'embedColor'))] }).catch(err => {})
 
 				// Sinon, on calcule la vitesse de chaque joueur
 				else {
@@ -167,7 +186,7 @@ module.exports = {
 					var button = new ButtonBuilder()
 					.setURL(phrase.source || 'https://bachero.johanstick.me/404')
 					.setStyle(ButtonStyle.Link)
-					.setLabel('Source')
+					.setLabel('Source de la citation')
 					if(!phrase.source) button.setDisabled()
 
 					// Modifier l'interaction
