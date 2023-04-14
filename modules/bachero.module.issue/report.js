@@ -1,12 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder, WebhookClient, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
-const chalk = require('chalk')
 const bacheroFunctions = require('../../functions')
 
 // Exporter certaines fonctions
 module.exports = {
 	// Quand le bot est prêt
 	getClient(){
-		if(!bacheroFunctions.config.getValue('bachero.module.issue', 'webhookLink')) return console.warn(chalk.yellow("[WARN] ") + `Le lien du webhook entré pour le module "bachero.module.issue" n'a pas été défini. Pour recevoir des signalements de la part des utilisateurs en rapport avec votre instance Bachero, veuillez définir un lien de webhook dans le fichier de configuration. Vous pouvez également supprimer ce module.`)
+		if(!bacheroFunctions.config.getValue('bachero.module.issue', 'webhookLink')) return bacheroFunctions.showLog('warn', `Le lien du webhook entré pour le module "bachero.module.issue" n'a pas été défini. Pour recevoir des signalements de la part des utilisateurs en rapport avec votre instance Bachero, veuillez définir un lien de webhook dans le fichier de configuration. Vous pouvez également supprimer ce module.`, id="report-no-webhook")
 	},
 
 	// Définir les infos de la commande slash

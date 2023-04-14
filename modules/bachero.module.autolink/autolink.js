@@ -1,6 +1,5 @@
 const { EmbedBuilder } = require('discord.js')
 const fetch = require('node-fetch')
-const chalk = require('chalk')
 const bacheroFunctions = require('../../functions')
 const database = bacheroFunctions.database.getDatabase('bachero.module.autolink')
 
@@ -27,7 +26,7 @@ async function getLinkData(link){
 
 		// Faire la requête et enregistrer dans le cache
 		var apiData = await fetch(apiURL, process.env.AUTOLINK_GITHUB_TOKEN ? { headers: { 'Authorization': process.env.AUTOLINK_GITHUB_TOKEN } } : {}).then(res => res.json()).catch(err => { return {} })
-		if(apiData?.message && apiData?.message != 'Not Found') return console.warn(chalk.yellow("[WARN] ") + "Problème rencontré lors d'une vérification avec le module \"bachero.module.autolink\" : " + apiData?.message || JSON.stringify(apiData))
+		if(apiData?.message && apiData?.message != 'Not Found') return bacheroFunctions.showLog('warn', `Problème rencontré lors d'une vérification avec le module "bachero.module.autolink" : ${apiData?.message || JSON.stringify(apiData)}`, id="autolink-verify-github")
 		if((pathnameSplit?.[3] == 'pull' || pathnameSplit?.[3] == 'pulls') && apiData?.title) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: 'github', type: 'pulls', commits: apiData?.commits, state: apiData?.state, created_at: apiData?.created_at, closed_at: apiData?.closed_at, title: apiData?.title?.trim(), author: apiData?.user?.login, html_url: apiData?.html_url } }
 		else if((pathnameSplit?.[3] == 'issue' || pathnameSplit?.[3] == 'issues') && apiData?.title) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: 'github', type: 'issues', state: `${apiData?.state}${apiData?.state_reason ? ' ('+apiData?.state_reason+')' : ''}`, created_at: apiData?.created_at, closed_at: apiData?.closed_at, title: apiData?.title?.trim(), author: apiData?.user?.login, html_url: apiData?.html_url } }
 		else if(apiData?.name) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: 'github', type: 'repo', name: apiData?.name, description: apiData?.description?.trim(), author: apiData?.owner?.login, html_url: apiData?.html_url } }
@@ -40,7 +39,7 @@ async function getLinkData(link){
 
 		// Faire la requête et enregistrer dans le cache
 		var apiData = await fetch(`https://api.github.com/gists/${pathnameSplit[pathnameSplit.length-1]}`).then(res => res.json()).catch(err => { return {} })
-		if(apiData?.message && apiData != 'Not Found') return console.warn(chalk.yellow("[WARN] ") + "Problème rencontré lors d'une vérification avec le module \"bachero.module.autolink\" : " + apiData?.message || JSON.stringify(apiData))
+		if(apiData?.message && apiData != 'Not Found') return bacheroFunctions.showLog('warn', `Problème rencontré lors d'une vérification avec le module "bachero.module.autolink" : ${apiData?.message || JSON.stringify(apiData)}`, id="autolink-verify-github")
 		if(apiData?.description) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: 'github', type: 'gist', description: apiData?.description, comments: apiData?.comments, author: apiData?.owner?.login, html_url: apiData?.html_url  } }
 	}
 	if(parsedURL.host.startsWith('www.npmjs.com')){
@@ -55,7 +54,7 @@ async function getLinkData(link){
 
 		// Faire la requête et enregistrer dans le cache
 		var apiData = await fetch(`https://registry.npmjs.org/${pathnameSplit[pathnameSplit.length-1]}`).then(res => res.json()).catch(err => { return {} })
-		if(apiData?.error) return console.warn(chalk.yellow("[WARN] ") + "Problème rencontré lors d'une vérification avec le module \"bachero.module.autolink\" : " + apiData?.error || JSON.stringify(apiData))
+		if(apiData?.error) return bacheroFunctions.showLog('warn', `Problème rencontré lors d'une vérification avec le module "bachero.module.autolink" : ${apiData?.error || JSON.stringify(apiData)}`, id="autolink-verify-npmjs")
 		if(apiData?.name && apiData?.description) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: 'npm', name: apiData?.name, description: apiData?.description, author: apiData?.author, html_url: `https://www.npmjs.com/package/${apiData?.name}` } }
 	}
 
