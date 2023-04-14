@@ -108,7 +108,7 @@ module.exports = {
 
 							// Ajouter le bouton du minuteur dans la liste des boutons existants et envoyer le message
 							buttonsIds.push({ customId: `confirm-createTimer-${date}`, userDuration: timer.userDuration, duration: timer.duration, startDate: Date.now(), reason: timer.reason, authorId: user.id, timerId: nanoid() })
-							user.send({ embeds: [embed], components: [row] })
+							user.send({ embeds: [embed], components: [row] }).catch(err => {})
 						})
 					} catch(err){}
 				}
@@ -121,7 +121,7 @@ module.exports = {
 		listener.on('button', async (interaction) => {
 			// Si le bouton SEMBLE valide, mais ne l'est pas
 			if((interaction.customId.startsWith('confirm-createTimer-') || interaction.customId.startsWith('cancel-createTimer-') || interaction.customId.startsWith('confirm-deleteTimer-') || interaction.customId.startsWith('cancel-deleteTimer-')) && !buttonsIds.map(a => a.customId).includes(interaction.customId)){
-				return interaction.reply({ content: "Impossible de récupérer le contenu de ce bouton, tenter de refaire la commande.", ephemeral: true })
+				return interaction.reply({ content: "Impossible de récupérer le contenu de ce bouton, tenter de refaire la commande.", ephemeral: true }).catch(err => {})
 			}
 
 			// Si le bouton ne semble pas valide, et qu'il ne l'est pas, on arrête
@@ -131,7 +131,7 @@ module.exports = {
 			var button = buttonsIds.find(a => a.customId == interaction.customId)
 
 			// Si on est pas la personne qui a voulu créer le minuteur
-			if(interaction.user.id != button.authorId) return interaction.reply({ content: "Il semblerait que tu ne sois pas la personne que j'attendais...", ephemeral: true })
+			if(interaction.user.id != button.authorId) return interaction.reply({ content: "Il semblerait que tu ne sois pas la personne que j'attendais...", ephemeral: true }).catch(err => {})
 
 			// Supprimer le bouton de la liste
 			buttonsIds.splice(buttonsIds.indexOf(button), 1)
@@ -161,15 +161,15 @@ module.exports = {
 				}
 
 				// Si le temps de faire tout ça, le minuteur s'est déjà terminé
-				if(timerInfo.endDate < Date.now() && button.interaction) return button.interaction.editReply({ content: `On n'a même pas eu le temps de finir la création du minuteur que.. c'est fini !`, embeds: [], components: [] })
-				else if(timerInfo.endDate < Date.now()) return interaction.reply({ content: `On n'a même pas eu le temps de finir la création du minuteur que.. c'est fini !`, embeds: [], components: [], ephemeral: true })
+				if(timerInfo.endDate < Date.now() && button.interaction) return button.interaction.editReply({ content: `On n'a même pas eu le temps de finir la création du minuteur que.. c'est fini !`, embeds: [], components: [] }).catch(err => {})
+				else if(timerInfo.endDate < Date.now()) return interaction.reply({ content: `On n'a même pas eu le temps de finir la création du minuteur que.. c'est fini !`, embeds: [], components: [], ephemeral: true }).catch(err => {})
 
 				// On ajoute à la liste des minuteurs
 				bacheroFunctions.database.set(database, timerInfo?.timerId, timerInfo)
 
 				// On finit par modifier l'interaction de base pour dire que le minuteur a commencé
-				if(button.interaction) button.interaction.editReply({ content: `C'est parti ! Vous serez rappeler <t:${Math.round(timerInfo?.endDate / 1000)}:R>.\nIdentifiant du minuteur : \`${timerInfo?.timerId}\``, embeds: [], components: [] })
-				else interaction.reply({ content: `C'est parti ! Vous serez rappeler <t:${Math.round(timerInfo?.endDate / 1000)}:R>.\nIdentifiant du minuteur : \`${timerInfo?.timerId}\``, embeds: [], components: [] })
+				if(button.interaction) button.interaction.editReply({ content: `C'est parti ! Vous serez rappeler <t:${Math.round(timerInfo?.endDate / 1000)}:R>.\nIdentifiant du minuteur : \`${timerInfo?.timerId}\``, embeds: [], components: [] }).catch(err => {})
+				else interaction.reply({ content: `C'est parti ! Vous serez rappeler <t:${Math.round(timerInfo?.endDate / 1000)}:R>.\nIdentifiant du minuteur : \`${timerInfo?.timerId}\``, embeds: [], components: [] }).catch(err => {})
 			}
 
 			// Si on veut supprimer un minuteur
@@ -178,7 +178,7 @@ module.exports = {
 				await bacheroFunctions.database.delete(database, button?.timer?.timerId)
 
 				// On finit par modifier l'interaction de base
-				button.interaction.editReply({ content: `Le minuteur a été supprimé avec succès !`, embeds: [], components: [] })
+				button.interaction.editReply({ content: `Le minuteur a été supprimé avec succès !`, embeds: [], components: [] }).catch(err => {})
 			}
 		})
 	},
@@ -200,8 +200,8 @@ module.exports = {
 			if(type == 'day') duration = duration * 1000 * 60 * 60 * 24
 
 			// Vérifier que la durée soit valide
-			if(duration < 1) return interaction.reply({ content: 'La durée doit être supérieure à 0', ephemeral: true })
-			if(duration > 14 * 86400000) return interaction.reply({ content: 'La durée doit être inférieure à 14 jours', ephemeral: true })
+			if(duration < 1) return interaction.reply({ content: 'La durée doit être supérieure à 0', ephemeral: true }).catch(err => {})
+			if(duration > 14 * 86400000) return interaction.reply({ content: 'La durée doit être inférieure à 14 jours', ephemeral: true }).catch(err => {})
 
 			// Déterminer la date de fin du minuteur
 			var endDate = new Date()
@@ -213,7 +213,7 @@ module.exports = {
 			.setDescription(`${type == 'ms' ? '⚠️ Les minuteurs sont précis à la seconde, une durée en millisecondes ne sera pas exacte et aura une seconde de retard maximum\n\n' : ''}Vous vous apprêtez à créer un minuteur qui s'arrêtera <t:${Math.round(endDate / 1000)}:R>${reason?.length ? ` avec la raison "${reason?.replace(/`/g, '')?.replace(/"/g, '')}"` : ''}.`)
 			.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 
-			// Créé deux bouton pour confirmer qu'on sois sur
+			// Créé deux boutons pour confirmer qu'on sois sur
 			var date = Date.now()
 			const rowConfirm = new ActionRowBuilder().addComponents(
 				new ButtonBuilder()
@@ -228,7 +228,7 @@ module.exports = {
 			buttonsIds.push({ customId: `confirm-createTimer-${date}`, interaction: interaction, userDuration: userDuration, duration: duration, startDate: Date.now(), endDate: endDate, reason: reason, authorId: interaction.user.id, timerId: nanoid() }, { customId: `cancel-createTimer-${date}`, interaction: interaction, userDuration: userDuration, duration: duration, endDate: endDate, reason: reason, authorId: interaction.user.id, timerId: nanoid() })
 
 			// Répondre avec l'embed et les boutons
-			interaction.reply({ embeds: [embed], components: [rowConfirm] })
+			interaction.reply({ embeds: [embed], components: [rowConfirm] }).catch(err => {})
 		}
 
 		// Si on veut lister les minuteurs
@@ -244,7 +244,7 @@ module.exports = {
 			.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 
 			// L'envoyer
-			interaction.reply({ embeds: [embed], ephemeral: true })
+			interaction.reply({ embeds: [embed], ephemeral: true }).catch(err => {})
 		}
 
 		// Si on veut afficher les détails d'un minuteur
@@ -257,8 +257,8 @@ module.exports = {
 			if(!timer) var timer = (await runningTimers()).find(timer => timer?.timerId?.toLowerCase()?.replace(/_/g,'') == timerId?.toLowerCase()?.replace(/_/g,'')) // deuxième tentative qui laisse plus d'éléments
 
 			// Si on a pas trouvé de minuteur, ou qu'il n'a pas été créé par l'utilisateur, on arrête
-			if(!timer) return interaction.reply({ content: `Aucun minuteur n'a été trouvé avec cet identifiant. Vérifier qu'il a bien été écrit, et que vous en êtes le créateur.`, ephemeral: true })
-			if(timer?.authorId != interaction.user.id) return interaction.reply({ content: `Un minuteur a été trouvé avec cet identifiant mais vous n'en êtes pas son créateur, les informations sont donc indisponibles.`, ephemeral: true })
+			if(!timer) return interaction.reply({ content: `Aucun minuteur n'a été trouvé avec cet identifiant. Vérifier qu'il a bien été écrit, et que vous en êtes le créateur.`, ephemeral: true }).catch(err => {})
+			if(timer?.authorId != interaction.user.id) return interaction.reply({ content: `Un minuteur a été trouvé avec cet identifiant mais vous n'en êtes pas son créateur, les informations sont donc indisponibles.`, ephemeral: true }).catch(err => {})
 
 			// Créer un embed
 			var listFields = [
@@ -284,7 +284,7 @@ module.exports = {
 			buttonsIds.push({ customId: `confirm-deleteTimer-${date}`, interaction: interaction, authorId: interaction.user.id, timer: timer })
 
 			// Répondre avec l'embed et les boutons
-			interaction.reply({ embeds: [embed], components: [rowConfirm], ephemeral: true })
+			interaction.reply({ embeds: [embed], components: [rowConfirm], ephemeral: true }).catch(err => {})
 		}
 
 		// Si on veut supprimer un minuteur
@@ -297,7 +297,7 @@ module.exports = {
 			if(!timer) var timer = (await runningTimers()).find(timer => timer?.timerId?.toLowerCase()?.replace(/_/g,'') == timerId?.toLowerCase()?.replace(/_/g,'') && timer?.authorId == interaction.user.id) // deuxième tentative qui laisse plus d'éléments, tant que c'est la bonne personne
 
 			// Si on a pas trouvé de minuteur
-			if(!timer) return interaction.reply({ content: `Aucun minuteur n'a été trouvé avec cet identifiant. Vérifier qu'il a bien été écrit, et que vous en êtes le créateur.`, ephemeral: true })
+			if(!timer) return interaction.reply({ content: `Aucun minuteur n'a été trouvé avec cet identifiant. Vérifier qu'il a bien été écrit, et que vous en êtes le créateur.`, ephemeral: true }).catch(err => {})
 
 			// Créer un embed
 			var embed = new EmbedBuilder()
@@ -305,7 +305,7 @@ module.exports = {
 			.setDescription(`Le minuteur avec l'identifiant \`${timer?.timerId}\` qui s'arrête <t:${Math.round(new Date(timer?.endDate).getTime() / 1000)}:R>${timer?.reason?.length ? ` avec la raison "${timer?.reason?.replace(/`/g, '')?.replace(/"/g, '')}"` : ''} va être supprimé.`)
 			.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 
-			// Créé deux bouton pour confirmer qu'on sois sur
+			// Créé deux boutons pour confirmer qu'on sois sur
 			var date = Date.now()
 			const rowConfirm = new ActionRowBuilder().addComponents(
 				new ButtonBuilder()
@@ -320,7 +320,7 @@ module.exports = {
 			buttonsIds.push({ customId: `confirm-deleteTimer-${date}`, interaction: interaction, authorId: interaction.user.id, timer: timer }, { customId: `cancel-deleteTimer-${date}`, interaction: interaction, interaction: interaction, authorId: interaction.user.id, timer: timer })
 
 			// Répondre avec l'embed et les boutons
-			interaction.reply({ embeds: [embed], components: [rowConfirm] })
+			interaction.reply({ embeds: [embed], components: [rowConfirm] }).catch(err => {})
 		}
 	}
 }
