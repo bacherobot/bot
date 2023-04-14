@@ -8,7 +8,7 @@ Lorsqu'un utilisateur envoie un ou plusieurs liens, ceux-ci seront extraits et d
 
 ### Disclaimer
 
-**1.** Ce module peut engendrer des risques de sécurité sur votre serveur Discord, il est désactivé par défaut mais vous pouvez forcer son activation avec la commande `autolink-config`.
+**1.** Ce module peut engendrer des risques de sécurité sur votre serveur Discord, il est désactivé par défaut mais vous pouvez forcer son activation avec la commande `autolink-config`.  
 **2.** Des utilisateurs peuvent abuser de cette fonctionnalité pour en faire bloquer l'accès aux APIs utilisés pour les services de détections, ce module est donc désactivé sans possibilité de l'activer sur l'instance publique de Bachero. Vous pouvez configurer votre propre instance de Bachero pour l'utiliser.
 
 ### Fonctionnalités et sites supportés
@@ -23,4 +23,4 @@ Lorsqu'un utilisateur envoie un ou plusieurs liens, ceux-ci seront extraits et d
 
 Ce module est déjà préinstallé dans Bachero, vous pouvez ouvrir le fichier manifest.jsonc présent dans `modules/bachero.module.autolink` et changer la valeur de `enabled` à `true` pour l'activer.
 
-Pour désinstaller complètement ce module, vous pouvez supprimer le dossier `modules/bachero.module.autolink`, vous pourrez ensuite recréer ce dossier et télécharger les fichiers depuis [GitHub](https://github.com/bacherobot/bot/tree/master/modules/bachero.module.autolink) dans le cas où vous souhaitez utiliser à nouveau le module AutoLink.
+Pour désinstaller complètement ce module, vous pouvez supprimer le dossier `modules/bachero.module.autolink`, vous pourrez ensuite recréer ce dossier et télécharger les fichiers depuis [GitHub](https://github.com/bacherobot/bot/tree/master/modules/bachero.module.autolink) dans le cas où vous souhaitez utiliser à nouveau ce module.
