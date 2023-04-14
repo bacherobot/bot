@@ -1,0 +1,31 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.snipe",
+
+	// Nom du module
+	"name": "Snipe",
+
+	// Description du module
+	"shortDescription": "Enregistre les messages supprimés par les membres de votre serveur, pour les réafficher avec une commande",
+	"longDescription": "Ce module sert à enregistrer dans une base de données non-persistante tous les messages supprimés par les membres de vos serveurs, les modérateurs auront ensuite la possibilité de les réafficher en utilisant une commande",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"snipe.js",
+		"snipe-config.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251"
+		}
+	]
+}
