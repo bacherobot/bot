@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
 const bacheroFunctions = require('../../functions')
-const database = bacheroFunctions.database.getDatabase('internalBachero.textCommandDisabledGuilds')
+const database = bacheroFunctions.database.getDatabase('textCommandDisabledGuilds')
 
 // Exporter certaines fonctions
 module.exports = {

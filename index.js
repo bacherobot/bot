@@ -30,7 +30,7 @@ if(optimized){
 	UglifyJS = require('uglify-js')
 	botName = bacheroFunctions.config.getValue('bachero', 'botName')
 	statsDatabase = bacheroFunctions.database.getDatabase('internalBachero.stats')
-	databaseTextCommandDisabledGuilds = bacheroFunctions.database.getDatabase('internalBachero.textCommandDisabledGuilds')
+	databaseTextCommandDisabledGuilds = bacheroFunctions.database.getDatabase('textCommandDisabledGuilds')
 	disableTextCommand = bacheroFunctions.config.getValue('bachero', 'disableTextCommand')
 }
 

@@ -25,7 +25,7 @@ module.exports = {
 			// Si on mentionne le bot, et que le message ne contient que ça
 			if(message.mentions.has(client.user) && (message.content == `<@!${client.user.id}>` || message.content == `<@${client.user.id}>`)){
 				// Vérifier si les commandes textes sont activés sur ce serveur
-				if(!disableTextCommand) var isTextCommandDisabledGuild = await bacheroFunctions.database.get(bacheroFunctions.database.getDatabase('internalBachero.textCommandDisabledGuilds'), message.guild.id)
+				if(!disableTextCommand) var isTextCommandDisabledGuild = await bacheroFunctions.database.get(bacheroFunctions.database.getDatabase('textCommandDisabledGuilds'), message.guild.id)
 				else var isTextCommandDisabledGuild = true
 
 				// Répondre
