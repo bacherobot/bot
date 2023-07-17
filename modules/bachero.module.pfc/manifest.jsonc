@@ -41,12 +41,6 @@
 			"type": "boolean",
 			"default": true,
 			"description": "Ne pas réinitialiser le classement des joueurs automatiquement"
-		},
-		{
-			"name": "disableGraphicLeaderboard",
-			"type": "boolean",
-			"default": false,
-			"description": "Désactiver l'affichage d'un graphique lorsqu'on affiche le classement ?"
 		}
 	]
 }
