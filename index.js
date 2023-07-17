@@ -5,6 +5,8 @@ var performanceStart = performance.now()
 const fs = require('fs')
 const path = require('path')
 const jsonc = require('jsonc')
+const Fuse = require('fuse.js')
+const escape = require('markdown-escape')
 const { EventEmitter } = require('events')
 const bacheroFunctions = require('./functions'); global.bacheroFunctions = bacheroFunctions // En profiter pour la partager aux modules
 require('dotenv').config()
@@ -27,7 +29,7 @@ if(optimized){
 	disableTextCommand = true
 } else {
 	chalk = require('chalk')
-	UglifyJS = require('uglify-js')
+	if(!bacheroFunctions.config.getValue('bachero', 'disableMinifyingTextCmdsFiles')) UglifyJS = require('uglify-js')
 	botName = bacheroFunctions.config.getValue('bachero', 'botName')
 	statsDatabase = bacheroFunctions.database.getDatabase('internalBachero.stats')
 	databaseTextCommandDisabledGuilds = bacheroFunctions.database.getDatabase('textCommandDisabledGuilds')
@@ -250,6 +252,14 @@ function loadModules(){
 	}
 }; loadModules()
 
+// Pouvoir rechercher une commande
+var searchSlashCommands = new Fuse(allSlashCommands.filter(slash => !slash.type).map(slash => slash.name), {
+	includeScore: true,
+	shouldSort: true,
+	distance: 200,
+	threshold: 0.6
+})
+
 // Crée les commandes
 async function createCommands(){
 	try {
@@ -334,7 +344,7 @@ client.on('interactionCreate', async interaction => {
 			interaction.sourceType = 'contextMenu'
 			await contextMenu.file.execute(interaction)
 		} catch (error){
-			bacheroFunctions.showLog('warn', `${interaction.user.tag} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, id="user-contextmenu-error")
+			bacheroFunctions.showLog('warn', `${interaction.user.discriminator == '0' ? escape(interaction.user.username) : escape(interaction.user.tag)} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, id="user-contextmenu-error")
 			bacheroFunctions.showLog('warn', error, id="user-contextmenu-error", true, true)
 			try {
 				interaction.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution du menu contextuel :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false }).catch(err => {})
@@ -362,7 +372,7 @@ client.on('interactionCreate', async interaction => {
 			interaction.sourceType = 'slashCommand'
 			await command.file.execute(interaction)
 		} catch (error){
-			bacheroFunctions.showLog('warn', `${interaction.user.tag} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, id="user-slashcommand-error")
+			bacheroFunctions.showLog('warn', `${interaction.user.discriminator == '0' ? escape(interaction.user.username) : escape(interaction.user.tag)} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, id="user-slashcommand-error")
 			bacheroFunctions.showLog('warn', error, id="user-slashcommand-error", true, true)
 			try {
 				interaction.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: false }).catch(err => {})
@@ -382,7 +392,7 @@ client.on('messageCreate', async message => {
 	if(disableTextCommand) return
 
 	// Empêcher les bots
-	if(message.author.bot) return
+	if(!bacheroFunctions.config.getValue('bachero', 'letBotUseCommands') && message.author.bot) return
 
 	// Uniquement si c'est le bon prefix
 	if(!message.content.startsWith(botPrefix)) return
@@ -400,7 +410,8 @@ client.on('messageCreate', async message => {
 
 	// Si aucune commande trouvé
 	if(!command){
-		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Commande inexistante").setDescription(`Cette commande est introuvable dans ${botName}.`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] })
+		var similarCommand = searchSlashCommands.search(commandName)?.[0]?.item
+		return await message.reply({ embeds: [new EmbedBuilder().setTitle("Commande inexistante").setDescription(`Cette commande est introuvable dans ${botName}.${similarCommand ? `\nVous pouvez essayer la commande \`${similarCommand}\`.` : ''}`).setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] })
 	}
 
 	// Vérifier qu'on est sur un serveur autorisé
@@ -758,7 +769,7 @@ client.on('messageCreate', async message => {
 	try {
 		await command.file.execute(message)
 	} catch (error){
-		bacheroFunctions.showLog('warn', `${message.user.tag} a exécuté la commande texte ${chalk.yellow(message.commandName)} qui a fini en une erreur :`, id="user-textcommand-error")
+		bacheroFunctions.showLog('warn', `${message.user.discriminator == '0' ? escape(message.user.username) : escape(message.user.tag)} a exécuté la commande texte ${chalk.yellow(message.commandName)} qui a fini en une erreur :`, id="user-textcommand-error")
 		bacheroFunctions.showLog('warn', error, id="user-textcommand-error", true, true)
 		try {
 			messageResponse = message.reply({ embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(bacheroFunctions.config.getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})] }).catch(err => {})
