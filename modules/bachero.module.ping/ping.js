@@ -12,7 +12,7 @@ async function getLatencyHistory(clientId){
 	if(latencyHistory.content && latencyHistory.lastFetched && latencyHistory.lastFetched > Date.now() - 1000 * 60 * 60 * 5) return latencyHistory.content
 
 	// Sinon on fetch, enregistre dans le cache, et retourne
-	latencyHistory.content = await fetch(`https://api.elwatch.fr/api/status/${clientId}`).then(res => res.json()).catch(err => { return {} })
+	latencyHistory.content = await fetch(`https://api.elwatch.johanstick.me/api/status/${clientId}`).then(res => res.json()).catch(err => { return {} })
 	latencyHistory.lastFetched = new Date()
 	latencyHistory.content = latencyHistory?.content?.info?.pingHistory || latencyHistory?.content
 	return latencyHistory.content
@@ -89,7 +89,7 @@ module.exports = {
 			}
 
 			// Mettre à jour l'embed
-			embed.setDescription(`${embed.data.description}\n\n> Pour obtenir la latence Discord, ${botName} calcule le temps qu'il prend pour envoyer et recevoir des réponses, ceci inclut le temps que Discord prend à s'exécuter.${config.getValue('bachero.module.ping', 'monitoredByElwatch') ? `\n\n> Également, ce bot est surveillé par ElWatch et supporte la mesure du ping, vous pouvez [cliquer ici](https://elwatch.fr/status/${interaction.client.user.id || botClient.get().user.id}) pour obtenir la latence obtenue par un tiers.` : ''}`)
+			embed.setDescription(`${embed.data.description}\n\n> Pour obtenir la latence Discord, ${botName} calcule le temps qu'il prend pour envoyer et recevoir des réponses, ceci inclut le temps que Discord prend à s'exécuter.${config.getValue('bachero.module.ping', 'monitoredByElwatch') ? `\n\n> Également, ce bot est surveillé par ElWatch et supporte la mesure du ping, vous pouvez [cliquer ici](https://elwatch.johanstick.me/status/${interaction.client.user.id || botClient.get().user.id}) pour obtenir la latence obtenue par un tiers.` : ''}`)
 			i.update({ embeds: [embed], components: [] }).catch(err => {})
 		})
 

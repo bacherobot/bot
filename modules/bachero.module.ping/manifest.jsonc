@@ -40,7 +40,7 @@
 			"name": "monitoredByElwatch",
 			"type": "boolean",
 			"default": false,
-			"description": "Es-ce que Bachero est sous la surveillance d'ElWatch (https://elwatch.fr) ?"
+			"description": "Es-ce que Bachero est sous la surveillance d'ElWatch (https://elwatch.johanstick.me) ?"
 		}
 	]
 }
