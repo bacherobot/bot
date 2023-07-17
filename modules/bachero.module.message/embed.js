@@ -6,7 +6,8 @@ var embedWithoutPermissions = bacheroFunctions.config.getValue('bachero.module.m
 var embedShowAuthor = bacheroFunctions.config.getValue('bachero.module.message', 'embedShowAuthor')
 var botClient
 const fetch = require('node-fetch')
-const nanoid = require('nanoid')
+const escape = require('markdown-escape')
+const { customAlphabet } = require('nanoid'), nanoid = customAlphabet('abcdefghiklnoqrstuvyz123456789', 14)
 
 // Créé la commande slash
 var slashInfo = new SlashCommandBuilder()
@@ -87,7 +88,7 @@ async function sendToChannel(interaction, embedInfos){
 	if(title) embed.setTitle(title)
 	if(description) embed.setDescription(description)
 	if(footer) embed.setFooter({ text: footer })
-	if(embedShowAuthor) embed.setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL() })
+	if(embedShowAuthor) embed.setAuthor({ name: interaction.user.discriminator == '0' ? escape(interaction.user.username) : escape(interaction.user.tag), iconURL: interaction.user.displayAvatarURL() })
 	embed.setColor(color)
 
 	// Obtenir le client du bot

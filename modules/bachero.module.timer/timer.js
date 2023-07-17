@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
 const bacheroFunctions = require('../../functions')
 const database = bacheroFunctions.database.getDatabase('bachero.module.timer')
-const nanoid = require('nanoid')
+const { customAlphabet } = require('nanoid'), nanoid = customAlphabet('abcdefghiklnoqrstuvyz123456789', 14)
 var botName = bacheroFunctions.config.getValue('bachero', 'botName')
 
 // Préparer des variables qui seront utilisées plus tard
