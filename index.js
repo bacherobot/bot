@@ -393,6 +393,7 @@ client.on('messageCreate', async message => {
 
 	// Empêcher les bots
 	if(!bacheroFunctions.config.getValue('bachero', 'letBotUseCommands') && message.author.bot) return
+	if(message.author.id == client.user.id) return // on évite les boucles infinies
 
 	// Uniquement si c'est le bon prefix
 	if(!message.content.startsWith(botPrefix)) return
