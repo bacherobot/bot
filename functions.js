@@ -5,7 +5,7 @@ const jsonc = require('jsonc')
 const JSONdb = require('simple-json-db')
 const quickmongo = require("quickmongo")
 const LZString = require('lz-string')
-const nanoid = require('nanoid')
+const { customAlphabet } = require('nanoid'), nanoid = customAlphabet('abcdefghiklnoqrstuvyz123456789', 14)
 const { EventEmitter2 } = require('eventemitter2');
 const { EmbedBuilder } = require('discord.js')
 var chalk;
@@ -382,7 +382,7 @@ async function report_create(context, error, moreInfos, interaction){
 	}
 
 	// Préparer les informations de base
-	var randomid = nanoid(14)
+	var randomid = nanoid()
 	var date = new Date().toLocaleString()
 
 	// Créer le rapport sous forme de texte
