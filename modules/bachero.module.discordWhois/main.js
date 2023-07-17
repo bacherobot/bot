@@ -51,6 +51,7 @@ module.exports = {
 
 		// Quand quelqu'un change d'information sur son compte (event via le client)
 		botClient.on('userUpdate', async (oldUser, newUser) => {
+			// TODO: quand discord.js le permettra, ajouter dans l'historique en temps réel les modifications de display_name (pas le username)
 			// Si on a l'ancien pseudo, et le nouveau, vérifier que ça soit pas les mêmes
 			if(oldUser.username && newUser.username && oldUser.username == newUser.username) return
 
