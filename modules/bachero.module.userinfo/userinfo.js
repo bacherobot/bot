@@ -4,6 +4,7 @@ const alwaysShowMinimal = config.getValue('bachero.module.userinfo', 'alwaysShow
 const disableBadges = config.getValue('bachero.module.userinfo', 'disableBadges')
 const fetchPronouns = config.getValue('bachero.module.userinfo', 'fetchPronouns')
 const fetch = require('node-fetch')
+const escape = require('markdown-escape')
 
 // Créé la commande slash
 var slashInfo = new SlashCommandBuilder()
@@ -49,7 +50,7 @@ module.exports = {
 		userInfo = userInfo?.advancedInfo || userInfo
 
 		// Si c'est un bot, obtenir des informations venant d'ElWatch
-		if(!showMinimal && userInfo.bot) var botInfo = await fetch(`https://api.elwatch.fr/api/status/${userId}`).then(res => res.json()).catch(err => { return {} }); else var botInfo = {}
+		if(!showMinimal && userInfo.bot) var botInfo = await fetch(`https://api.elwatch.johanstick.me/api/status/${userId}`).then(res => res.json()).catch(err => { return {} }); else var botInfo = {}
 		if(botInfo?.error) botInfo = {}
 		if(botInfo?.info) botInfo = botInfo?.info
 		if(botInfo?.username == 'Inconnu' && botInfo?.discriminator == '0000') botInfo = {}
@@ -93,7 +94,7 @@ module.exports = {
 			// Si c'est un bot, et qu'on a eu des informations depuis ElWatch
 			if(userInfo?.bot && botInfo?.username) row.addComponents(
 				new ButtonBuilder()
-				.setURL(`https://elwatch.fr/status/${userId}`)
+				.setURL(`https://elwatch.johanstick.me/status/${userId}`)
 				.setStyle(ButtonStyle.Link)
 				.setLabel('Voir sur ElWatch')
 			)
@@ -166,7 +167,7 @@ module.exports = {
 
 		// Créé un embed contenant toute les informations
 		var embed = new EmbedBuilder()
-		.setTitle(`${userInfo?.username}#${userInfo?.discriminator}${pronouns?.length ? ` *(${pronouns})*` : ''}`)
+		.setTitle(`${userInfo?.discriminator == '0' ? escape(userInfo?.username) : escape(userInfo?.tag)}${pronouns?.length ? ` *(${escape(pronouns)})*` : ''}`)
 		.setColor(config.getValue('bachero', 'embedColor'))
 		if(!showMinimal) embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ', ElWatch' : ''}${pronouns?.length ? ', PronounDB' : ''}` })
 		if(userInfo.avatar_url) embed.setThumbnail(userInfo.avatar_url)
@@ -176,14 +177,15 @@ module.exports = {
 		// Créé une liste de champs à ajouter (et l'ajouter à l'embed du coup)
 		var listFields = [
 			{ name: "Bot ?", value: userInfo.bot ? 'Oui' : 'Non', inline: true },
-			memberInfo?.nickname ? { name: "Surnom", value: memberInfo.nickname, inline: true } : null,
+			userInfo?.display_name ? { name: "Nom", value: escape(userInfo.display_name), inline: true } : null,
+			memberInfo?.nickname ? { name: "Surnom", value: escape(memberInfo.nickname), inline: true } : null,
 			(memberInfo?.presence?.status || botInfo.status) ? { name: "Statut", value: (memberInfo?.presence?.status || botInfo.status).replace('online', 'En ligne').replace('idle','Inactif').replace('dnd', 'Ne pas déranger').replace('offline', 'Hors ligne'), inline: true } : null,
-			memberInfo?._roles?.length ? { name: `${memberInfo?._roles?.length?.toString()} rôle${memberInfo?._roles?.length > 1 ? 's' : ''}`, value: `+ haut : \`${memberInfo?.roles?.cache.sort((a, b) => b.position - a.position)?.map(r => r.name)[0]?.replace(/`/g, '')}\``, inline: true } : null,
+			memberInfo?._roles?.length ? { name: `${memberInfo?._roles?.length?.toString()} rôle${memberInfo?._roles?.length > 1 ? 's' : ''}`, value: `+ haut : \`${memberInfo?.roles?.cache.sort((a, b) => b.position - a.position)?.map(r => escape(r.name))[0]?.replace(/`/g, '')}\``, inline: true } : null,
 			{ name: "Identifiant", value: `\`${userInfo.id.replace(/`/g, '')}\``, inline: true },
 			userInfo?.created_at_unix ? { name: "Création du compte", value: `<t:${Math.round(userInfo.created_at_unix / 1000)}:f>`, inline: true } : null,
 			memberInfo?.joinedTimestamp ? { name: "Arrivée ici", value: `<t:${Math.round(memberInfo.joinedTimestamp / 1000)}:f>`, inline: true } : null,
 			botInfo?.ping ? { name: "Latence", value: `${botInfo?.ping} ms`, inline: true } : null,
-			userInfo?.tags?.length ? { name: "Tags", value: userInfo?.tags?.map(a => `\`${a.replace(/`/g, '')}\``)?.join(', '), inline: true } : null,
+			userInfo?.tags?.length ? { name: "Tags", value: userInfo?.tags?.map(a => `\`${escape(a.replace(/`/g, ''))}\``)?.join(', '), inline: true } : null,
 		]
 		embed.addFields(listFields.filter(field => field != null))
 
@@ -214,7 +216,7 @@ module.exports = {
 				// Créé un embed
 				var embed = new EmbedBuilder()
 				embed.setTitle("Historique de pseudos")
-				embed.setDescription(usernameHistory.map(u => `<t:${Math.round(u.date / 1000)}:f> | ${u.username}`).join('\n').slice(0, 3800) + "\n\n> L'historique de pseudos se base sur le moment auquel [Discord WhoIs](https://bachero.johanstick.me/blog/discord-whois) a été utilisé pour obtenir les informations de l'utilisateur.\n\n> À chaque fois qu'un utilisateur obtient les informations d'un autre utilisateur, le pseudo sera modifié dans l'historique.")
+				embed.setDescription(usernameHistory.map(u => `<t:${Math.round(u.date / 1000)}:f> | ${escape(u.username)}`).join('\n').slice(0, 3800) + "\n\n> L'historique de pseudos se base sur le moment auquel [Discord WhoIs](https://bachero.johanstick.me/blog/discord-whois) a été utilisé pour obtenir les informations de l'utilisateur.\n\n> À chaque fois qu'un utilisateur obtient les informations d'un autre utilisateur, le pseudo sera modifié dans l'historique.")
 				embed.setColor(config.getValue('bachero', 'embedColor'))
 				embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ' et ElWatch' : ''}` })
 
