@@ -1,3 +1,5 @@
+###### English version [here](https://github.com/bacherobot/bot/blob/master/README-en.md).
+
 # Bachero
 
 Bachero est un robot Discord dans le but de remplacer tous ceux qui existent déjà, en apportant des fonctionnalités que personne d'autre ne possède, et en réglant beaucoup de problématiques.
@@ -6,7 +8,7 @@ Bachero est un robot Discord dans le but de remplacer tous ceux qui existent dé
 
 👉 Modulaire — avec l'ajout de [modules complémentaires](https://bachero.johanstick.me/docs/preinstalled)
 
-👉 Complet — tout ce que les autres bots possède, réunis dans un seul bot, et en mieux
+👉 Complet — tout ce que les autres bots possèdent, réunis dans un seul bot, et en mieux
 
 👉 Personnalisable — Bachero n'est pas Bachero, il est comme vous
 
@@ -24,7 +26,7 @@ Bachero est là pour ça, en tentant de régler la plupart des problèmes exista
 
 ### Extensible
 
-Si vous hébergez le robot vous-même, vous avez la possibilité d'installer des modules. Voyez-ça comme des compléments à Bachero, permettant d'ajouter des fonctionnalités telles que des commandes.
+Si vous hébergez le robot vous-même, vous avez la possibilité d'installer des modules. Voyez ça comme des compléments à Bachero, permettant d'ajouter des fonctionnalités telles que des commandes.
 
 Ces modules peuvent être créés par n'importe qui ayant quelques connaissances avec la création de bot Discord, mais vous pouvez aussi installer des modules faits par la communauté.
 
@@ -32,7 +34,7 @@ Ces modules peuvent être créés par n'importe qui ayant quelques connaissances
 
 * [Ajouter à son serveur](https://discord.com/api/oauth2/authorize?client_id=1004446432863981671&permissions=8&scope=bot%20applications.commands)  
 * [Blog](https://bachero.johanstick.me/blog)  
-* [Documentation](https://bachero.johanstick.me/docs/intro)  
+* [Documentation](https://bachero.johanstick.me)  
   * [Héberger soi-même](https://bachero.johanstick.me/docs/intro#h%C3%A9berger-soi-m%C3%AAme)  
   * [Modules préinstallés](https://bachero.johanstick.me/docs/preinstalled)  
   * [Contribution](https://bachero.johanstick.me/docs/contribute)  
