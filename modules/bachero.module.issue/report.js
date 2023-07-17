@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, WebhookClient, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
 const bacheroFunctions = require('../../functions')
+const escape = require('markdown-escape')
 
 // Exporter certaines fonctions
 module.exports = {
@@ -32,7 +33,7 @@ module.exports = {
 
 		// Créer l'embed
 		var embed = new EmbedBuilder()
-		.setTitle(`Signalement de ${interaction.user.username}#${interaction.user.discriminator}`)
+		.setTitle(`Signalement de ${interaction.user.discriminator == '0' ? escape(interaction.user.username) : escape(interaction.user.tag)}`)
 		.setDescription(reason)
 		.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 		.setFooter({ text: `Identifiant : ${interaction.user.id}` })

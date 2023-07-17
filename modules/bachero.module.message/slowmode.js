@@ -35,7 +35,7 @@ module.exports = {
 
 		// Modifier le temps dans le salon
 		try {
-			interaction.channel.setRateLimitPerUser(nextTime, `${interaction.user.tag} (ID : ${interaction.user.id}) a modifié le slowmode via la commande /slowmode`).catch(err => { return err })
+			interaction.channel.setRateLimitPerUser(nextTime, `${interaction.user.discriminator == '0' ? interaction.user.username : interaction.user.tag} (ID : ${interaction.user.id}) a modifié le slowmode via la commande /slowmode`).catch(err => { return err })
 			interaction.editReply({ content: `Le temps à attendre entre chaque message est passé de ${currentTime} ${currentTime > 1 ? 'secondes' : 'seconde'} à ${nextTime} ${nextTime > 1 ? 'secondes' : 'seconde'}.` })
 		} catch(err) {
 			// S’il y a eu une erreur

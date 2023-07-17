@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js')
 const { config } = require('../../functions')
+const escape = require('markdown-escape')
 
 // Exporter certaines fonctions
 module.exports = {
@@ -34,7 +35,7 @@ module.exports = {
 
 		// Créé un embed contenant la photo de profil
 		var embed = new EmbedBuilder()
-		.setTitle(`${user?.username}#${user?.discriminator}`)
+		.setTitle(user?.discriminator == '0' ? escape(user?.username) : escape(user?.tag))
 		.setDescription(`[Lien direct vers la photo de profil](${avatar})${user.banner ? `\n[Lien direct vers la bannière](${user.banner})` : ''}`)
 		.setColor(config.getValue('bachero', 'embedColor'))
 		.setFooter({ text: `${!user.avatar ? "Affichage d'un avatar par défaut • " : ""}Identifiant : ${userId}` })

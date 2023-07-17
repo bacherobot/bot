@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, PermissionFlagsBits, AttachmentBuilder } = require('discord.js')
 const bacheroFunctions = require('../../functions')
+const escape = require('markdown-escape')
 var botName = bacheroFunctions.config.getValue('bachero', 'botName')
 var sayWithoutPermissions = bacheroFunctions.config.getValue('bachero.module.message', 'sayWithoutPermissions')
 var sayShowAuthor = bacheroFunctions.config.getValue('bachero.module.message', 'sayShowAuthor')
@@ -26,14 +27,14 @@ module.exports = {
 	// Code a executer quand la commande est appelée
 	async execute(interaction){
 		// Mettre la réponse en defer
-		if(await interaction.deferReply({ ephemeral: true }).catch(err => { return 'stop' }) == 'stop') return
+		if(interaction.sourceType !== 'textCommand' && await interaction.deferReply({ ephemeral: true }).catch(err => { return 'stop' }) == 'stop') return
 
 		// Obtenir le texte à envoyer
 		var text = interaction.options.getString('text')
 		text = text.replace(/\\n/g, '\n').replace(/%JUMP%/g, '\n').replace(/%DATE%/g, `<t:${Math.round(Date.now() / 1000)}:f>`)
 
 		// Rajouter l'auteur
-		if(sayShowAuthor) text = `\`${interaction.user.tag}\`\n${text}`
+		if(sayShowAuthor) text = `\`${interaction.user.discriminator == '0' ? escape(interaction.user.username) : escape(interaction.user.tag)}\`\n${text}`
 
 		// Vérifier sa taille
 		if(text.length > 1999) return interaction.editReply({ content: 'Votre message dépasse la limite de caractère (2000 caractères)' }).catch(err => {})
@@ -57,7 +58,7 @@ module.exports = {
 			var randomAstuce = astucesList[Math.floor(Math.random() * astucesList.length)]
 
 			// Répondre à l'interaction
-			interaction.editReply({ content: `Message envoyé !\n> **Tips :** ${randomAstuce}` }).catch(err => {})
+			if(interaction.sourceType !== 'textCommand') interaction.editReply({ content: `Message envoyé !\n> **Tips :** ${randomAstuce}` }).catch(err => {})
 		} catch(err) {
 			return await bacheroFunctions.report.createAndReply("envoi du msesage", err, {}, interaction)
 		}

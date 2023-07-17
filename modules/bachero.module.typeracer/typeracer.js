@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js')
 const { rando } = require('@nastyox/rando.js')
+const escape = require('markdown-escape')
 const { diffWords } = require('diff')
 const { config } = require('../../functions')
 const listPhrases = [
@@ -95,7 +96,7 @@ module.exports = {
 		// Générer un embed
 		const embed = new EmbedBuilder()
 		.setTitle("Demande de duel d'écriture")
-		.setDescription(`${opponentMention}, **${interaction.user.tag}** vous défie à un duel d'écriture !\n\nUn texte sera envoyé, le premier à le recopier et l'envoyer dans ce salon deviendra vainqueur !`)
+		.setDescription(`${opponentMention}, **${interaction.user.discriminator == '0' ? escape(interaction.user.username) : escape(interaction.user.tag)}** vous défie à un duel d'écriture !\n\nUn texte sera envoyé, le premier à le recopier et l'envoyer dans ce salon deviendra vainqueur !`)
 		.setFooter({ text: "Vous avez 30 secondes pour accepter cette demande" })
 		.setColor(config.getValue('bachero', 'embedColor'))
 

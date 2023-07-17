@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
 const bacheroFunctions = require('../../functions')
+const escape = require('markdown-escape')
 
 // Exporter certaines fonctions
 module.exports = {
@@ -31,7 +32,7 @@ module.exports = {
 		.setDescription(first.content || first?.embeds?.[0]?.description || first.url || "Impossible d'obtenir le contenu")
 		.addFields(
 			{ name: "Date", value: `<t:${Math.round(first.createdTimestamp / 1000)}:f>`, inline: true },
-			{ name: "Auteur", value: first.author.tag, inline: true },
+			{ name: "Auteur", value: first.author.discriminator == '0' ? escape(first.author.username) : escape(first.author.tag), inline: true },
 			{ name: "Identifiant", value: first.id, inline: true }
 		)
 		.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
