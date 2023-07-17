@@ -30,5 +30,15 @@
 			"name": "Johan",
 			"discordId": "277825082334773251"
 		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "stendApis",
+			"type": "object",
+			"default": { "stend.johanstick.me": "https://stend-api.johanstick.me" },
+			"description": "Liste des instances Stend supportées par AutoLink."
+		}
 	]
 }
