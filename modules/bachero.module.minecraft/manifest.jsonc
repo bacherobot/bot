@@ -1,0 +1,30 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.minecraft",
+
+	// Nom du module
+	"name": "Serveur Minecraft",
+
+	// Description du module
+	"shortDescription": "Obtient des informations sur un serveur Minecraft en une commande",
+	"longDescription": "Rajoute une commande permettant d'obtenir des informations sur un serveur Minecraft, qu'il soit sur l'édition Java ou Bedrock.",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"mc-server.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251"
+		}
+	]
+}
