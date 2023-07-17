@@ -45,7 +45,7 @@ Bachero souhaite respecter au mieux votre vie privée, nous nous engageons à su
 * Il est impossible pour n'importe qui de supprimer, ou de modifier un snipe déjà enregistré.
 * Un modérateur n'est pas en mesure d'exporter l'ensemble des données présentes pour un serveur.
 * Notre base de données n'inclut que 500 messages par serveurs, les plus anciens seront supprimés au fur et à mesure.
-* Seules les informations suivantes sont enregistrées : les identifiants du message, de l'utilisateur et du salon ; le tag de l'auteur ; le contenu du message ; la date de suppression ou de modification ; les attachements.
+* Seules les informations suivantes sont enregistrées : les identifiants du message, de l'utilisateur et du salon ; le nom d'utilisateur de l'auteur ; le contenu du message ; la date de suppression ou de modification ; les attachements.
 
 > Important : une instance administrée par un tiers peut choisir de modifier le comportement de ce module, et donc de ne pas respecter ces engagements.
 
