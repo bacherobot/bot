@@ -1,12 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, AttachmentBuilder, ActionRowBuilder, ComponentType } = require('discord.js')
 const { rando } = require('@nastyox/rando.js')
 var CronJob = require('cron').CronJob
-const { ChartJSNodeCanvas } = require('chartjs-node-canvas')
 const bacheroFunctions = require('../../functions')
 const database = bacheroFunctions.database.getDatabase('bachero.module.pfc')
 const disableCooldown = bacheroFunctions.config.getValue('bachero.module.pfc', 'disableCooldown')
 const disableAutoResetLeaderboard = bacheroFunctions.config.getValue('bachero.module.pfc', 'disableAutoResetLeaderboard')
-const disableGraphicLeaderboard = bacheroFunctions.config.getValue('bachero.module.pfc', 'disableGraphicLeaderboard')
 
 // Fonction qui permet de déterminer si un joueur a gagné ou perdu
 function determineWinner(playerChoice, playerWinRatio){
@@ -192,98 +190,8 @@ module.exports = {
 			.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
 			.setFooter({ text: `Parmis ${users.length} joueurs, ${position == 0 ? "vous n'êtes pas dans le classement" : `vous êtes le ${position}${position == 1 ? "er" : "ème"}`}` })
 
-			// Créé un bouton
-			var date = Date.now()
-			const row = new ActionRowBuilder().addComponents(
-				new ButtonBuilder()
-				.setCustomId(`showGraph-${date}`)
-				.setLabel('Afficher un graphique')
-				.setStyle(ButtonStyle.Primary),
-			)
-
-			// Si on est pas cooldown par le fait de générer un graphique
-			if(disableGraphicLeaderboard != true) var check = await bacheroFunctions.cooldown.check('pfcLeaderboardGenerateImage', interaction.user.id)
-			else if(disableGraphicLeaderboard == true) var check = true
-
-			// Options pour la réponse
-			var options = {
-				embeds: [embed]
-			}
-			if(!check) options.components = [row]
-
 			// Envoyer l'embed
-			if(await interaction.reply(options).catch(err => { return 'stop' }) == 'stop') return
-
-			// Quand quelqu'un clique sur le bouton
-			const filter = inte => inte.customId == `showGraph-${date}`
-			const collector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, filter, time: 999999 })
-			collector.on('collect', async inte => {
-				// Arrêter le collecteur
-				collector.stop()
-
-				// Cooldown
-				await bacheroFunctions.cooldown.set('pfcLeaderboardGenerateImage', inte.user.id, 30000)
-
-				// Pour le graphique, limiter à 5 utilisateurs
-				if(users.length > 5) users = users.slice(0, 5)
-
-				// Liste des pseudos d'utilisateurs
-				var usersNames = []
-				for(var i = 0; i < users.length; i++){
-					usersNames.push((await bacheroFunctions.parseUserFromString(users[i].id)).username.toString().substring(0, 15))
-				}
-
-				// Configuration du graphique
-				const width = 400
-				const height = 400
-				const configuration = {
-					type: 'pie',
-					data: {
-						labels: usersNames,
-						datasets: [{
-							label: '%',
-							data: users.map(a => a.winPercent),
-							backgroundColor: [
-								'#ff5a64',
-								'#36a2eb',
-								'#fc9c56',
-								'#512da8',
-								'#f9906f'
-							]
-						}]
-					},
-					options: {
-						animation: {
-							animateRotate: false
-						}
-					},
-					plugins: [{
-						id: 'background-colour',
-						beforeDraw: (chart) => {
-							const ctx = chart.ctx
-							ctx.save()
-							ctx.fillStyle = '#f2f3f5'
-							ctx.fillRect(0, 0, width, height)
-							ctx.restore()
-						}
-					}]
-				}
-				const chartCallback = (ChartJS) => {
-					ChartJS.defaults.responsive = true
-					ChartJS.defaults.maintainAspectRatio = false
-				}
-
-				// Générer le graphique dans un buffer
-				const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback })
-				const buffer = await chartJSNodeCanvas.renderToBuffer(configuration)
-
-				// Créé un attachement
-				var attachment = new AttachmentBuilder(buffer, { name: 'leaderboard.png' })
-				embed.setImage('attachment://leaderboard.png')
-
-				// Ajouter l'image dans l'interaction
-				inte.update({ embeds: [embed], files: [attachment], components: [] }).catch(err => {})
-			})
+			if(await interaction.reply({ embeds: [embed] }).catch(err => { return 'stop' }) == 'stop') return
 		}
 		// Sinon, afficher les boutons dans un embed
 		else {
