@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
 const bacheroFunctions = require('../../functions')
 const fetch = require('node-fetch')
-const escape = require('markdown-escape')
+const escape = require('markdown-escape');
 
 module.exports = {
 	// Définir les infos de la commande slash
@@ -64,7 +64,7 @@ module.exports = {
 			meta_description ? { name: 'Description', value: escape(meta_description) || 'Aucune description trouvée', inline: true } : undefined,
 		].filter(Boolean))
 		.setColor(unshortened.safe ? bacheroFunctions.config.getValue('bachero', 'embedColor') : bacheroFunctions.config.getValue('bachero', 'secondEmbedColor'))
-		.setFooter({ text: `Sous la demande de ${interaction.user.discriminator == '0' ? escape(interaction.user.username) : escape(interaction.user.tag)}` })
+		.setFooter({ text: `Sous la demande de ${interaction.user.discriminator == '0' ? interaction.user.username : interaction.user.tag}` })
 
 		// Ajouter quelques éléments
 		if(!unshortened.safe) embed.setDescription(`⚠️ La [navigation sécurisée](https://transparencyreport.google.com/safe-browsing/search) de Google a détecté que le lien originel n'est pas sécurisé. Soyez vigilant si vous décidez de cliquer sur ce lien.`)

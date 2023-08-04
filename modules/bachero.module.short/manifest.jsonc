@@ -1,0 +1,30 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.short",
+
+	// Nom du module
+	"name": "Shorten",
+
+	// Description du module
+	"shortDescription": "Raccourci une URL",
+	"longDescription": "Ajoute une commande permettant d'obtenir un lien raccourci à partir d'une URL",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"short.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Orion",
+			"discordId": "902671568856047636"
+		}
+	]
+}
