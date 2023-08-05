@@ -26,5 +26,15 @@
 			"name": "Orion",
 			"discordId": "902671568856047636"
 		}
-	]
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+    "config": [
+        {
+            "name": "defaultInstance",
+            "type": "string",
+            "default": "https://s.oriondev.fr/",
+            "description": "Définis l'instance Quecto par défaut"
+        }
+    ]
 }

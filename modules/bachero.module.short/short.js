@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
 const bacheroFunctions = require('../../functions')
 const fetch = require('node-fetch')
+const FormData = require('form-data');
 
 function convertHexToNumber(hexColor) {
   if (hexColor.startsWith("#")) {
@@ -16,7 +17,11 @@ module.exports = {
       .setName('short')
       .setDescription("Raccourcir une URL")
       .addStringOption(option => option.setName('url')
-          .setDescription("URL à racourcir (si non spécifié, le bot va déracourcir le dernier message ou celui en réponse)")
+          .setDescription("URL à racourcir (si non spécifié, le bot va racourcir le dernier message ou celui en réponse)")
+          .setRequired(false)
+      )
+      .addStringOption(option => option.setName('instance')
+          .setDescription("Instance Quecto à utiliser (si non spécifié, il va utiliser l'instance par défaut)")
           .setRequired(false)
       ),
 
@@ -25,7 +30,16 @@ module.exports = {
     if(await interaction.deferReply().catch(err => { return 'stop' }) === 'stop') return
 
     // Obtenir le terme de recherche
-    var query = interaction.options.getString('url')
+    let query = interaction.options.getString('url')
+    let instance = interaction.options.getString('instance');
+
+    if (instance) {
+      if (!instance.startsWith("http://") && !instance.startsWith("https://")) instance = "https://" + instance;
+      if (!instance.endsWith("/")) instance = instance + "/";
+    } else instance = bacheroFunctions.config.getValue('bachero.module.short', 'defaultInstance');
+
+    let isQuecto = await fetch(`${instance}api/quectoCheck`, { method: 'GET', headers: { 'Accept': "*/*", "Accept-Encoding": "gzip, deflate, br", "Connection": "keep-alive", "Content-Type": "application/json" } }).then(res => res.json());
+    if (!isQuecto.data.quecto) return interaction.editReply("L'instance que vous avez spécifié n'est pas une instance Quecto.").catch(err => {})
 
     // Si on a pas de terme de recherche, on va chercher le dernier message ou celui en réponse
     if(!query){
@@ -48,13 +62,14 @@ module.exports = {
     if(!query) return interaction.editReply("Pour utiliser cette commande, vous devez inclure l'argument `url` dans votre commande, ou répondre à un message contenant un lien (ne fonctionne pas via les commandes slash).").catch(err => {})
     if(!query.includes('https://') && !query.includes('http://')) return interaction.editReply("L'URL obtenu ne semble pas être un lien valide.").catch(err => {})
 
-    let shortened = await fetch('https://api.oriondev.fr/shortener/shorten', { method: 'POST', body: JSON.stringify({ link: query }), headers: { 'Accept': "*/*", "Accept-Encoding": "gzip, deflate, br", "Connection": "keep-alive", "Content-Type": "application/json" } }).then(res => res.json()).catch(err => { return { fetcherror: err } })
-    console.log(shortened);
+    let formData = new FormData();
+    formData.append('link', query);
+    let shortened = await fetch(`${instance}api/shorten`, { method: 'POST', body: formData }).then(res => res.json()).catch(err => { return { fetcherror: err } })
 
     // Si on a une erreur
-    if(shortened.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API de Short", shortened.fetcherror || shortened.error || shortened.message, {}, interaction)
+    if(shortened.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API de Short, cela peut peut-être venir du protocole utilisé pour le site", shortened.fetcherror || shortened.error || shortened.message, {}, interaction)
     else if(shortened.error || shortened.statusCode) return interaction.editReply(shortened.message || shortened.error || shortened.statusCode).catch(err => {})
-    if (shortened.status !== 200) return await bacheroFunctions.report.createAndReply("requête vers l'API de Short", shortened.data, {}, interaction)
+    if (shortened.status !== 200) return await bacheroFunctions.report.createAndReply("requête vers l'API de Short, cela peut peut-être venir du protocole utilisé pour le site", shortened.data, {}, interaction)
 
     interaction.editReply({ embeds: [{
       title: "Résultat du raccourcissement",
