@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
 const bacheroFunctions = require('../../functions')
 const fetch = require('node-fetch')
-const escape = require('markdown-escape');
+const escape = require('markdown-escape')
 
 module.exports = {
 	// Définir les infos de la commande slash

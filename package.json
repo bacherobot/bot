@@ -15,7 +15,6 @@
 		"@discordjs/rest": "^1.7.1",
 		"@nastyox/rando.js": "^2.0.5",
 		"@tsmx/human-readable": "^2.0.0",
-		"axios": "^1.4.0",
 		"chalk": "4.1.1",
 		"cherangi": "^1.3.4",
 		"color-convert": "^2.0.1",
