@@ -6,8 +6,8 @@
 	"name": "Shorten",
 
 	// Description du module
-	"shortDescription": "Raccourci une URL",
-	"longDescription": "Ajoute une commande permettant d'obtenir un lien raccourci à partir d'une URL",
+	"shortDescription": "Permet de raccourcir n'importe quel lien pour obtenir une URL courte",
+	"longDescription": "Ajoute une commande permettant de générer une URL plus courte à partir d'un lien.",
 
 	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
 	"onloadMessage": "",
@@ -34,7 +34,7 @@
             "name": "defaultInstance",
             "type": "string",
             "default": "https://s.oriondev.fr/",
-            "description": "Définis l'instance Quecto par défaut"
+            "description": "Définit l'instance Quecto par défaut"
         }
     ]
 }
