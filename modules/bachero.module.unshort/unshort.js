@@ -25,13 +25,13 @@ module.exports = {
 		if(!query){
 			// Chercher le message auquel on répond
 			if(interaction?.reference?.messageId){
-				var repliedTo = await interaction.channel.messages.fetch(interaction.reference.messageId)
+				var repliedTo = await interaction.channel.messages.fetch(interaction.reference.messageId).catch(err => {})
 				if(repliedTo.content.includes('https://') || repliedTo.content.includes('http://')) query = repliedTo.content
 			}
 
 			// Sinon, on prend le dernier message
 			else {
-				query = await interaction.channel.messages.fetch({ limit: 1, before: interaction.id })
+				query = await interaction.channel.messages.fetch({ limit: 1, before: interaction.id }).catch(err => {})
 				query = query.first()
 				query = query.content
 				if(!query.includes('https://') && !query.includes('http://')) query = undefined
