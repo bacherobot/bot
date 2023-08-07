@@ -12,6 +12,10 @@ module.exports = {
 		.addStringOption(option => option.setName('url')
 			.setDescription("URL à raccourcir (si non spécifié, le bot va raccourcir le dernier message ou celui en réponse)")
 			.setRequired(false)
+		)
+		.addStringOption(option => option.setName('password')
+				.setDescription("Mot de passe pour accéder à l'URL raccourcie")
+				.setRequired(false)
 		),
 
 	// Code a executer quand la commande est appelée
@@ -49,7 +53,7 @@ module.exports = {
 		if(!query.includes('https://') && !query.includes('http://')) return interaction.editReply("L'URL obtenu ne semble pas être un lien valide.").catch(err => {})
 
 		// Raccourcir le lien
-		let shortened = await fetch(`${instance}api/shorten`, { method: 'POST', body: new URLSearchParams({ link: query }) }).then(res => res.json()).catch(err => { return { fetcherror: err } })
+		let shortened = await fetch(`${instance}api/shorten`, { method: 'POST', body: new URLSearchParams(interaction.options.getString("password") ? { link: query, password: interaction.options.getString("password") } : { link: query }) }).then(res => res.json()).catch(err => { return { fetcherror: err } })
 
 		// Si on a une erreur
 		if(shortened.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API de Quecto", shortened.fetcherror || shortened, {}, interaction)
