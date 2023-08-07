@@ -1,0 +1,40 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.short",
+
+	// Nom du module
+	"name": "Shorten",
+
+	// Description du module
+	"shortDescription": "Permet de raccourcir n'importe quel lien pour obtenir une URL courte",
+	"longDescription": "Ajoute une commande permettant de générer une URL plus courte à partir d'un lien.",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"short.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Orion",
+			"discordId": "902671568856047636"
+		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+    "config": [
+        {
+            "name": "defaultInstance",
+            "type": "string",
+            "default": "https://s.oriondev.fr/",
+            "description": "Définit l'instance Quecto par défaut"
+        }
+    ]
+}

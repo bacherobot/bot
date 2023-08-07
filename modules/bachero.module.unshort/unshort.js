@@ -16,7 +16,12 @@ module.exports = {
 	// Code a executer quand la commande est appelée
 	async execute(interaction){
 		// Mettre la réponse en defer
-		if(await interaction.deferReply().catch(err => { return 'stop' }) == 'stop') return
+		if(await interaction.deferReply({ ephemeral: interaction.guildId ? true : false }).catch(err => { return 'stop' }) == 'stop') return
+
+		// Si c'est une commande texte, tenter de supprimer le message d'invocation
+		if(interaction.sourceType == 'textCommand'){
+			try { interaction.delete().catch(err => {}) } catch(err) {} // Le choix de la sécurité
+		}
 
 		// Obtenir le terme de recherche
 		var query = interaction.options.getString('url')
@@ -25,13 +30,13 @@ module.exports = {
 		if(!query){
 			// Chercher le message auquel on répond
 			if(interaction?.reference?.messageId){
-				var repliedTo = await interaction.channel.messages.fetch(interaction.reference.messageId)
+				var repliedTo = await interaction.channel.messages.fetch(interaction.reference.messageId).catch(err => {})
 				if(repliedTo.content.includes('https://') || repliedTo.content.includes('http://')) query = repliedTo.content
 			}
 
 			// Sinon, on prend le dernier message
 			else {
-				query = await interaction.channel.messages.fetch({ limit: 1, before: interaction.id })
+				query = await interaction.channel.messages.fetch({ limit: 1, before: interaction.id }).catch(err => {})
 				query = query.first()
 				query = query.content
 				if(!query.includes('https://') && !query.includes('http://')) query = undefined
@@ -64,7 +69,7 @@ module.exports = {
 			meta_description ? { name: 'Description', value: escape(meta_description) || 'Aucune description trouvée', inline: true } : undefined,
 		].filter(Boolean))
 		.setColor(unshortened.safe ? bacheroFunctions.config.getValue('bachero', 'embedColor') : bacheroFunctions.config.getValue('bachero', 'secondEmbedColor'))
-		.setFooter({ text: `Sous la demande de ${interaction.user.discriminator == '0' ? escape(interaction.user.username) : escape(interaction.user.tag)}` })
+		.setFooter({ text: `Sous la demande de ${interaction.user.discriminator == '0' ? interaction.user.username : interaction.user.tag}` })
 
 		// Ajouter quelques éléments
 		if(!unshortened.safe) embed.setDescription(`⚠️ La [navigation sécurisée](https://transparencyreport.google.com/safe-browsing/search) de Google a détecté que le lien originel n'est pas sécurisé. Soyez vigilant si vous décidez de cliquer sur ce lien.`)

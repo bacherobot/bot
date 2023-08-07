@@ -1,4 +1,6 @@
 .env
+.idea
+.vscode
 pnpm-lock.yaml
 package-lock.json
 node_modules
