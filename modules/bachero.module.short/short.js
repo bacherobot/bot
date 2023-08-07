@@ -17,7 +17,12 @@ module.exports = {
 	// Code a executer quand la commande est appelée
 	async execute(interaction){
 		// Mettre la réponse en defer
-		if(await interaction.deferReply().catch(err => { return 'stop' }) == 'stop') return
+		if(await interaction.deferReply({ ephemeral: interaction.guildId ? true : false }).catch(err => { return 'stop' }) == 'stop') return
+
+		// Si c'est une commande texte, tenter de supprimer le message d'invocation
+		if(interaction.sourceType == 'textCommand'){
+			try { interaction.delete().catch(err => {}) } catch(err) {} // Le choix de la sécurité
+		}
 
 		// Obtenir le terme de recherche
 		let query = interaction.options.getString('url')
