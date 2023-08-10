@@ -314,7 +314,7 @@ async function checkUpdates(){
 
 // Quand on reçoit une interaction
 client.on('interactionCreate', async interaction => {
-	// Si c'est un bouton ou un modal, l'envoyer via le listener
+	// Dans certains cas, on l'envoie au listener
 	if(interaction.isModalSubmit()){
 		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit('modal', interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
 		else if(interaction?.message?.type) return interactionListenerText.emit('modal', interaction)
@@ -324,6 +324,11 @@ client.on('interactionCreate', async interaction => {
 		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit('button', interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
 		else if(interaction?.message?.type) return interactionListenerText.emit('button', interaction)
 		else return interactionListener.emit('button', interaction)
+	}
+	if(interaction.isAnySelectMenu()){
+		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit('selectMenu', interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
+		else if(interaction?.message?.type) return interactionListenerText.emit('selectMenu', interaction)
+		else return interactionListener.emit('selectMenu', interaction)
 	}
 
 	// Si c'est un menu contextuel
