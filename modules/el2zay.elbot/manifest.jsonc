@@ -1,0 +1,37 @@
+{
+    "packageName": "el2zay.elbot",
+    "name": "elbot",
+    "shortDescription": "Ce module ajoute plusieurs commandes de elbot.",
+    "longDescription": "Ce module ajoute plusieurs commandes principales de elbot.",
+    "onloadMessage": "",
+    "source": "",
+    "files": [
+        "bingchiling.js", 
+        "roulette.js",
+        "nuke.js",
+        "count.js",
+        "sondage.js",
+        "kick.js",
+        "ban.js",
+        "unban.js",
+        "lock.js",
+        "unlock.js",
+        // "mute.js",
+        // "unmute.js",
+        // "birthday.js",
+        // "set_birthday.js",
+        // "set_rep.js",
+        "qi.js",
+        "qr.js",
+        // "pessi.js",
+        "removebg.js",
+        "moyenne.js"
+    ],
+
+    "authors": [
+        {
+            "name": "el2zay",
+            "discordId": "727572859727380531"
+        }
+    ]
+}
