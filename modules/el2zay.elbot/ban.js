@@ -1,5 +1,6 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js')
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ComponentType, ButtonBuilder, ButtonStyle } = require('discord.js')
 const bacheroFunctions = require('../../functions')
+const client = require('../../index')
 
 module.exports = {
     slashInfo: new SlashCommandBuilder()
@@ -25,12 +26,13 @@ module.exports = {
 
 
     async execute(interaction) {
-        const member = interaction.options.getUser('membre')
+        const member = (await interaction.options.getUser('membre'))
+        if(!member?.id) return interaction.reply({ content: "Le membre n'existe pas.", ephemeral: true })
+        const memberID = member.id
         const owner = interaction.guild.ownerId
         var reason = interaction.options.getString('raison')
-        username = interaction.member.user.username
-        const avatar = interaction.member.user.avatarURL({ format: 'png', dynamic: true, size: 1024 })
-        const user_id = interaction.user.id
+        username = member.username
+        const avatar = member.avatarURL({ format: 'png', dynamic: true, size: 1024 })
 
         const rowConfirm = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
@@ -44,53 +46,41 @@ module.exports = {
         )
 
         if (!reason) { reason = "Aucune raison donnée" }
+
+        // Récupérer le nom du bot
+        var botName = bacheroFunctions.config.getValue('bachero', 'botName')
+
         //Si le membre est l'owner
         if (member.id == owner) return interaction.reply({ content: "Tu ne peux pas bannir le propriétaire du serveur.", ephemeral: true })
         // Si le membre est le bot
-        if (member.tag == client.user.tag) {
+        if (memberID == interaction.client.user.id) {
             var embed = new EmbedBuilder()
-                .setTitle(`Bannissement de ${client.user.username} ?`)
+                .setTitle(`Bannissement de ${botName} ?`)
                 .setAuthor({ name: interaction.user.username, iconURL: avatar })
                 .setDescription(`Es-tu sûr de vouloir me bannir ? 🥲`)
                 .setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
                 .setThumbnail('https://cdn.discordapp.com/attachments/795288700594290698/909889058212311061/Sans_titre_1.jpeg')
-                .setFooter({ text: `Ouin ouin` })
+                .setFooter({ text: `uhuhuhuhu Ouin ouin` })
 
             interaction.reply({ embeds: [embed], components: [rowConfirm] }).catch(err => { })
+
             const filter_confirm = i => i.customId == `yes` || i.customId == `no`
             const collector_confirm = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, filter: filter_confirm, time: 999999 })
             collector_confirm.on('collect', async i => {
-                // Vérifier que la personne a les permissions de gérer les messages ou de gérer le salon
-                if (!interaction.channel.permissionsFor(i.user).has(PermissionFlagsBits.ManageChannels) && !interaction.channel.permissionsFor(i.user).has(PermissionFlagsBits.ManageMessages)) return i.reply({ content: ":no_entry_sign: Tu ne sembles pas avoir la permission de gérer les messages ou de gérer ce salon.", ephemeral: true })
-
                 // Si l'utilisateur ne veut plus supprimer le salon
                 if (i.customId == 'no') {
-                    interaction.editReply({ content: "Opération annulée merci beaucoup d'utiliser Bachero." }).catch(err => { })
+                    await interaction.channel.send({ content: "Opération annulée merci beaucoup d'utiliser Bachero." }).catch(err => { })
                 }
 
                 if (i.customId == 'yes') {
-                    interaction.editReply({ content: "Ce n'est qu'un aurevoir j'espère." }).catch(err => { })
-                    interaction.guild.members.ban(member, { reason: reason })
+                    await interaction.channel.send({ content: "Discord ne me permet pas de me bannir" }).catch(err => { })
+                    await interaction.channel.send("https://cdn.discordapp.com/attachments/902994073533694012/1139961644601057290/youtube_TkX4bee77t8_432x244_h264.MP4")
                 }
             })
+            return;
         }
 
-        interaction.guild.members.ban(member, { reason: reason })
-        var embed = new EmbedBuilder()
-            .setTitle('Bannissement')
-            .setAuthor({ name: interaction.user.username, iconURL: avatar })
-            .setDescription('Un modérateur a frappé !')
-            .setColor(0xff2812)
-            .setThumbnail('https://cdn.discordapp.com/attachments/795288700594290698/879044070255759410/pngaaa.com-1429166.png')
-
-            .addFields(
-                { name: 'Membre banni', value: member.username, inline: false },
-                { name: 'Raison', value: reason, inline: false },
-            )
-            // Si interaction.options.getBoolean('avertir') est sur true mettre le footer Bonjour sinon mettre le footer au revoir
-            .setFooter({ text: interaction.options.getBoolean('avertir') ? `${member.username} a été prévenu` : `${member.username} n'a pas été prévenu.` })
-        interaction.reply({ embeds: [embed] }).catch(err => { })
-        // Envoie l'embed dans le salon
+        var isDmImpossible = false // on vérifie si on peut envoyer le dm au gars
         if (interaction.options.getBoolean('avertir')) {
             // Envoyer un mp au membre banni
             embed = new EmbedBuilder()
@@ -104,7 +94,29 @@ module.exports = {
                     { name: 'Raison', value: reason, inline: false },
                 )
                 .setFooter({ text: `Miskin` })
-            member.send({ embeds: [embed] }).catch(err => { })
+            var isDmed = await member.send({ embeds: [embed] }).catch(err => {
+                return false
+            })
+            if(!isDmed) isDmImpossible = true
         }
+
+        var isBanPossible = await interaction.guild.members.ban(member, { reason: reason }).catch(err => { return {err:err} })
+        if(isBanPossible.err) return await bacheroFunctions.report.createAndReply("bannissement", isBanPossible.err || isBanPossible, {}, interaction)
+
+        var embed = new EmbedBuilder()
+            .setTitle('Bannissement')
+            .setAuthor({ name: interaction.user.username, iconURL: avatar })
+            .setDescription('Un modérateur a frappé !')
+            .setColor(0xff2812)
+            .setThumbnail('https://cdn.discordapp.com/attachments/795288700594290698/879044070255759410/pngaaa.com-1429166.png')
+
+            .addFields(
+                { name: 'Membre banni', value: member.username, inline: false },
+                { name: 'Raison', value:    reason, inline: false },
+            )
+            // Si interaction.options.getBoolean('avertir') est sur true mettre le footer Bonjour sinon mettre le footer au revoir
+            if(interaction.options.getBoolean('avertir')) embed.setFooter({ text: isDmImpossible ? `${member.username} n'a pas pu être prévenu` : `${member.username} a été prévenu` })
+        interaction.reply({ embeds: [embed] }).catch(err => { })
+        // Envoie l'embed dans le salon
     }
 }
