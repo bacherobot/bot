@@ -2,11 +2,12 @@
     "packageName": "el2zay.elbot",
     "name": "elbot",
     "shortDescription": "Ce module ajoute plusieurs commandes de elbot.",
-    "longDescription": "Ce module ajoute plusieurs commandes principales de elbot.",
+    "longDescription": "Ce module ajoute les commandes principales de elbot.",
     "onloadMessage": "",
     "source": "",
     "files": [
         "bingchiling.js", 
+        "cancel.js",
         "roulette.js",
         "nuke.js",
         "count.js",
@@ -19,13 +20,12 @@
         // "mute.js",
         // "unmute.js",
         // "birthday.js",
-        // "set_birthday.js",
+        "set_birthday.js",
         // "set_rep.js",
         "qi.js",
         "qr.js",
-        // "pessi.js",
         "removebg.js",
-        "moyenne.js"
+        "note.js"
     ],
 
     "authors": [
