@@ -111,8 +111,7 @@ module.exports = {
                     .setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
                     .setFooter({ text: "Comme c'est dommage !" })
                 await interaction.channel.send({ embeds: [embed], components: [] })
-                return interaction.deleteReply().catch(err => { console.error(err) })
-
+                return interaction.deleteReply().catch(err => { })
             }
             embed = new EmbedBuilder()
                 .setTitle('Roulette')
@@ -120,7 +119,7 @@ module.exports = {
                 .setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
                 .setFooter({ text: "J'espère ton cadeau est bien" })
             await interaction.channel.send({ embeds: [embed], components: [] })
-            return interaction.deleteReply().catch(err => { console.error(err) })
+            return interaction.deleteReply().catch(err => { })
         } endRoulette()
     }
 }
