@@ -1,6 +1,6 @@
 # Module elbot
 
-![Elbot et BC qui se serrent la main](<Capture d’écran 2023-08-22 à 10.53.40.png>)
+![Elbot et BC qui se serrent la main](https://github.com/el2zay/bachero/assets/79168733/b11f40bd-c200-4a1d-bf8a-992761387e51)
 
 ## Description
 
