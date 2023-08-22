@@ -1,6 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ComponentType, ButtonBuilder, ButtonStyle } = require('discord.js')
 const bacheroFunctions = require('../../functions')
-const client = require('../../index')
 
 module.exports = {
     slashInfo: new SlashCommandBuilder()
@@ -32,7 +31,8 @@ module.exports = {
         const owner = interaction.guild.ownerId
         var reason = interaction.options.getString('raison')
         username = member.username
-        const avatar = member.avatarURL({ format: 'png', dynamic: true, size: 1024 })
+        // Avatar de celui qui a executé la commande
+        const avatar = interaction.user.avatarURL({ format: 'png', dynamic: true, size: 1024 })
 
         const rowConfirm = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
@@ -65,19 +65,17 @@ module.exports = {
             interaction.reply({ embeds: [embed], components: [rowConfirm] }).catch(err => { })
 
             const filter_confirm = i => i.customId == `yes` || i.customId == `no`
-            const collector_confirm = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, filter: filter_confirm, time: 999999 })
+            const collector_confirm = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, filter: filter_confirm })
             collector_confirm.on('collect', async i => {
                 // Si l'utilisateur ne veut plus supprimer le salon
                 if (i.customId == 'no') {
-                    await interaction.channel.send({ content: "Opération annulée merci beaucoup d'utiliser Bachero." }).catch(err => { })
+                    return i.reply({ content: "Opération annulée merci beaucoup d'utiliser Bachero.", ephemeral: true }).catch(err => { })
                 }
 
                 if (i.customId == 'yes') {
-                    await interaction.channel.send({ content: "Discord ne me permet pas de me bannir" }).catch(err => { })
-                    await interaction.channel.send("https://cdn.discordapp.com/attachments/902994073533694012/1139961644601057290/youtube_TkX4bee77t8_432x244_h264.MP4")
+                    return interaction.channel.send({ content: "Discord ne me permet pas de me bannir https://cdn.discordapp.com/attachments/902994073533694012/1139961644601057290/youtube_TkX4bee77t8_432x244_h264.MP4" }).catch(err => { })
                 }
             })
-            return;
         }
 
         var isDmImpossible = false // on vérifie si on peut envoyer le dm au gars
@@ -117,6 +115,5 @@ module.exports = {
             // Si interaction.options.getBoolean('avertir') est sur true mettre le footer Bonjour sinon mettre le footer au revoir
             if(interaction.options.getBoolean('avertir')) embed.setFooter({ text: isDmImpossible ? `${member.username} n'a pas pu être prévenu` : `${member.username} a été prévenu` })
         interaction.reply({ embeds: [embed] }).catch(err => { })
-        // Envoie l'embed dans le salon
     }
 }
