@@ -21,12 +21,13 @@ module.exports = {
             option
                 .setName('raison')
                 .setDescription('La raison du ban.')
+                .setMaxLength(4000)
                 .setRequired(false)),
 
 
     async execute(interaction) {
         const member = (await interaction.options.getUser('membre'))
-        if(!member?.id) return interaction.reply({ content: "Le membre n'existe pas.", ephemeral: true })
+        if (!member?.id) return interaction.reply({ content: "Le membre n'existe pas.", ephemeral: true })
         const memberID = member.id
         const owner = interaction.guild.ownerId
         var reason = interaction.options.getString('raison')
@@ -73,7 +74,7 @@ module.exports = {
                 }
 
                 if (i.customId == 'yes') {
-                    return interaction.channel.send({ content: "Discord ne me permet pas de me bannir https://cdn.discordapp.com/attachments/902994073533694012/1139961644601057290/youtube_TkX4bee77t8_432x244_h264.MP4" }).catch(err => { })
+                    return interaction.followUp({ content: "Discord ne me permet pas de me bannir https://cdn.discordapp.com/attachments/902994073533694012/1139961644601057290/youtube_TkX4bee77t8_432x244_h264.MP4" }).catch(err => { })
                 }
             })
         }
@@ -95,11 +96,11 @@ module.exports = {
             var isDmed = await member.send({ embeds: [embed] }).catch(err => {
                 return false
             })
-            if(!isDmed) isDmImpossible = true
+            if (!isDmed) isDmImpossible = true
         }
 
-        var isBanPossible = await interaction.guild.members.ban(member, { reason: reason }).catch(err => { return {err:err} })
-        if(isBanPossible.err) return await bacheroFunctions.report.createAndReply("bannissement", isBanPossible.err || isBanPossible, {}, interaction)
+        var isBanPossible = await interaction.guild.members.ban(member, { reason: reason }).catch(err => { return { err: err } })
+        if (isBanPossible.err && memberID != interaction.client.user.id) return bacheroFunctions.report.createAndReply("bannissement", isBanPossible.err || isBanPossible, {}, interaction)
 
         var embed = new EmbedBuilder()
             .setTitle('Bannissement')
@@ -110,10 +111,10 @@ module.exports = {
 
             .addFields(
                 { name: 'Membre banni', value: member.username, inline: false },
-                { name: 'Raison', value:    reason, inline: false },
+                { name: 'Raison', value: reason, inline: false },
             )
-            // Si interaction.options.getBoolean('avertir') est sur true mettre le footer Bonjour sinon mettre le footer au revoir
-            if(interaction.options.getBoolean('avertir')) embed.setFooter({ text: isDmImpossible ? `${member.username} n'a pas pu être prévenu` : `${member.username} a été prévenu` })
+        // Si interaction.options.getBoolean('avertir') est sur true mettre le footer Bonjour sinon mettre le footer au revoir
+        if (interaction.options.getBoolean('avertir')) embed.setFooter({ text: isDmImpossible ? `${member.username} n'a pas pu être prévenu` : `${member.username} a été prévenu` })
         interaction.reply({ embeds: [embed] }).catch(err => { })
     }
 }
