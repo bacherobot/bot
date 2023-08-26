@@ -317,17 +317,17 @@ client.on('interactionCreate', async interaction => {
 	// Dans certains cas, on l'envoie au listener
 	if(interaction.isModalSubmit()){
 		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit('modal', interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
-		else if(interaction?.message?.type) return interactionListenerText.emit('modal', interaction)
+		// else if(interaction?.message?.type) return interactionListenerText.emit('modal', interaction)
 		else interactionListener.emit('modal', interaction)
 	}
 	if(interaction.isButton()){
 		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit('button', interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
-		else if(interaction?.message?.type) return interactionListenerText.emit('button', interaction)
+		// else if(interaction?.message?.type) return interactionListenerText.emit('button', interaction)
 		else return interactionListener.emit('button', interaction)
 	}
 	if(interaction.isAnySelectMenu()){
 		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit('selectMenu', interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
-		else if(interaction?.message?.type) return interactionListenerText.emit('selectMenu', interaction)
+		// else if(interaction?.message?.type) return interactionListenerText.emit('selectMenu', interaction)
 		else return interactionListener.emit('selectMenu', interaction)
 	}
 
