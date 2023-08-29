@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js')
+const { SlashCommandBuilder, AttachmentBuilder } = require('discord.js')
 var sayShowAuthor = bacheroFunctions.config.getValue('bachero.module.message', 'sayShowAuthor')
 var botClient
 
@@ -10,7 +10,11 @@ module.exports = {
             option
                 .setName('message')
                 .setDescription('Le message à bingchiling.')
-                .setRequired(true)),
+                .setMaxLength(2000)
+                .setRequired(true))
+        .addAttachmentOption(option => option.setName('attachment')
+            .setDescription('Permet d\'ajouter un attachement au message')
+            .setRequired(false)),
 
     async execute(interaction) {
         var chineseChar = "丹书匚刀巳下呂廾工丿片乚爪冂口尸Q尺丂丁凵V山乂Y乙"
@@ -44,7 +48,7 @@ module.exports = {
 
         }
 
-        let chineseText = interaction.options.getString('message');
+        let chineseText = interaction.options.getString('message').toLowerCase();
 
         for ([key, value] of Object.entries(chineseChar)) {
             chineseText = chineseText.replaceAll(key, value);
@@ -52,9 +56,6 @@ module.exports = {
 
         // Mettre la réponse en defer
         if (interaction.sourceType !== 'textCommand' && await interaction.deferReply({ ephemeral: true }).catch(err => { return 'stop' }) == 'stop') return
-
-        // Rajouter l'auteur
-        if (sayShowAuthor) chineseText = `\`${interaction.user.discriminator == '0' ? escape(interaction.user.username) : escape(interaction.user.tag)}\`\n${chineseText}`
 
         // Vérifier sa taille
         if (chineseText.length > 1999) return interaction.editReply({ content: 'Votre message dépasse la limite de caractère (2000 caractères)' }).catch(err => { })
@@ -75,7 +76,7 @@ module.exports = {
 
 
             // Répondre à l'interaction
-            if (interaction.sourceType !== 'textCommand') interaction.editReply({ content: `Message envoyé !\n> **Tips : ** P巳尺丂口冂冂巳 冂巳 丂丹工丁 Q凵巳 V口凵丂 巳丁巳丂 乚'丹凵丁巳凵尺 刀巳 匚巳丁丁巳 匚口爪爪丹冂刀巳 🤫` }).catch(err => { })
+            if (interaction.sourceType !== 'textCommand') interaction.editReply({ content: `Message envoyé !\n> **Tips : ** 尸巳尺丂口冂冂巳 冂巳 丂丹工丁 Q凵巳 V口凵丂 巳丁巳丂 乚'丹凵丁巳凵尺 刀巳 匚巳丁丁巳 匚口爪爪丹冂刀巳 🤫` }).catch(err => { })
         } catch (err) {
             return await bacheroFunctions.report.createAndReply("envoi du msesage", err, {}, interaction)
         }
@@ -85,8 +86,7 @@ module.exports = {
             try { interaction.delete().catch(err => { }) } catch (err) { } // Le choix de la sécurité
         }
 
-
         // Envoyer le message
-        interaction.reply(chineseText.join(' ')).catch(err => { })
+        interaction.reply(chineseText).catch(err => { })
     }
 }
