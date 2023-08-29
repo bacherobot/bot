@@ -32,16 +32,18 @@ module.exports = {
         const owner = interaction.guild.ownerId
         var reason = interaction.options.getString('raison')
         username = member.username
+        let msg = await interaction.deferReply()
+
         // Avatar de celui qui a executé la commande
         const avatar = interaction.user.avatarURL({ format: 'png', dynamic: true, size: 1024 })
 
         const rowConfirm = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId('no')
+                .setCustomId(`no-${msg.id}`)
                 .setLabel('Ouais bon au final non')
                 .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
-                .setCustomId('yes')
+                .setCustomId(`yes-${msg.id}`)
                 .setLabel('Je suis certain.')
                 .setStyle(ButtonStyle.Danger),
         )
@@ -52,7 +54,7 @@ module.exports = {
         var botName = bacheroFunctions.config.getValue('bachero', 'botName')
 
         //Si le membre est l'owner
-        if (member.id == owner) return interaction.reply({ content: "Tu ne peux pas bannir le propriétaire du serveur.", ephemeral: true }).catch(err => { })
+        if (member.id == owner) return interaction.editReply({ content: "Tu ne peux pas bannir le propriétaire du serveur.", ephemeral: true }).catch(err => { })
         // Si le membre est le bot
         if (memberID == interaction.client.user.id) {
             var embed = new EmbedBuilder()
@@ -63,21 +65,22 @@ module.exports = {
                 .setThumbnail('https://github.com/bacherobot/ressources/blob/main/elbot/elbot%20bsod.jpeg?raw=true')
                 .setFooter({ text: `uhuhuhuhu Ouin ouin` })
 
-            interaction.reply({ embeds: [embed], components: [rowConfirm] }).catch(err => { })
+            interaction.editReply({ embeds: [embed], components: [rowConfirm] }).catch(err => { })
 
-            const filter_confirm = i => i.customId == `yes` || i.customId == `no`
+            const filter_confirm = i => i.customId == `yes-${msg.id}` || i.customId == `no-${msg.id}`
             const collector_confirm = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, filter: filter_confirm })
             collector_confirm.on('collect', async i => {
                 // Si l'utilisateur ne veut plus supprimer le salon
-                if (i.customId == 'no') {
+                if (i.customId == `no-${msg.id}`) {
                     return i.reply({ content: "Opération annulée merci beaucoup d'utiliser Bachero.", ephemeral: true }).catch(err => { })
                 }
 
-                if (i.customId == 'yes') {
+                if (i.customId == `yes-${msg.id}`) {
                     // Envoyer "discord ne me premet pas de me bannir" et ajouter cette vidéo en attachement https://github.com/bacherobot/ressources/assets/79168733/f1e1b689-f2c9-457a-a96a-163386bd3a13
                     return interaction.followUp({ content: "Discord ne me permet pas de me bannir", files: [new AttachmentBuilder("https://github-production-user-asset-6210df.s3.amazonaws.com/79168733/264065396-f1e1b689-f2c9-457a-a96a-163386bd3a13.mp4")] }).catch(err => { })
                 }
             })
+            return;
         }
 
         var isDmImpossible = false // on vérifie si on peut envoyer le dm au gars
@@ -116,6 +119,6 @@ module.exports = {
             )
         // Si interaction.options.getBoolean('avertir') est sur true mettre le footer Bonjour sinon mettre le footer au revoir
         if (interaction.options.getBoolean('avertir')) embed.setFooter({ text: isDmImpossible ? `${member.username} n'a pas pu être prévenu` : `${member.username} a été prévenu` })
-        interaction.reply({ embeds: [embed] }).catch(err => { })
+        return interaction.editReply({ embeds: [embed] }).catch(err => { })
     }
 }
