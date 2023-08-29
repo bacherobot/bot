@@ -1,7 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, SlashCommandBuilder, time } = require('discord.js')
 const bacheroFunctions = require('../../functions')
-
-var participation;
+const escape = require('markdown-escape')
 module.exports = {
     slashInfo: new SlashCommandBuilder()
         .setName('roulette')
@@ -15,20 +14,17 @@ module.exports = {
             option
                 .setName('secondes')
                 .setDescription('Le nombre de secondes avant de commencer.')
-                .setMinValue(2)
-                .setRequired(false))
+                .setMinValue(2))
         .addIntegerOption(option =>
             option
                 .setName('min_participants')
                 .setDescription('Le nombre minimum de participants.')
-                .setMinValue(2)
-                .setRequired(false))
+                .setMinValue(2))
         .addIntegerOption(option =>
             option
                 .setName('max_participants')
                 .setDescription('Le nombre maximum de participants.')
-                .setMinValue(2)
-                .setRequired(false)),
+                .setMinValue(2)),
 
 
     async execute(interaction) {
@@ -39,6 +35,7 @@ module.exports = {
         const relative = time(date, 'R')
         const min_participants = interaction.options.getInteger('min_participants') || 2
 
+        if (interaction.options.getString('cadeau').toLowerCase() == 'rien') return interaction.editReply({ content: "T'es radin toi", ephemeral: true })
         const rowConfirm = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('ok')
@@ -72,7 +69,7 @@ module.exports = {
             }
             embed.setFields(
                 { name: "Temps restant", value: `${relative}`, inline: true },
-                { name: "Cadeau à gagner", value: `||${interaction.options.getString('cadeau')}||`, inline: true },
+                { name: "Cadeau à gagner", value: `||${escape(interaction.options.getString('cadeau'))}||`, inline: true },
                 { name: "Participants", value: participation ? participation.length.toString() : '0', inline: true }
             )
             if (interaction.options.getInteger('max_participants')) embed.addFields({ name: "Nombre restant de participations.", value: `${interaction.options.getInteger('max_participants') - participation.length}`, inline: true })
@@ -84,12 +81,12 @@ module.exports = {
 
         embed = new EmbedBuilder()
             .setTitle('Roulette')
-            .setDescription(`${interaction.user} a lancé la roulette !\nCliquez sur le bouton pour participer.`)
+            .setDescription(`<@${interaction.user.id}> a lancé la roulette !\nCliquez sur le bouton pour participer.`)
             .setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
             .addFields(
                 // Si time est à une seconde ou moins remplacer secondes par seconde
                 { name: "Temps restant", value: `${relative}`, inline: true },
-                { name: "Cadeau à gagner", value: `||${interaction.options.getString('cadeau')}||`, inline: true },
+                { name: "Cadeau à gagner", value: `||${escape(interaction.options.getString('cadeau'))}||`, inline: true },
                 { name: "Participants", value: participation ? participation.length.toString() : '0', inline: true }
             )
         if (interaction.options.getInteger('max_participants')) embed.addFields({ name: "Nombre restant de participations.", value: `${interaction.options.getInteger('max_participants')}`, inline: true })
@@ -115,7 +112,7 @@ module.exports = {
             }
             embed = new EmbedBuilder()
                 .setTitle('Roulette')
-                .setDescription(`Le grand gagnant (ou perdant) de cette roulette est ||<@${winner}>|| qui a gagné ${interaction.options.getString('cadeau')} !`)
+                .setDescription(`Le grand gagnant (ou perdant) de cette roulette est ||<@${winner}>|| qui a gagné ${escape(interaction.options.getString('cadeau'))} !`)
                 .setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
                 .setFooter({ text: "J'espère ton cadeau est bien" })
             await interaction.channel.send({ embeds: [embed], components: [] })
