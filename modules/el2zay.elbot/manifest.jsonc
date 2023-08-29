@@ -7,7 +7,6 @@
     "source": "",
     "files": [
         "bingchiling.js", 
-        "cancel.js",
         "roulette.js",
         "nuke.js",
         "count.js",
@@ -21,11 +20,17 @@
         // "unmute.js",
         // "birthday.js",
         "set_birthday.js",
-        // "set_rep.js",
         "qi.js",
         "qr.js",
         "removebg.js",
-        "note.js"
+        "note.js",
+        "random-number.js",
+        "random-letter.js",
+        "coinflip.js",
+        "yesno.js",
+        "random-time.js",
+        "random-dé.js",
+        "random-map-point.js"
     ],
 
     "authors": [
