@@ -8,6 +8,7 @@ module.exports = {
     async execute(interaction) {
         const faceEmoji = "<:face:1143610184669859981>"
         const pileEmoji = "<:pile:1143610180630745249>"
+        let msg = await interaction.deferReply()
 
         var random = Math.floor(Math.random() * 2)
 
@@ -16,12 +17,12 @@ module.exports = {
         // Créé un bouton pour relancer
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId('relancer')
+                .setCustomId(`relancer-${msg.id}`)
                 .setLabel('Relancer')
                 .setStyle(ButtonStyle.Primary),
         )
-        await interaction.reply({ content: `**${random}**`, components: [row] }).catch(err => { })
-        const filter = i => i.customId === 'relancer'
+        await interaction.editReply({ content: `**${random}**`, components: [row] }).catch(err => { })
+        const filter = i => i.customId === `relancer-${msg.id}`
         const collector = interaction.channel.createMessageComponentCollector({ filter })
         collector.on('collect', async i => {
             // Si la personne qui clique n'est pas interaction.user.id
