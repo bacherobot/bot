@@ -28,7 +28,7 @@ module.exports = {
 
 
     async execute(interaction) {
-        await interaction.deferReply()
+        let msg = await interaction.deferReply()
         var participation = []
         const date = new Date()
         date.setSeconds(date.getSeconds() + (interaction.options.getInteger('secondes') || 20))
@@ -38,27 +38,27 @@ module.exports = {
         if (interaction.options.getString('cadeau').toLowerCase() == 'rien') return interaction.editReply({ content: "T'es radin toi", ephemeral: true })
         const rowConfirm = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId('ok')
+                .setCustomId(`ok-${msg.id}`)
                 .setEmoji('✅')
                 .setStyle(ButtonStyle.Success),
 
             new ButtonBuilder()
-                .setCustomId('no')
+                .setCustomId(`no-${msg.id}`)
                 .setEmoji('❌')
                 .setStyle(ButtonStyle.Secondary),
         )
 
-        const filter_confirm = i => i.customId == `ok` || i.customId == `no`
+        const filter_confirm = i => i.customId == `ok-${msg.id}` || i.customId == `no-${msg.id}`
         const collector_confirm = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, filter: filter_confirm })
         collector_confirm.on('collect', async i => {
-            if (i.customId == 'ok') {
+            if (i.customId == `ok-${msg.id}`) {
                 // Si la personne a déjà participé
                 if (participation.includes(i.user.id)) return i.reply({ content: `🚫 Vous participez déjà à la roulette !`, ephemeral: true })
                 // Ajouter la personne dans le tableau
                 participation.push(i.user.id)
                 await i.reply({ content: `Vous participez à la roulette !`, ephemeral: true })
             }
-            if (i.customId == 'no') {
+            if (i.customId == `no-${msg.id}`) {
                 // Si la personne ne participe pas encore
                 if (!participation.includes(i.user.id)) return i.reply({ content: `🚫 Vous ne participez pas à la roulette !`, ephemeral: true })
 
@@ -102,6 +102,7 @@ module.exports = {
             var winner = participation[Math.floor(Math.random() * participation.length)]
             // Si il n'y a pas de participants
             if (!winner || participation.length < min_participants) {
+                // TODO : Faire qu'il ne modifie que l'embed en question et pas les autres.
                 embed = new EmbedBuilder()
                     .setTitle('Roulette')
                     .setDescription(`Il y a eu trop peu de participants pour cette roulette...\nDonc aucun gagnant.`)
