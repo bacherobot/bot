@@ -11,6 +11,6 @@ module.exports = {
 				.setRequired(true)),
 
         async execute(interaction) {
-            interaction.reply("Le message contient " + interaction.options.getString('message').length + " caractères.")
+            interaction.reply("Le message contient " + interaction.options.getString('message').length + " caractères.").catch(err => { })
     }
 }
