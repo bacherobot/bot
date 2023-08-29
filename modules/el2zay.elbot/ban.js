@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ComponentType, ButtonBuilder, ButtonStyle } = require('discord.js')
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ComponentType, ButtonBuilder, ButtonStyle, AttachmentBuilder } = require('discord.js')
 const bacheroFunctions = require('../../functions')
 
 module.exports = {
@@ -52,7 +52,7 @@ module.exports = {
         var botName = bacheroFunctions.config.getValue('bachero', 'botName')
 
         //Si le membre est l'owner
-        if (member.id == owner) return interaction.reply({ content: "Tu ne peux pas bannir le propriétaire du serveur.", ephemeral: true })
+        if (member.id == owner) return interaction.reply({ content: "Tu ne peux pas bannir le propriétaire du serveur.", ephemeral: true }).catch(err => { })
         // Si le membre est le bot
         if (memberID == interaction.client.user.id) {
             var embed = new EmbedBuilder()
@@ -60,7 +60,7 @@ module.exports = {
                 .setAuthor({ name: interaction.user.username, iconURL: avatar })
                 .setDescription(`Es-tu sûr de vouloir me bannir ? 🥲`)
                 .setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
-                .setThumbnail('https://cdn.discordapp.com/attachments/795288700594290698/909889058212311061/Sans_titre_1.jpeg')
+                .setThumbnail('https://github.com/bacherobot/ressources/blob/main/elbot/elbot%20bsod.jpeg?raw=true')
                 .setFooter({ text: `uhuhuhuhu Ouin ouin` })
 
             interaction.reply({ embeds: [embed], components: [rowConfirm] }).catch(err => { })
@@ -74,7 +74,8 @@ module.exports = {
                 }
 
                 if (i.customId == 'yes') {
-                    return interaction.followUp({ content: "Discord ne me permet pas de me bannir https://cdn.discordapp.com/attachments/902994073533694012/1139961644601057290/youtube_TkX4bee77t8_432x244_h264.MP4" }).catch(err => { })
+                    // Envoyer "discord ne me premet pas de me bannir" et ajouter cette vidéo en attachement https://github.com/bacherobot/ressources/assets/79168733/f1e1b689-f2c9-457a-a96a-163386bd3a13
+                    return interaction.followUp({ content: "Discord ne me permet pas de me bannir", files: [new AttachmentBuilder("https://github-production-user-asset-6210df.s3.amazonaws.com/79168733/264065396-f1e1b689-f2c9-457a-a96a-163386bd3a13.mp4")] }).catch(err => { })
                 }
             })
         }
@@ -107,7 +108,7 @@ module.exports = {
             .setAuthor({ name: interaction.user.username, iconURL: avatar })
             .setDescription('Un modérateur a frappé !')
             .setColor(0xff2812)
-            .setThumbnail('https://cdn.discordapp.com/attachments/795288700594290698/879044070255759410/pngaaa.com-1429166.png')
+            .setThumbnail('https://github.com/bacherobot/ressources/blob/main/elbot/ban%20hammer.png?raw=true')
 
             .addFields(
                 { name: 'Membre banni', value: member.username, inline: false },
