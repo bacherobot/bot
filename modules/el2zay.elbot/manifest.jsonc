@@ -1,11 +1,12 @@
 {
+    "disabled": true, // le module marche pas encore à cause de certaines modifs dans le fichier index.js et le fichier functions.js
     "packageName": "el2zay.elbot",
     "name": "elbot",
     "shortDescription": "Ce module ajoute plusieurs commandes de elbot.",
     "longDescription": "Ce module ajoute les commandes principales de elbot.",
     "onloadMessage": "",
     "source": "",
-    "files": [
+    "files": [ // toutes les commandes désactivées sont pas terminées
         "bingchiling.js", 
         "roulette.js",
         "nuke.js",
@@ -19,11 +20,11 @@
         // "mute.js",
         // "unmute.js",
         // "birthday.js",
-        "set_birthday.js",
+        // "set_birthday.js",
         "qi.js",
         "qr.js",
         "removebg.js",
-        "note.js",
+        "moyenne.js",
         "random-number.js",
         "random-letter.js",
         "coinflip.js",
@@ -37,6 +38,10 @@
         {
             "name": "el2zay",
             "discordId": "727572859727380531"
+        },
+        {
+            "name": "Johan",
+            "discordId": "277825082334773251"
         }
     ]
 }
