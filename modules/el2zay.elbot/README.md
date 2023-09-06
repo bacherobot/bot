@@ -11,3 +11,4 @@ De futures commandes arrivent qui n'étaient que des idées pour elbot, mais qui
 # Information
 
 Le repo [el2zay/elbot](https://github.com/el2zay/elbot) est désormais archivé, le code est assez ancien et pas très optimisé. Cette version est une version recodée et réadaptée pour DiscordJS pour qu'elbot soit le plus optimisé possible.
+<!-- TODO: parler des clés d'api pour le random map point et removebg -->

@@ -1,16 +1,16 @@
-const { SlashCommandBuilder } = require('discord.js')
+const { SlashCommandBuilder } = require("discord.js")
 
 module.exports = {
-    slashInfo: new SlashCommandBuilder()
-        .setName('count')
-        .setDescription('Compter le nombre de caractères dans un message.')
-        .addStringOption(option =>
-			option
-				.setName('message')
-				.setDescription('Le message à compter.')
-				.setRequired(true)),
+	slashInfo: new SlashCommandBuilder()
+		.setName("count")
+		.setDescription("Compter le nombre de caractères dans un message")
+		.addStringOption(option => option
+			.setName("texte")
+			.setDescription("Le texte à compter")
+			.setRequired(true)),
 
-        async execute(interaction) {
-            interaction.reply("Le message contient " + interaction.options.getString('message').length + " caractères.").catch(err => { })
-    }
+	async execute(interaction){
+		var count = interaction.options.getString("message")?.length
+		interaction.reply(`Le message contient ${count} caractère${count > 1 ? "s" : ""}.`).catch(err => {})
+	}
 }
