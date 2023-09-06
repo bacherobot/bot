@@ -83,7 +83,7 @@ async function generateEmbed(msg){
 			placeName ? { name: "Nom exacte", value: placeName, inline: true } : null
 		].filter(Boolean))
 		.setColor(bacheroFunctions.colors.primary)
-		.setImage(`https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=13&size=600x300&maptype=roadmap&markers=color:red%7C${latitude},${longitude}&key=${"AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY"}`) // ici on utilise une clé prédéfini, et pas celle dans le .env, pour éviter de la faire fuiter
+		.setImage(`https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=13&size=600x300&maptype=roadmap&markers=color:red%7C${latitude},${longitude}&key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY`) // ici on utilise une clé prédéfini, elle devrait fonctionner pour cet endpoint
 		.setFooter({ text: `Via Google Maps${placeName ? " et OpenCage" : ""}` })
 
 	// On retourne tout
