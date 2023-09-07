@@ -1,0 +1,37 @@
+{
+	"disabled": true, // le module marche pas encore à cause de certaines modifs dans le fichier index.js et le fichier functions.js
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.transports",
+
+	// Nom du module
+	"name": "Infos transports en commun",
+
+	// Description du module
+	"shortDescription": "Récupère et affiche les horaires des passages de différents transports en commun",
+	"longDescription": "Permet d'obtenir et d'afficher les horaires de passage des transports en commun dans plusieurs régions de France sur Discord.",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"ratp.js",
+		"divia.js",
+		"fluo.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251"
+		},
+		{
+			"name": "Orion",
+			"discordId": "902671568856047636"
+		}
+	]
+}
