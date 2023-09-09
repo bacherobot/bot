@@ -25,11 +25,6 @@ module.exports = {
 		// Mettre la réponse en defer
 		if(await interaction.deferReply({ ephemeral: false }).catch(err => { return "stop" }) == "stop") return
 
-		// Si c'est une commande texte, tenter de supprimer le message d'invocation
-		if(interaction.sourceType == "textCommand"){
-			try { interaction.delete().catch(err => {}) } catch(err) {} // Le choix de la sécurité
-		}
-
 		// Récupérer le terme de recherche
 		let query = interaction.options.getString("query")
 
@@ -89,14 +84,29 @@ module.exports = {
 
 				// On parse le HTML (l'API ne retourne pas de JSON)
 				let dom = htmlParser.parse(nextsStops)
+
+				// Si on a un avertissement
+				if(dom.querySelector("p.alert.alert-warning")?.innerText?.length) embed.setDescription(`⚠️ ${dom.querySelector("p.alert.alert-warning")?.innerText?.replace(/&#233;/g, "é").trim()}`)
+
+				// Pour chaque élément de la liste
 				dom.querySelectorAll("li").forEach(li => {
+					// Obtenir les spans
 					let spans = [...li.querySelectorAll("span.item-text")]
+
+					// Déterminer la destination
 					let dest = spans.filter(span => span.classList.length === 1)[0].innerText
+
+					// On détermine l'heure, et on la rend plus propre
 					let hour = li.querySelector("span.item-text.bold.next-departure-duration.no-margin-right").innerText
-					hour = hour.split("").filter(char => char !== " ").filter(char => char !== "\n").filter(char => char !== "\r").join("")
-					hour = hour.replace("<", "< ").replace("min", " min")
+					if(hour) hour = hour.split("").filter(char => char !== " ").filter(char => char !== "\n").filter(char => char !== "\r").join("")
+					if(hour) hour = hour.replace("<", "< ").replace("min", " min")
+
+					// De même pour le type de transport
 					let type = li.querySelector(".item-img.cw-transinfo.cw-transinfo.mode-transport").getAttribute("title")
-					embed.addFields({ name: `[${type}] ${dest}`, value: hour, inline: true })
+					if(type) type = type.replace("T.G.V.", "TGV").replace("Train T.E.R.", "TER")
+
+					// On ajoute le field
+					embed.addFields({ name: `[${type || "Type inconnu"}] ${dest || "Destination inconnue"}`, value: hour, inline: true })
 				})
 
 				// Répondre avec l'embed
