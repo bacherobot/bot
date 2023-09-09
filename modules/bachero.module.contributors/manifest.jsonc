@@ -6,7 +6,7 @@
 	"name": "Liste des contributeurs",
 
 	// Description du module
-	"shortDescription": "Ce module affiche les contributeurs du dépôt GitHub.",
+	"shortDescription": "Liste les contributeurs du dépôt GitHub de Bachero.",
 
 	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
 	"onloadMessage": "",

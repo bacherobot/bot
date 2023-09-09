@@ -15,7 +15,7 @@ module.exports = {
 	// Définir les infos de la commande slash
 	slashInfo: new SlashCommandBuilder()
 		.setName("contributeurs")
-		.setDescription("Liste les personnes ayant contribué au développement de ce robot"),
+		.setDescription("Liste les personnes ayant le plus contribué au développement de ce robot"),
 
 	// Code a executer quand la commande est appelée
 	async execute(interaction){
