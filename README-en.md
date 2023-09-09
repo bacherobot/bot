@@ -6,7 +6,7 @@ Bachero is a Discord bot with the goal of replacing all the existing ones, bring
 
 👉 Open — open source, free and easily self-hostable
 
-👉 Modular — with the addition of ["add-ons"](https://bachero.johanstick.me/en/docs/preinstalled)
+👉 Modular — with the addition of ["add-ons"](https://bachero.johanstick.fr/en/docs/preinstalled)
 
 👉 Complete — everything other bots have, combined into one bot, and better
 
@@ -33,8 +33,8 @@ These modules can be created by anyone with some knowledge of Discord bot creati
 ### Links
 
 * [Add to your server](https://discord.com/api/oauth2/authorize?client_id=1004446432863981671&permissions=8&scope=bot%20applications.commands)  
-* [Blog](https://bachero.johanstick.me/en/blog)  
-* [Documentation](https://bachero.johanstick.me/en)  
-  * [Host yourself](https://bachero.johanstick.me/en/docs/intro#h%C3%A9berger-soi-m%C3%AAme)  
-  * [Preinstalled modules](https://bachero.johanstick.me/en/docs/preinstalled)  
-  * [Contribute](https://bachero.johanstick.me/en/docs/contribute)  
+* [Blog](https://bachero.johanstick.fr/en/blog)  
+* [Documentation](https://bachero.johanstick.fr/en)  
+  * [Host yourself](https://bachero.johanstick.fr/en/docs/intro#h%C3%A9berger-soi-m%C3%AAme)  
+  * [Preinstalled modules](https://bachero.johanstick.fr/en/docs/preinstalled)  
+  * [Contribute](https://bachero.johanstick.fr/en/docs/contribute)  
