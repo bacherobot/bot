@@ -17,7 +17,7 @@ Lorsqu'un utilisateur envoie un ou plusieurs liens, ceux-ci seront extraits et d
 * GitHub (repository, issues, pull request, utilisateur/organisation, gists)
 	* Vous pouvez ajouter une clé d'API (`AUTOLINK_GITHUB_TOKEN`) dans votre fichier .env pour augmenter le nombre de requêtes autorisées : https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 * Fichiers partagés avec Stend
-	* Par défaut, seule l'instance "stend.johanstick.me" est supportée, vous pouvez ajouter d'autres instances dans le fichier de configuration de ce module.
+	* Par défaut, seule l'instance "stend.johanstick.fr" est supportée, vous pouvez ajouter d'autres instances dans le fichier de configuration de ce module.
 	* Le format dans la configuration est le suivant : `"<domaine ou sous domaine du client web>": "<url de l'API sans slash à la fin>"`
 	* Les issues et pull requests visant à ajouter d'autres instances seront refusées pour éviter des fuites d'IPs.
 
