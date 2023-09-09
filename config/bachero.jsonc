@@ -1,5 +1,5 @@
 // Ce fichier n'est pas automatiquement recréé par Bachero.
-// Si vous le supprimez pas erreur, retélécharger le depuis GitHub
+// Si vous le supprimez par erreur, retélécharger le depuis GitHub
 
 {
     "config": [
@@ -15,7 +15,7 @@
             "type": "string",
             "default": "#6A82FB",
             "value": "#6A82FB",
-            "description": "Quel est la couleur utilisée dans les embeds envoyer ?"
+            "description": "Couleur primaire/principale utilisée dans les embeds"
         },
         {
             "name": "secondEmbedColor",
@@ -25,6 +25,20 @@
             "description": "Couleur secondaire utilisée dans certains embeds"
         },
         {
+            "name": "successEmbedColor",
+            "type": "string",
+            "default": "#3BA55C",
+            "value": "#3BA55C",
+            "description": "Couleur utilisée dans certains embeds pour les messages de succès"
+        },
+        {
+            "name": "dangerEmbedColor",
+            "type": "string",
+            "default": "#ED4245",
+            "value": "#ED4245",
+            "description": "Couleur utilisée dans certains embeds pour les messages d'erreurs"
+        },
+        {
             "name": "databaseType",
             "type": "string",
             "default": "json",
@@ -32,25 +46,18 @@
             "description": "Quel type de base de données utiliser ? mongodb/json"
         },
         {
-            "name": "compressDatabase",
-            "type": "boolean",
-            "default": false,
-            "value": false,
-            "description": "(EXPERIMENTALE) Détermine si la base de données doit être compressé, si vous modifiez ce paramètre, vous devrez supprimer les précédentes bases de données"
-        },
-        {
             "name": "botActivityContent",
             "type": "string",
             "default": null,
-            "value": "bachero.johanstick.me",
+            "value": "bachero.johanstick.fr",
             "description": "Définit le contenu du statut d'activité au bot, aucun si non défini."
         },
         {
             "name": "botActivityType",
             "type": "string",
             "default": null,
-            "value": "watching",
-            "description": "Définit le type de statut parmi : playing, streaming, watching, listening, competing"
+            "value": "custom",
+            "description": "Définit le type de statut parmi : playing, streaming, watching, listening, competing, custom (statut personnalisé)"
         },
         {
             "name": "botStatus",
@@ -62,8 +69,8 @@
         {
             "name": "prefix",
             "type": "string",
-            "default": "bc",
-            "value": "bc",
+            "default": "bc ",
+            "value": "bc ",
             "description": "Modifie le préfixe du bot lors de l'utilisation de commandes par message"
         },
         {
