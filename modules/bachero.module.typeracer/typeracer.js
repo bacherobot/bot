@@ -14,7 +14,7 @@ const listPhrases = [
 	{ text: `Pourquoi tu veux me mettre un bébé dans les bras ? J'ai déjà du mal à m'occuper de moi.`, source: `https://genius.com/Orelsan-san-lyrics` },
 	{ text: `Dans ce rap biz\nOn est arrivé les mains dans les poches\nA l'époque c'était "envoie le beat"\nOn fait le truc à l'arrache`, source: `https://genius.com/Sniper-grave-dans-la-roche-lyrics` },
 	{ text: `Garde le sourire, plus rien n'est grave\nTant qu'il nous reste une seconde de souvenir dans le crâne`, source: `https://genius.com/Lomepal-trop-beau-lyrics` },
-	{ text: `Ne fais pas ta joie du malheur d'autrui.\nIl n'est pas permis de blesser un ami, même en plaisantant.\nChacun tient les autres responsables de sa condition présente.`, source: null },
+	{ text: `Ne fais pas ta joie du malheur d'autrui.\nIl n'est pas permis de blesser un ami, même en plaisantant.`, source: null },
 	{ text: `Je me sentais moins seule quand je ne te connaissais pas encore : j'attendais l'autre. Je ne pensais qu'à sa force et jamais à ma faiblesse.`, source: `https://www.dicocitations.com/citations/citation-25293.php` },
 	{ text: `Qui dit études dit travail, qui dit taf te dit tes thunes, qui dit argent dit dépenses, qui dit crédit dit créance, qui dit dette te dit huissier.`, source: `https://genius.com/Stromae-alors-on-danse-lyrics` },
 	{ text: `Et là tu t'dis que c'est fini\nCar pire que ça, ce serait la mort\nQuand tu crois enfin qu'tu t'en sors\nQuand y en a plus, et bah y en a encore`, source: `https://genius.com/Stromae-alors-on-danse-lyrics` },
@@ -37,7 +37,7 @@ const listPhrases = [
 	{ text: `J'vais pas trop m'étaler, saigner fallait, blessé j'l'étais, j't'ai remballé, tu m'as remplacé, tu m'as délaissé`, source: `https://genius.com/Damso-macarena-lyrics` },
 	{ text: `À la base, j'ai commencé la musique juste pour voir\nJ'étais très différent de ceux qui cherchent plus de pouvoir\nJ'm'amusais à tester les plus grands qu'moi juste pour voir`, source: `https://genius.com/Spri-noir-juste-pour-voir-lyrics` },
 	{ text: `Juste pour voir, viens faire un tour dans nos têtes`, source: `https://genius.com/Spri-noir-juste-pour-voir-lyrics` },
-	{ text: `Si le monsieur dort dehors, c'est qu'il aime le bruit des voitures\nS'il s'amuse à faire le mort, c'est qu'il joue avec les statues`, source: `` },
+	{ text: `Si le monsieur dort dehors, c'est qu'il aime le bruit des voitures\nS'il s'amuse à faire le mort, c'est qu'il joue avec les statues`, source: `https://genius.com/Orelsan-tout-va-bien-lyrics` },
 	{ text: `Si la voisine crie très fort, c'est qu'elle a pas bien entendu`, source: `https://genius.com/Orelsan-tout-va-bien-lyrics` },
 	{ text: `Et si, un jour, ils ont disparu, c'est qu'ils s'amusaient tellement bien\nQu'ils sont partis loin faire une ronde, tous en treillis, main dans la main`, source: `https://genius.com/Orelsan-tout-va-bien-lyrics` },
 	{ text: `On trinque à nos balafres, à nos crochets tous les soirs.`, source: `https://genius.com/Booba-92i-veyron-lyrics` },
@@ -87,9 +87,10 @@ module.exports = {
 	async execute(interaction){
 		// Obtenir l'adversaire
 		var opponent = await interaction.options.getUser('user')
-		var opponentMention = `<@${opponent.id}>`
+		var opponentMention = `<@${opponent?.id}>`
 
 		// Empêcher la mention de certains types de personnes
+		if(!opponent || !opponent.id) return interaction.reply({ content: `Tu dois mentionner un utilisateur valide !`, ephemeral: true })
 		if(opponent.bot) return interaction.reply({ content: `Beep boop, il n'est pas possible de défier un robot...`, ephemeral: true })
 		if(opponent.id == interaction.user.id) return interaction.reply({ content: `Tu ne peux pas défier toi-même, ça serait trop simple 🙃`, ephemeral: true })
 
@@ -132,9 +133,18 @@ module.exports = {
 
 			// Générer un texte à partir d'une liste
 			var phrase = rando(listPhrases).value
+			
+			// Faire une copie du texte avec un caractère invisible tous les deux caractères par mot (ça évite le copier coller)
+			var phraseAntiCP = ''
+			var phraseSplited = phrase.text.split('')
+			var invisibleChars = ['\u200B', '\u200C', '\u200D', '\u2060', '\uFEFF']
+			for(var i = 0; i < phraseSplited.length; i++){
+				phraseAntiCP += phraseSplited[i]
+				if(i % 2 == 0) phraseAntiCP += rando(invisibleChars).value
+			}
 
 			// Envoyer le message
-			await interaction.editReply({ embeds: [embed.setTitle(`${interaction.user.username} VS ${opponent.username}`).setDescription(`> ${phrase.text.replaceAll('\n', '\n> ')}`).setColor(config.getValue('bachero', 'secondEmbedColor'))] }).catch(err => {})
+			await interaction.editReply({ embeds: [embed.setTitle(`${interaction.user.username} VS ${opponent.username}`).setDescription(`> ${phraseAntiCP.replaceAll('\n', '\n> ')}`).setColor(config.getValue('bachero', 'secondEmbedColor'))] }).catch(err => {})
 			var dateStartGame = Date.now()
 
 			// Attendre une réponse
@@ -165,21 +175,27 @@ module.exports = {
 					var taken1 = parseFloat(((message1.createdTimestamp - dateStartGame) / 1000).toFixed(2))
 					var taken2 = parseFloat(((message2.createdTimestamp - dateStartGame) / 1000).toFixed(2))
 
+					// Modifier le contenu des messages pour remplacer les caractères invisibles
+					message1.content = message1.content.replace(/[\u200B\u200C\u200D\u2060\uFEFF]/g, '*')
+					message2.content = message2.content.replace(/[\u200B\u200C\u200D\u2060\uFEFF]/g, '*')
+
 					// Déterminer le nombre d'erreurs dans le texte
-					var errors1 = diffWords(message1.content.replace(/[^a-zA-Z0-9', çéêèà]/g, ''), phrase.text.replace(/[^a-zA-Z0-9', çéêèà]/g, ''), { ignoreCase: true }).length - 1
-					var errors2 = diffWords(message2.content.replace(/[^a-zA-Z0-9', çéêèà]/g, ''), phrase.text.replace(/[^a-zA-Z0-9', çéêèà]/g, ''), { ignoreCase: true }).length - 1
+					var errors1 = diffWords(message1.content.replace(/[^a-zA-Z0-9\*', çéêèà]/g, ''), phrase.text.replace(/[^a-zA-Z0-9', çéêèà\*]/g, ''), { ignoreCase: true }).length - 1
+					var errors2 = diffWords(message2.content.replace(/[^a-zA-Z0-9\*', çéêèà]/g, ''), phrase.text.replace(/[^a-zA-Z0-9', çéêèà\*]/g, ''), { ignoreCase: true }).length - 1
+
+					// Calculer un score en fonction du temps et du nombre d'erreurs
+					var score1 = parseFloat((taken1 + errors1 * 2).toFixed(2))
+					var score2 = parseFloat((taken2 + errors2 * 2).toFixed(2))
 
 					// Déterminer le vainqueur
 					var winner = 'personne (égalité)'
-					if(taken1 < taken2) winner = message1.author
-					else if(taken2 < taken1) winner = message2.author
-					else if(errors1 < errors2) winner = message1.author
-					else if(errors2 < errors1) winner = message2.author
+					if(score1 < score2) winner = message1.author
+					else if(score2 < score1) winner = message2.author
 
 					// Construire un embed
 					var embed = new EmbedBuilder()
 					.setTitle("Duel d'écriture")
-					.setDescription(`:tada: Victoire de **${winner}** !\n\n• ${message1.author} : ${taken1} secondes, ${errors1} erreur(s)\n• ${message2.author} : ${taken2} secondes, ${errors2} erreur(s).`)
+					.setDescription(`:tada: Victoire de **${winner}** !\n\n• ${message1.author} : ${taken1} secondes, ${errors1} erreur${errors1 > 1 ? 's' : ''}, ${score1} points\n• ${message2.author} : ${taken2} secondes, ${errors2} erreur${errors2 > 1 ? 's' : ''}, ${score2} points.`)
 					.setColor(config.getValue('bachero', 'embedColor'))
 					.setFooter({ text: phrase.source ? "Les résultats peuvent différer de la réalité en raison de latence avec Discord" : "Impossible de trouver la source de ce texte" })
 
