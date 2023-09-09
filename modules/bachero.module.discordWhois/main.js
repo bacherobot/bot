@@ -42,7 +42,7 @@ new CronJob('21 4 * * *', async function() {
 			await fetch(`https://discord-whois.vercel.app/api/getDiscord?discordId=${userId}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).catch(err => {})
 		}, i * 2000)
 	})
-})
+}).start()
 
 module.exports = {
 	async getClient(client){
@@ -51,9 +51,12 @@ module.exports = {
 
 		// Quand quelqu'un change d'information sur son compte (event via le client)
 		botClient.on('userUpdate', async (oldUser, newUser) => {
-			// TODO: quand discord.js le permettra, ajouter dans l'historique en temps réel les modifications de display_name (pas le username)
 			// Si on a l'ancien pseudo, et le nouveau, vérifier que ça soit pas les mêmes
-			if(oldUser.username && newUser.username && oldUser.username == newUser.username) return
+			if(
+				(oldUser.username && newUser.username && oldUser.username == newUser.username) ||
+				(oldUser.tag && newUser.tag && oldUser.tag == newUser.tag) ||
+				(oldUser.displayName && newUser.displayName && oldUser.displayName == newUser.displayName)
+			) return
 
 			// Ajouter dans l'historique WhoIs
 			if(newUser.id || oldUser.id) await fetch(`https://discord-whois.vercel.app/api/getDiscord?discordId=${newUser.id || oldUser.id}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).catch(err => {})
