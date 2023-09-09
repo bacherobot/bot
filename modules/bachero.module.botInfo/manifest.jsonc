@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Ce module renvoie des informations sur le robot",
-	"longDescription": "Ajoute une commande (/botinfo) qui envoie de nombreuses informations sur le robot et son hébergement.",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

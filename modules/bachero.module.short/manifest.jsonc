@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Permet de raccourcir n'importe quel lien pour obtenir une URL courte",
-	"longDescription": "Ajoute une commande permettant de générer une URL plus courte à partir d'un lien.",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

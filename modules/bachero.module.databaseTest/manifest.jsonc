@@ -10,7 +10,6 @@
 
 	// Description du module
 	"shortDescription": "Ce module permet de faire des tests sur la base de données",
-	"longDescription": "Ce module permet de faire des tests sur la base de données, en ajoutant quelques commandes pour faire des opérations",
 
 	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
 	"onloadMessage": "ce module n'est pas recommandé, n'importe qui peut accéder à la base de données",

@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Ce module rajoute plusieurs commandes en lien avec la gestion des messages",
-	"longDescription": "Ce module rajoute plusieurs commandes permettant de gérer les messages des serveurs, pour en supprimer ou en envoyer.",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

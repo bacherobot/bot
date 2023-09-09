@@ -17,7 +17,7 @@ module.exports = {
 		.setName("contributeurs")
 		.setDescription("Liste les personnes ayant le plus contribué au développement de ce robot"),
 
-	// Code a executer quand la commande est appelée
+	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// On defer l'interaction, si c'est pas une commande texte (on a pas besoin de defer pour les commandes texte car il n'y a pas de timeout)
 		if(interaction.sourceType != "textCommand" && await interaction.deferReply({ ephemeral: true }).catch(err => { return "stop" }) == "stop") return

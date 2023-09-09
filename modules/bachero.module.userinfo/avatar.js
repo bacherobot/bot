@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require("discord.js")
-const { config } = require("../../functions")
+const { colors } = require("../../functions")
 const escape = require("markdown-escape")
 
 // Exporter certaines fonctions
@@ -17,7 +17,7 @@ module.exports = {
 		.setName("Afficher la photo")
 		.setType(ApplicationCommandType.User),
 
-	// Code a executer quand la commande est appelée
+	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Mettre la réponse en defer
 		if(await interaction.deferReply().catch(err => { return "stop" }) == "stop") return
@@ -37,7 +37,7 @@ module.exports = {
 		var embed = new EmbedBuilder()
 			.setTitle(`${user?.globalName ? user.globalName : ""} ${user?.globalName ? "(" : ""}${user?.discriminator == "0" ? `@${user?.username}` : escape(user?.tag)}${user?.globalName ? ")" : ""}`)
 			.setDescription(`[Lien direct vers la photo de profil](${avatar})${user.banner ? `\n[Lien direct vers la bannière](${user.banner})` : ""}`)
-			.setColor(config.getValue("bachero", "embedColor"))
+			.setColor(colors.primary)
 			.setFooter({ text: `${!user.avatar ? "Affichage d'un avatar par défaut • " : ""}Identifiant : ${userId}` })
 		if(user.banner) embed.setThumbnail(avatar); else embed.setImage(avatar)
 		if(user.banner) embed.setImage(user.banner)

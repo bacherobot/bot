@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Ajoute la possibilité d'obtenir des informations sur un utilisateur",
-	"longDescription": "Permet d'obtenir des informations sur un utilisateur avec une commande, se sert également d'API externe pour être plus complet",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

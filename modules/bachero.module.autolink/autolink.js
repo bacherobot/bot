@@ -159,7 +159,7 @@ module.exports = {
 			var embed = new EmbedBuilder()
 				.setTitle(`AutoLink - ${links.length > 1 ? "Des liens ont été détectés" : "Un lien a été détecté"}`)
 				.setDescription(description.join("\n\n").substring(0, 4000))
-				.setColor(bacheroFunctions.config.getValue("bachero", "embedColor"))
+				.setColor(bacheroFunctions.colors.primary)
 				.setFooter({ text: `${description.join("\n\n").length > 2000 ? "Les informations sont tronquées." : "Le contenu de ce message n'est pas vérifié"}. Informations obtenues grâce au message de ${message.author.discriminator == "0" ? message.author.username : message.author.tag} (ID: ${message.author.id}).` })
 			message.reply({ embeds: [embed] }).catch(err => {})
 		})

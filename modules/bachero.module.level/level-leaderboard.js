@@ -27,7 +27,7 @@ module.exports = {
 		.setName("level-leaderboard")
 		.setDescription("Affiche le classement des niveaux, sur ce serveur et sur tous les serveurs."),
 
-	// Code a executer quand la commande est appelée
+	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Identifiant du serveur et de l'utilisateur
 		var guildId = interaction?.guild?.id
@@ -112,7 +112,7 @@ module.exports = {
 				.setTitle("Classement - interserveur")
 				.setFields(global_leaderboard_embed)
 				.setFooter({ text: `Votre rang : ${global_userRank} / ${global_leaderboard.length} • ${userDb?.global?.level ? `Niveau ${userDb?.global?.level}` : "Aucun niveau"}, avec ${userDb?.global?.xp ? `${addSpaceNumbers(userDb?.global?.xp)} XP` : "Aucune XP"}` })
-				.setColor(bacheroFunctions.config.getValue("bachero", "embedColor"))
+				.setColor(bacheroFunctions.colors.primary)
 		}
 
 		// On génère l'embed sur ce serveur
@@ -132,7 +132,7 @@ module.exports = {
 				.setTitle("Classement - ce serveur")
 				.setFields(server_leaderboard_embed)
 				.setFooter({ text: `Votre rang : ${server_userRank} / ${server_leaderboard.length} • ${userDb?.[`server-${guildId}`]?.level ? `Niveau ${userDb?.[`server-${guildId}`]?.level}` : "Aucun niveau"}, avec ${userDb?.[`server-${guildId}`]?.xp ? `${addSpaceNumbers(userDb?.[`server-${guildId}`]?.xp)} XP` : "Aucune XP"}` })
-				.setColor(bacheroFunctions.config.getValue("bachero", "embedColor"))
+				.setColor(bacheroFunctions.colors.primary)
 		}
 
 		// On met en cache

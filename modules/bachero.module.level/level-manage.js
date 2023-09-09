@@ -166,7 +166,7 @@ module.exports = {
 		})
 	},
 
-	// Code a executer quand la commande est appelée
+	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Rangée
 		const row = new ActionRowBuilder().addComponents(new StringSelectMenuBuilder()

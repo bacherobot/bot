@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Ce module récupère les paroles d'une musique et les affiche via une commande",
-	"longDescription": "Ce module obtient les paroles d'une chanson via l'API de Genius et les affiche aux membres utilisant la commande dédiée",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

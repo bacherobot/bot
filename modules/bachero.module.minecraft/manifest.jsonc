@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Obtient des informations sur un serveur Minecraft en une commande",
-	"longDescription": "Rajoute une commande permettant d'obtenir des informations sur un serveur Minecraft, qu'il soit sur l'édition Java ou Bedrock.",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

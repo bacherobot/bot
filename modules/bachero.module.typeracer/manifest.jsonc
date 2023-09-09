@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Lance un duel d'écriture contre un membre de votre serveur",
-	"longDescription": "Rajoute une commande permettant de lancer un duel d'écriture envers un membre du serveur, le premier à finir d'écrire un texte remporte la partie.",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

@@ -29,7 +29,7 @@ module.exports = {
 		})
 	},
 
-	// Code a executer quand la commande est appelée
+	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Vérifier si la fonctionnalité est activée
 		var isEnabled = await bacheroFunctions.database.get(database, `enabled-${interaction.guild.id}`)
@@ -37,7 +37,7 @@ module.exports = {
 		// Créer un embed
 		var embed = new EmbedBuilder()
 			.setTitle("Configuration d'AutoLink")
-			.setColor(bacheroFunctions.config.getValue("bachero", "embedColor"))
+			.setColor(bacheroFunctions.colors.primary)
 		if(isEnabled) embed.setDescription("La fonctionnalité AutoLink est activée sur l'ensemble de ce serveur.\nCelle-ci détecte les messages envoyés par n'importe qui sur votre serveur et en extrait certains liens, pour afficher des détails dans un embed.\n\n:warning: Les liens ne sont pas vérifiés et peuvent être malicieux.")
 		else embed.setDescription("La fonctionnalité AutoLink est désactivée sur ce serveur.\nLorsqu'elle est activée, elle détecte les messages envoyés par les utilisateurs et en extrait certains liens, pour en afficher des détails simplifiés.\n\n:warning: Les liens ne sont pas vérifiés et peuvent être malicieux, à activer avec prudence.")
 

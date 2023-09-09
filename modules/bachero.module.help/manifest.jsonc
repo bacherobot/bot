@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Ce module permet d'obtenir la liste des commandes avec une commande",
-	"longDescription": "Ajoute une commande (/help) pour obtenir la liste de toutes les commandes disponibles dans les modules installés",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

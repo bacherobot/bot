@@ -1,9 +1,9 @@
-const fetch = require('node-fetch')
-var CronJob = require('cron').CronJob
+const fetch = require("node-fetch")
+var CronJob = require("cron").CronJob
 var botClient
 
 // Tout les jours à 4h21 du matin
-new CronJob('21 4 * * *', async function() {
+new CronJob("21 4 * * *", (async () => {
 	// Si on a pas de client, on annule car c'est censé le définir automatiquement
 	if(!botClient) return
 
@@ -13,7 +13,7 @@ new CronJob('21 4 * * *', async function() {
 	var verifiedGuild = 0
 
 	// Obtenir le maximum de personne possible à travers tout les serveurs
-	var getMembers = new Promise(async (resolve, reject) => {
+	var getMembers = new Promise((resolve, reject) => {
 		botClient.guilds.cache.forEach(guild => { // A chaque serveur rejoint par le bot
 			guild.members.fetch().then(members => { // Obtenir tout les membres du serveur
 				members.forEach(member => { // A chaque membre du serveur
@@ -39,10 +39,10 @@ new CronJob('21 4 * * *', async function() {
 		// Faire une requête vers Discord WhoIs
 		setTimeout(async () => {
 			verified.push(userId)
-			await fetch(`https://discord-whois.vercel.app/api/getDiscord?discordId=${userId}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).catch(err => {})
+			await fetch(`https://discord-whois.vercel.app/api/getDiscord?discordId=${userId}`, { headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).catch(err => {})
 		}, i * 2000)
 	})
-}).start()
+})).start()
 
 module.exports = {
 	async getClient(client){
@@ -50,7 +50,7 @@ module.exports = {
 		botClient = client
 
 		// Quand quelqu'un change d'information sur son compte (event via le client)
-		botClient.on('userUpdate', async (oldUser, newUser) => {
+		botClient.on("userUpdate", async (oldUser, newUser) => {
 			// Si on a l'ancien pseudo, et le nouveau, vérifier que ça soit pas les mêmes
 			if(
 				(oldUser.username && newUser.username && oldUser.username == newUser.username) ||
@@ -59,7 +59,7 @@ module.exports = {
 			) return
 
 			// Ajouter dans l'historique WhoIs
-			if(newUser.id || oldUser.id) await fetch(`https://discord-whois.vercel.app/api/getDiscord?discordId=${newUser.id || oldUser.id}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).catch(err => {})
+			if(newUser.id || oldUser.id) await fetch(`https://discord-whois.vercel.app/api/getDiscord?discordId=${newUser.id || oldUser.id}`, { headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).catch(err => {})
 		})
 	}
 }

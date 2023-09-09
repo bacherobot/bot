@@ -47,7 +47,7 @@ function generateEmbed(sondage, reason) {
 			{ name: `2️⃣ ${sondage.option2}`, value: `${choix2} vote${choix2 > 1 ? "s" : ""} (${choix2_percent}%)${trait2.length ? ` | ${trait2}` : ""}` },
 			{ name: "Participants", value: `${choix1 + choix2} vote${choix1 + choix2 > 1 ? "s" : ""}` }
 		])
-		.setColor(bacheroFunctions.config.getValue("bachero", "embedColor"))
+		.setColor(bacheroFunctions.colors.primary)
 	if (reason != "dm") embed.setAuthor({ name: sondage.username, iconURL: sondage.authorPdp })
 	if (!reason) embed.setFooter({ text: "Vous pourrez changer votre vote, mais vous ne pourrez pas le retirer • L'auteur ne sait pas qui participe" })
 
@@ -211,7 +211,7 @@ module.exports = {
 				var embed = new EmbedBuilder()
 					.setTitle("Quelle action voulez-vous faire ?")
 					.setDescription("1️⃣ : Modifier la question\n2️⃣ : Modifier les options\n✅ : Terminer le sondage")
-					.setColor(bacheroFunctions.config.getValue("bachero", "embedColor"))
+					.setColor(bacheroFunctions.colors.primary)
 
 				var row = new ActionRowBuilder().addComponents(
 					new ButtonBuilder()

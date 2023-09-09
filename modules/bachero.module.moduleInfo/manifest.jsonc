@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Ce module rajoute la commande /module",
-	"longDescription": "Ce module rajoute une commande permettant d'obtenir la liste des modules actuellement installés, ou des informations détaillées sur un seul via son nom de packet",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

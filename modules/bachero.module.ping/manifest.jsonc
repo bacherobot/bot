@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Ce module rajoute une commande ping, pour obtenir le temps de latence du bot",
-	"longDescription": "Ce module rajoute une commande affichant le temps de latence entre Bachero et Discord une fois exécuté",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -40,7 +36,7 @@
 			"name": "monitoredByElwatch",
 			"type": "boolean",
 			"default": false,
-			"description": "Es-ce que Bachero est sous la surveillance d'ElWatch (https://elwatch.johanstick.me) ?"
+			"description": "Es-ce que Bachero est sous la surveillance d'ElWatch (https://elwatch.johanstick.fr) ?"
 		}
 	]
 }

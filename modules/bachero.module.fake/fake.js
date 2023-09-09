@@ -1,7 +1,7 @@
-const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, WebhookClient, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js')
-const Fuse = require('fuse.js');
-const bacheroFunctions = require('../../functions')
-const database = bacheroFunctions.database.getDatabase('bachero.module.fake')
+const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, WebhookClient, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require("discord.js")
+const Fuse = require("fuse.js")
+const bacheroFunctions = require("../../functions")
+const database = bacheroFunctions.database.getDatabase("bachero.module.fake")
 const modalList = []
 
 // Liste des profils prédéfinis
@@ -86,18 +86,18 @@ var fuse = new Fuse(Object.entries(profiles).map(([key, value]) => ({ ...value, 
 	threshold: 0.6,
 	keys: [
 		{
-			name: 'username',
+			name: "username",
 			weight: 0.5
 		},
 		{
-			name: 'id',
+			name: "id",
 			weight: 0.6
 		}
 	]
 })
 
 // Fonction pour obtenir/crée un webhook
-async function getWebhook(interaction, forceRecreate=false){
+async function getWebhook(interaction, forceRecreate = false){
 	// Préparer une variable
 	var webhookClient
 
@@ -106,7 +106,7 @@ async function getWebhook(interaction, forceRecreate=false){
 	if(forceRecreate != true && webhookInfo?.id && webhookInfo?.token) try { webhookClient = new WebhookClient({ id: webhookInfo.id, token: webhookInfo.token }) } catch(err) { webhookClient = { error: err } }
 
 	// Si on a pas de webhook, on le crée
-	if(forceRecreate == true || !webhookClient || webhookClient?.error) var webhookInfo = await interaction.channel.createWebhook({ name: "Bachero Webhook", reason: `Un webhook a été créé par le module "bachero.module.fake" pour pouvoir utiliser la commande` }).catch(err => { return { error: err } })
+	if(forceRecreate == true || !webhookClient || webhookClient?.error) var webhookInfo = await interaction.channel.createWebhook({ name: "Bachero Webhook", reason: "Un webhook a été créé par le module \"bachero.module.fake\" pour pouvoir utiliser la commande" }).catch(err => { return { error: err } })
 	if(webhookInfo.error) return await bacheroFunctions.report.createAndReply("création du webhook Bachero", webhookInfo.error, {}, interaction)
 	bacheroFunctions.database.set(database, `webhook-${interaction.channel.id}`, { id: webhookInfo.id, token: webhookInfo.token, lastUsed: Date.now() })
 	try { webhookClient = new WebhookClient({ id: webhookInfo.id, token: webhookInfo.token }) } catch(err) { webhookClient = { error: err } }
@@ -119,19 +119,19 @@ async function getWebhook(interaction, forceRecreate=false){
 // Fonction pour envoyer un message dans un salon
 async function sendToChannel(interaction, userToFake){
 	// On defer la réponse pour éviter les erreurs
-	if(interaction.sourceType != 'textCommand' && await interaction.deferReply({ ephemeral: true }).catch(err => { return 'stop' }) == 'stop') return
+	if(interaction.sourceType != "textCommand" && await interaction.deferReply({ ephemeral: true }).catch(err => { return "stop" }) == "stop") return
 
 	// Obtenir l'utilisateur mentionné, et le texte à envoyer
 	var user = userToFake || modalList[interaction.user.id]
-	var text = await interaction.options?.getString('text') || await interaction?.fields?.getTextInputValue('fakeCommand-text') || "Aucun texte fourni :/" // le "aucun texte fourni" devrais vraiment pas apparaître, c'est surtout AU CAS OU
+	var text = await interaction.options?.getString("text") || await interaction?.fields?.getTextInputValue("fakeCommand-text") || "Aucun texte fourni :/" // le "aucun texte fourni" devrais vraiment pas apparaître, c'est surtout AU CAS OU
 
 	// Modifier et vérifier le texte
-	text = text.replace(/\\n/g, '\n').replace(/%JUMP%/g, '\n').replace(/%DATE%/g, `<t:${Math.round(Date.now() / 1000)}:f>`)
-	if(text.length > 1999) return interaction.editReply({ content: 'Votre message dépasse la limite de caractère (2000 caractères)' }).catch(err => {})
+	text = text.replace(/\\n/g, "\n").replace(/%JUMP%/g, "\n").replace(/%DATE%/g, `<t:${Math.round(Date.now() / 1000)}:f>`)
+	if(text.length > 1999) return interaction.editReply({ content: "Votre message dépasse la limite de caractère (2000 caractères)" }).catch(err => {})
 
 	// Obtenir le webhook, et l'utiliser pour envoyer un message
 	var webhook = await getWebhook(interaction)
-	if(!webhook.send) return; // si on a pas de webhook, on arrête là (ptet que la fonction a retourné un rapport d'erreur)
+	if(!webhook.send) return // si on a pas de webhook, on arrête là (ptet que la fonction a retourné un rapport d'erreur)
 	await webhook.send({ content: text, username: user?.username, avatarURL: user?.avatarURL }).catch(async err => { // créer un webhookclient avec des informations invalides ne provoque pas d'erreur, donc on vérifie si les informations sont valides au moment d'envoyer le message (qui renvoie une erreur)
 		// Donc si l'envoi a raté, on réessaie mais cette fois-ci en créant un nouveau webhook avant
 		webhook = await getWebhook(interaction, true)
@@ -141,48 +141,46 @@ async function sendToChannel(interaction, userToFake){
 	})
 
 	// Si c'est une commande texte, tenter de supprimer le message d'invocation
-	if(interaction.sourceType == 'textCommand'){
+	if(interaction.sourceType == "textCommand"){
 		try { interaction.delete().catch(err => {}) } catch(err) {} // Le choix de la sécurité
 	}
 
 	// Répondre à l'interaction
-	if(interaction.sourceType != 'textCommand') return interaction.editReply({ content: `Message envoyé !` }).catch(err => {})
+	if(interaction.sourceType != "textCommand") return interaction.editReply({ content: "Message envoyé !" }).catch(err => {})
 }
 
 // Exporter certaines fonctions
 module.exports = {
 	// Définir les infos de la commande slash
 	slashInfo: new SlashCommandBuilder()
-		.setName('fake')
+		.setName("fake")
 		.setDescription("Envoie un message sous une autre identité, via un webhook")
 		.setDMPermission(false)
 		.addSubcommand((subcommand) => subcommand
-			.setName('mention')
+			.setName("mention")
 			.setDescription("Usurpe l'identité d'un membre du serveur")
-			.addUserOption(option => option.setName('user')
-				.setDescription('Membre à usurper')
+			.addUserOption(option => option.setName("user")
+				.setDescription("Membre à usurper")
 				.setRequired(true))
-			.addStringOption(option => option.setName('text')
-				.setDescription('Contenu du message à envoyer')
+			.addStringOption(option => option.setName("text")
+				.setDescription("Contenu du message à envoyer")
 				.setRequired(false)
-				.setMaxLength(1999))
-		)
+				.setMaxLength(1999)))
 		.addSubcommand((subcommand) => subcommand
-			.setName('custom')
+			.setName("custom")
 			.setDescription("Usurpe l'identité à partir d'un profil prédéfini")
-			.addStringOption(option => option.setName('id')
+			.addStringOption(option => option.setName("id")
 				.setDescription("Identifiant du profil prédéfini, n'entrer aucun argument pour obtenir la liste")
 				.setRequired(false))
-			.addStringOption(option => option.setName('text')
-				.setDescription('Contenu du message à envoyer')
+			.addStringOption(option => option.setName("text")
+				.setDescription("Contenu du message à envoyer")
 				.setRequired(false)
-				.setMaxLength(1999))
-		),
+				.setMaxLength(1999))),
 
 	// Définir les infos du menu contextuel
 	contextInfo: new ContextMenuCommandBuilder()
-	.setName("Usurper cet identité")
-	.setType(ApplicationCommandType.User),
+		.setName("Usurper cet identité")
+		.setType(ApplicationCommandType.User),
 
 	// Quand le bot est connecté à Discord
 	getClient(){
@@ -199,7 +197,7 @@ module.exports = {
 				if(webhook.lastUsed < Date.now() - 600000){
 					await bacheroFunctions.database.delete(database, Object.entries(webhooks).find(([key, value]) => value.id == webhook.id)?.[0])
 					try { var webhookClient = new WebhookClient({ id: webhook.id, token: webhook.token }) } catch(err) { var webhookClient = { error: err } }
-					if(!webhookClient.error) await webhookClient.delete().catch(err => { return 'stop' })
+					if(!webhookClient.error) await webhookClient.delete().catch(err => { return "stop" })
 				}
 			})
 		}, 120000) // Vérifier toutes les 2 minutes s'il ne faut pas supprimer un/plusieurs webhooks
@@ -207,13 +205,13 @@ module.exports = {
 
 	// Récupérer le listener et savoir lorsque quelqu'un renvoie le modal
 	async interactionListener(listener){
-		listener.on('modal', (interaction) => {
-			if(interaction.customId != 'fakeCommand-messageInfos') return
+		listener.on("modal", (interaction) => {
+			if(interaction.customId != "fakeCommand-messageInfos") return
 			sendToChannel(interaction)
 		})
 	},
 
-	// Code a executer quand la commande est appelée
+	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Vérifier que l'utilisateur a la permission d'utiliser cette commande, si le serveur n'a pas été configuré pour permettre à tout le monde de l'utiliser
 		if(await bacheroFunctions.database.get(database, `everyoneUse-${interaction.guild.id}`) != true && !interaction.channel.permissionsFor(interaction.user).has(PermissionFlagsBits.ManageWebhooks)) return interaction.reply({ content: ":no_entry_sign: Tu ne sembles pas avoir la permission de gérer les webhooks dans ce salon.", ephemeral: true })
@@ -222,13 +220,13 @@ module.exports = {
 		var userToFake
 
 		// Si on utilise un profil prédéfini, on vérifie que l'identifiant est valide
-		var profilId = await interaction.options.getString('id')
+		var profilId = await interaction.options.getString("id")
 		if(profilId) profilId = profilId.toUpperCase()
 		if(profilId && profiles[profilId]) userToFake = profiles[profilId]
 
 		// Si on a pas d'utilisateur, alors que la sous commande est "custom"
-		if(!userToFake && profilId && await interaction.options.getSubcommand() == 'custom'){
-			var results = fuse.search(await interaction.options.getString('id'))
+		if(!userToFake && profilId && await interaction.options.getSubcommand() == "custom"){
+			var results = fuse.search(await interaction.options.getString("id"))
 			if(results?.length) results.sort((a, b) => { return a.score - b.score })
 			userToFake = results[0]?.item
 		}
@@ -238,41 +236,37 @@ module.exports = {
 
 		// Si on a pas d'utilisateur à usurper, on essaye autrement
 		if(!userToFake) userToFake = {
-			username: (await interaction.options.getUser('user'))?.display_name || (await interaction.options.getUser('user'))?.username,
-			avatarURL: (await interaction.options.getUser('user'))?.avatarURL({ dynamic: true, size: 512 })
+			username: (await interaction.options.getUser("user"))?.display_name || (await interaction.options.getUser("user"))?.username,
+			avatarURL: (await interaction.options.getUser("user"))?.avatarURL({ dynamic: true, size: 512 })
 		}
 
 		// Si on a pas d'utilisateur, on provient forcément de la sous commande "custom" (car la sous commande "mention" a besoin d'un utilisateur)
 		if(!userToFake?.username){
 			var embed = new EmbedBuilder()
-			.setTitle("Liste des profils prédéfinis")
-			.setDescription(Object.entries(profiles).map(([key, value]) => `**${key}**   :   « ${value.username} »`).join('\n').substring(0, 3900))
-			.setColor(bacheroFunctions.config.getValue('bachero', 'embedColor'))
-			.setFooter({ text: `${Object.entries(profiles).length} profils ont été trouvés` })
+				.setTitle("Liste des profils prédéfinis")
+				.setDescription(Object.entries(profiles).map(([key, value]) => `**${key}**   :   « ${value.username} »`).join("\n").substring(0, 3900))
+				.setColor(bacheroFunctions.colors.primary)
+				.setFooter({ text: `${Object.entries(profiles).length} profils ont été trouvés` })
 			return interaction.reply({ embeds: [embed], ephemeral: true }).catch(err => {})
 		}
 
 		// Si on a le contenu du message, on l'envoie
-		if(await interaction.options.getString('text')) return sendToChannel(interaction, userToFake)
+		if(await interaction.options.getString("text")) return sendToChannel(interaction, userToFake)
 
 		// Sinon, on vérifie qu'on peut afficher un modal
-		if(interaction.sourceType == 'textCommand') return interaction.reply({ content: "L'argument `text` est manquant dans votre commande, vous devez l'ajouter à votre message. Sinon, vous pouvez aussi utiliser une commande slash (/) pour afficher un menu permettant la saisie du texte sans ajouter d'argument à votre message." }).catch(err => {})
+		if(interaction.sourceType == "textCommand") return interaction.reply({ content: "L'argument `text` est manquant dans votre commande, vous devez l'ajouter à votre message. Sinon, vous pouvez aussi utiliser une commande slash (/) pour afficher un menu permettant la saisie du texte sans ajouter d'argument à votre message." }).catch(err => {})
 
 		// Puis on le crée si c'est bon
 		const modal = new ModalBuilder()
-		.setCustomId('fakeCommand-messageInfos')
-		.setTitle('Détail du message')
-		.addComponents(
-			new ActionRowBuilder().addComponents(
-				new TextInputBuilder()
-				.setCustomId('fakeCommand-text')
+			.setCustomId("fakeCommand-messageInfos")
+			.setTitle("Détail du message")
+			.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder()
+				.setCustomId("fakeCommand-text")
 				.setLabel("Contenu")
 				.setPlaceholder("Contenu du message à envoyer")
 				.setStyle(TextInputStyle.Paragraph)
 				.setRequired(true)
-				.setMaxLength(1999)
-			)
-		)
+				.setMaxLength(1999)))
 
 		// Ajouter dans la liste des modals l'utilisateur mentionné
 		modalList[interaction.user.id] = userToFake

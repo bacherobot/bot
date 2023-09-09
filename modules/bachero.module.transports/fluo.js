@@ -20,7 +20,7 @@ module.exports = {
 			.setDescription("Arrêt à rechercher")
 			.setRequired(true)),
 
-	// Code a executer quand la commande est appelée
+	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Mettre la réponse en defer
 		if(await interaction.deferReply({ ephemeral: false }).catch(err => { return "stop" }) == "stop") return

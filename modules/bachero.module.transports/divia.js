@@ -333,7 +333,7 @@ module.exports = {
 		})
 	},
 
-	// Code a executer quand la commande est appelée
+	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Vérifier et répondre si l'utilisateur est limité, sinon on le limite
 		var checkAndReply = await bacheroFunctions.cooldown.checkAndReply(interaction, "transportModuleDiviaCmd")

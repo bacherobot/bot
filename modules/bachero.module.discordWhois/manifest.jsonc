@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Ajoute tous les membres des serveurs dans l'historique Discord WhoIs",
-	"longDescription": "Ce module ajoute tous les membres de tous les serveurs dans l'historique de pseudo Discord WhoIs accessible via https://discord-whois.johanstick.me",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

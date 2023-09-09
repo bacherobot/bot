@@ -10,10 +10,6 @@
 
 	// Description du module
 	"shortDescription": "Détecte lorsqu'un utilisateur envoie un lien, et affiche des informations sur certains sites lorsque cela peut être utile",
-	"longDescription": "Détecte les messages contenant un lien, récupère des informations à partir de celui-ci et les envoie via un embed détaillé",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

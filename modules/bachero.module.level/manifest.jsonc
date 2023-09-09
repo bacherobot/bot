@@ -8,9 +8,6 @@
 	// Description du module
 	"shortDescription": "Propose un système de niveaux avec points d'XP",
 
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
-
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
 

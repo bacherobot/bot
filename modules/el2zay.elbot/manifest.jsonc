@@ -1,11 +1,8 @@
 {
-    "disabled": true, // le module marche pas encore à cause de certaines modifs dans le fichier index.js et le fichier functions.js
     "packageName": "el2zay.elbot",
     "name": "elbot",
     "shortDescription": "Ce module ajoute plusieurs commandes de elbot.",
-    "longDescription": "Ce module ajoute les commandes principales de elbot.",
-    "onloadMessage": "",
-    "source": "",
+    "source": "https://github.com/bacherobot/bot",
     "files": [ // toutes les commandes désactivées sont pas terminées
         "bingchiling.js", 
         "roulette.js",
@@ -33,7 +30,6 @@
         "random-dé.js",
         "random-map-point.js"
     ],
-
     "authors": [
         {
             "name": "el2zay",

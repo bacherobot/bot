@@ -7,10 +7,6 @@
 
 	// Description du module
 	"shortDescription": "Permet de rapporter des problèmes en rapport avec le robot",
-	"longDescription": "Permet de rapporter des problèmes à l'administrateur de cette instance Bachero, ou au développeur du bot",
-
-	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

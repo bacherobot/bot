@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ContextMenuCommandBuilder, ApplicationCommandType } = require("discord.js")
-const { config, report } = require("../../functions")
+const { config, report, colors } = require("../../functions")
 const alwaysShowMinimal = config.getValue("bachero.module.userinfo", "alwaysShowMinimal")
 const disableBadges = config.getValue("bachero.module.userinfo", "disableBadges")
 const fetchPronouns = config.getValue("bachero.module.userinfo", "fetchPronouns")
@@ -27,7 +27,7 @@ module.exports = {
 		.setName("Afficher les infos")
 		.setType(ApplicationCommandType.User),
 
-	// Code a executer quand la commande est appelée
+	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Mettre la réponse en defer
 		if(await interaction.deferReply().catch(err => { return "stop" }) == "stop") return
@@ -50,7 +50,7 @@ module.exports = {
 		userInfo = userInfo?.advancedInfo || userInfo
 
 		// Si c'est un bot, obtenir des informations venant d'ElWatch
-		if(!showMinimal && userInfo.bot) var botInfo = await fetch(`https://api.elwatch.johanstick.me/api/status/${userId}`).then(res => res.json()).catch(err => { return {} }); else var botInfo = {}
+		if(!showMinimal && userInfo.bot) var botInfo = await fetch(`https://api.elwatch.johanstick.fr/api/status/${userId}`).then(res => res.json()).catch(err => { return {} }); else var botInfo = {}
 		if(botInfo?.error) botInfo = {}
 		if(botInfo?.info) botInfo = botInfo?.info
 		if(botInfo?.username == "Inconnu" && botInfo?.discriminator == "0000") botInfo = {}
@@ -91,7 +91,7 @@ module.exports = {
 
 			// Si c'est un bot, et qu'on a eu des informations depuis ElWatch
 			if(userInfo?.bot && botInfo?.username) row.addComponents(new ButtonBuilder()
-				.setURL(`https://elwatch.johanstick.me/status/${userId}`)
+				.setURL(`https://elwatch.johanstick.fr/status/${userId}`)
 				.setStyle(ButtonStyle.Link)
 				.setLabel("Voir sur ElWatch"))
 
@@ -142,7 +142,7 @@ module.exports = {
 		if(userInfo?.badges?.replugged_early) badges.push({ from: "replugged", name: "Utilisateur Replugged de la première heure", emoji: "<:UtilisateurRepluggeddelapremireh:1008809329677320303>", link: "https://replugged.dev/" })
 		if(userInfo?.badges?.replugged_booster) badges.push({ from: "replugged", name: "Replugged Server Booster", emoji: "<:RepluggedServerBooster:1008809313818660864>", link: "https://replugged.dev/" })
 		if(userInfo?.badges?.aliucord_contributor) badges.push({ from: "aliucord", name: "Contributeur Aliucord", emoji: "<:ContributeurAliucord:1008809283435118624>", link: "https://github.com/Aliucord/Aliucord" }) // ouais il manque le aliucord développeur mais j'ai pas trouvé l'icône :/
-		if(userInfo?.badges?.bachero_ogSupporter) badges.push({ from: "bachero", name: "OG Supporter", emoji: "<:BacheroLogo:1046404634023047240>", link: "https://bachero.johanstick.me" })
+		if(userInfo?.badges?.bachero_ogSupporter) badges.push({ from: "bachero", name: "OG Supporter", emoji: "<:BacheroLogo:1046404634023047240>", link: "https://bachero.johanstick.fr" })
 		if(userInfo?.badges?.custom?.emoji && userInfo?.badges?.custom?.name) badges.push({ from: "discord-whois", emoji: userInfo?.badges?.custom?.emoji, name: userInfo?.badges?.custom?.name })
 
 		// Fetch le membre du serveur
@@ -160,7 +160,7 @@ module.exports = {
 		// Créé un embed contenant toute les informations
 		var embed = new EmbedBuilder()
 			.setTitle(`${userInfo?.global_name || userInfo?.globalName ? userInfo.global_name || userInfo.globalName : ""} ${userInfo?.global_name || userInfo?.globalName ? "(" : ""}${userInfo?.discriminator == "0" ? `@${userInfo?.username}` : escape(`${userInfo.username}#${userInfo.discriminator}`)}${userInfo?.global_name || userInfo?.globalName ? ")" : ""} ${pronouns?.length ? `*(${escape(pronouns)})*` : ""}`)
-			.setColor(config.getValue("bachero", "embedColor"))
+			.setColor(colors.primary)
 		if(!showMinimal) embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ", ElWatch" : ""}${pronouns?.length ? ", PronounDB" : ""}` })
 		if(userInfo.avatar_url) embed.setThumbnail(userInfo.avatar_url)
 		if(userInfo.banner_url) embed.setImage(userInfo.banner_url)
@@ -207,13 +207,13 @@ module.exports = {
 				// Créé un embed
 				var embed = new EmbedBuilder()
 				embed.setTitle("Historique de pseudos")
-				embed.setDescription(`${usernameHistory.map(u => `<t:${Math.round(u.date / 1000)}:f> | ${escape(u.username)}`).join("\n").slice(0, 3800)}\n\n> L'historique de pseudos se base sur le moment auquel [Discord WhoIs](https://bachero.johanstick.me/blog/discord-whois) a été utilisé pour obtenir les informations de l'utilisateur.\n\n> À chaque fois qu'un utilisateur obtient les informations d'un autre utilisateur, le pseudo sera modifié dans l'historique.`)
-				embed.setColor(config.getValue("bachero", "embedColor"))
+				embed.setDescription(`${usernameHistory.map(u => `<t:${Math.round(u.date / 1000)}:f> | ${escape(u.username)}`).join("\n").slice(0, 3800)}\n\n> L'historique de pseudos se base sur le moment auquel [Discord WhoIs](https://bachero.johanstick.fr/blog/discord-whois) a été utilisé pour obtenir les informations de l'utilisateur.\n\n> À chaque fois qu'un utilisateur obtient les informations d'un autre utilisateur, le pseudo sera modifié dans l'historique.`)
+				embed.setColor(colors.primary)
 				embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? " et ElWatch" : ""}` })
 
 				// Répondre et modifier l'ancienne réponse pour enlever le bouton
 				if(await i.editReply({ embeds: [embed] }).catch(err => { return "stop" }) == "stop") return
-				if(await interaction.editReply({ components: [row] }).catch(err => { return "stop" }) == "stop") return
+				await interaction.editReply({ components: [row] }).catch(err => { return "stop" })
 			})
 		}
 

@@ -52,7 +52,7 @@ module.exports = {
 		.setName("botinfo")
 		.setDescription(`Fournis des informations sur ${bacheroFunctions.config.getValue("bachero", "botName")}`),
 
-	// Code a executer quand la commande est appelée
+	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Obtenir le client du bot
 		if(!botClient) botClient = bacheroFunctions.botClient.get()
@@ -70,7 +70,7 @@ module.exports = {
 		// Créer un embed pour afficher les informations
 		var embed = new EmbedBuilder()
 			.setTitle(`Informations sur ${bacheroFunctions.config.getValue("bachero", "botName")}${bacheroFunctions.config.getValue("bachero", "botName").trim().toLowerCase() == "bachero" ? "" : " *(par Bachero)*"}`)
-			.setColor(bacheroFunctions.config.getValue("bachero", "embedColor"))
+			.setColor(bacheroFunctions.colors.primary)
 		var listFields = [
 			!hideStartTime ? { name: "Dernier démarrage", value: `<t:${Math.round(botClient.readyTimestamp / 1000)}:f>`, inline: true } : null,
 			cache.guildCount ? { name: "Statistiques Discord", value: `${cache.guildCount?.value} serveurs, ${cache.membersCount?.value} membres`, inline: true } : null,
