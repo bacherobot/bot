@@ -1,18 +1,14 @@
 // Importer quelques librairies
-const fs = require('fs')
-const path = require('path')
-const jsonc = require('jsonc')
-const JSONdb = require('simple-json-db')
+const fs = require("fs")
+const path = require("path")
+const jsonc = require("jsonc")
+const JSONdb = require("simple-json-db")
 const quickmongo = require("quickmongo")
-const LZString = require('lz-string')
-const { customAlphabet } = require('nanoid'), nanoid = customAlphabet('abcdefghiklnoqrstuvyz123456789', 14)
-const { EventEmitter2 } = require('eventemitter2');
-const { EmbedBuilder } = require('discord.js')
-var chalk;
-if(!process.argv.includes('--optimize')) chalk = require('chalk')
-
-// Variable pour savoir si la base de données doit être compressé ou non
-var compressDatabase
+const { customAlphabet } = require("nanoid"), nanoid = customAlphabet("abcdefghiklnoqrstuvyz123456789", 14)
+const { EventEmitter2 } = require("eventemitter2")
+const { EmbedBuilder } = require("discord.js")
+var chalk
+if(!process.argv.includes("--optimize")) chalk = require("chalk")
 
 // Listener pour partager des messages entre modules
 var listener = new EventEmitter2({ wildcard: true })
@@ -29,6 +25,15 @@ var cachedConfigs = {}
 
 // Créé une variable qui contiendra le client du bot
 var botClient = null
+var botName = config_getValue("bachero", "botName") // jsp où le mettre
+
+// Liste de chemins spécifiques
+var foldersPath = {
+	config: path.join(__dirname, "config"),
+	modules: path.join(__dirname, "modules"),
+	node_modules: path.join(__dirname, "node_modules"), // eslint-disable-line
+	root: path.join(__dirname)
+}
 
 // Obtenir toute la configuration d'un module
 function config_getConfig(packageName){
@@ -37,11 +42,11 @@ function config_getConfig(packageName){
 
 	// Sinon, on la charge, cache et retourne
 	try {
-		var config = fs.readFileSync(path.join(__dirname, 'config', `${packageName}.jsonc`), 'utf8')
+		var config = fs.readFileSync(path.join(__dirname, "config", `${packageName}.jsonc`), "utf8")
 		cachedConfigs[packageName] = jsonc.parse(config).config
 		return cachedConfigs[packageName]
-	} catch (e) {
-		return new Error(`Fichier de configuration introuvable/invalide`)
+	} catch (err) {
+		return new Error("Fichier de configuration introuvable/invalide")
 	}
 }
 
@@ -68,9 +73,9 @@ function getDatabase(packageName){
 	if(databaseList.has(packageName)) return databaseList.get(packageName)
 
 	// Si on veut une base de données MongoDB
-	if(config_getValue('bachero', 'databaseType') == 'mongodb'){
+	if(config_getValue("bachero", "databaseType") == "mongodb"){
 		// Créé la base de données
-		var database = new quickmongo.Database(process.env.MONGODB_URL.replace('%DBNAME%', packageName.replace(/\./g, '-')))
+		var database = new quickmongo.Database(process.env.MONGODB_URL.replace("%DBNAME%", packageName.replace(/\./g, "-")))
 
 		// Retourne la base de données quand elle est prête
 		databaseList.set(packageName, database)
@@ -79,11 +84,11 @@ function getDatabase(packageName){
 	// Sinon, go sur du JSON par défaut
 	else {
 		// Si le dossier database n'existe pas, le créer (de même pour le fichier)
-		if(!fs.existsSync(path.join(__dirname, 'database'))) fs.mkdirSync(path.join(__dirname, 'database'))
-		if(!fs.existsSync(path.join(__dirname, 'database', `${packageName}.json`))) fs.writeFileSync(path.join(__dirname, 'database', `${packageName}.json`), '{}')
+		if(!fs.existsSync(path.join(__dirname, "database"))) fs.mkdirSync(path.join(__dirname, "database"))
+		if(!fs.existsSync(path.join(__dirname, "database", `${packageName}.json`))) fs.writeFileSync(path.join(__dirname, "database", `${packageName}.json`), "{}")
 
 		// Sinon, on la crée et on la retourne
-		var database = new JSONdb(path.join(__dirname, 'database', `${packageName}.json`))
+		var database = new JSONdb(path.join(__dirname, "database", `${packageName}.json`))
 		databaseList.set(packageName, database)
 		return database
 	}
@@ -94,17 +99,6 @@ async function database_get(database, property){
 	// Obtenir la valeur
 	var value = await database.get(property)
 
-	// Vérifier si on doit décompresser
-	if(!compressDatabase) compressDatabase = config_getValue('bachero', 'compressDatabase')
-	if(compressDatabase && value && typeof value == 'string' && value.startsWith('𠂊')){
-		try {
-			value = LZString.decompress(value.replace('𠂊',''))
-		} catch (e) {}
-		try {
-			value = JSON.parse(value)
-		} catch (e) {}
-	}
-
 	// Si elle n'existe pas, on retourne une erreur
 	if(value instanceof Error) return value
 	return value ? value : null
@@ -112,10 +106,6 @@ async function database_get(database, property){
 
 // Fonction pour mettre à jour une valeur dans une BDD
 async function database_set(database, property, value){
-	// Vérifier si on doit compresser
-	if(!compressDatabase) compressDatabase = config_getValue('bachero', 'compressDatabase')
-	if(compressDatabase && (typeof value == 'string' || typeof value == 'object')) value = `𠂊${LZString.compress((typeof value == 'object' ? JSON.stringify(value) : value))}`
-
 	// Mettre à jour la valeur
 	var result = await database.set(property, value)
 
@@ -131,7 +121,7 @@ async function database_has(database, property){
 
 	// Si la valeur n'existe pas, on retourne une erreur
 	if(result instanceof Error) return result
-	return result ? true : false
+	return !!result
 }
 
 // Fonction pour supprimer une valeur dans une BDD
@@ -152,27 +142,11 @@ async function database_getAll(database){
 	// Si on utilise quickmongo (valeur .connection existe)
 	if(database?.connection){
 		var defaultJSON = await database.all()
-		defaultJSON.forEach(a => { json[a.ID] = a.data })
+		defaultJSON.forEach(all => { json[all.ID] = all.data })
 	}
 
 	// Sinon on utilise la méthode JSON
 	else json = await database.JSON()
-
-	// Vérifier si on doit décompresser
-	if(!compressDatabase) compressDatabase = config_getValue('bachero', 'compressDatabase')
-	if(compressDatabase){
-		for(var key in json){
-			value = json[key]
-			if(value && typeof value == 'string' && value.startsWith('𠂊')){
-				try {
-					json[key] = LZString.decompress(json[key].replace('𠂊',''))
-				} catch (e) {}
-				try {
-					json[key] = JSON.parse(json[key])
-				} catch (e) {}
-			}
-		}
-	}
 
 	// Retourner le résultat
 	return json
@@ -184,46 +158,46 @@ async function parseUserFromString(string, returnType){
 	var returnValueId = null
 
 	// Si c'est un utilisateur
-	if(typeof string == 'object' && string.id) returnValueId = string.id
+	if(typeof string == "object" && string.id) returnValueId = string.id
 
 	// Si c'est une mention, on l'obtient
-	if(!returnValueId && string.startsWith('<@') && string.endsWith('>')){
+	if(!returnValueId && string.startsWith("<@") && string.endsWith(">")){
 		returnValueId = string.slice(2, -1)
-		if(returnValueId.startsWith('!')) returnValueId = returnValueId.slice(1)
+		if(returnValueId.startsWith("!")) returnValueId = returnValueId.slice(1)
 	}
 
 	// Si c'est un identifiant et qu'il existe, on l'obtient
-	if(!returnValueId) idMatch = string.match(/^\d+$/)
+	if(!returnValueId) var idMatch = string.match(/^\d+$/)
 	if(!returnValueId && idMatch && (await botClient.users.fetch(idMatch[0]))) returnValueId = idMatch[0]
 
 	// Si la valeur n'a pas été trouvée
 	if(!returnValueId) return null
 
 	// Retourner la valeur qu'on veut
-	if(returnType == 'id') return returnValueId
-	if(returnType == 'mention') return `<@${returnValueId}>`
+	if(returnType == "id") return returnValueId
+	if(returnType == "mention") return `<@${returnValueId}>`
 	else return await botClient.users.fetch(returnValueId)
 }
 
 // Fonction pour afficher quelque chose dans la console
 var outputLogsInFile
 var showedLog = false
-function showLog(type, content, id="noid", showInConsole=true, hideDetails=false){
+function showLog(type, content, id = "noid", showInConsole = true, hideDetails = false){
 	// Si l'identifiant est bloqué
-	if(config_getValue('bachero', 'logBlockedIds').includes(id)) return false;
+	if(config_getValue("bachero", "logBlockedIds").includes(id)) return false
 
 	// Type à afficher
-	if(chalk) coloredType = chalk[type == 'ok' ? 'green' : type == 'info' ? 'blue' : type == 'error' ? 'red' : type == 'warn' ? 'yellow' : 'reset']; else coloredType = type => type
-	var type = type ? `[${type.toUpperCase()}]` : ''
+	if(chalk) var coloredType = chalk[type == "ok" ? "green" : type == "info" ? "blue" : type == "error" ? "red" : type == "warn" ? "yellow" : "reset"]; else coloredType = type => type
+	var type = type ? `[${type.toUpperCase()}]` : ""
 
 	// Si on doit afficher dans la console, on le fait
-	if(showInConsole) console[type == 'error' ? 'error' : type == 'warn' ? 'warn' : 'log'](hideDetails ? '' : `${new Date().toLocaleTimeString()} ${coloredType(type)}`, content)
+	if(showInConsole) console[type == "error" ? "error" : type == "warn" ? "warn" : "log"]((hideDetails ? "" : `${new Date().toLocaleTimeString()} ${coloredType(type)} `) + content)
 
 	// L'ajouter à un fichier de log si on doit le faire
-	if(outputLogsInFile == undefined) outputLogsInFile = config_getValue('bachero', 'outputLogsInFile')
+	if(outputLogsInFile == undefined) outputLogsInFile = config_getValue("bachero", "outputLogsInFile")
 	if(outputLogsInFile){
-		if(!fs.existsSync(path.join(__dirname, 'logs'))) fs.mkdirSync(path.join(__dirname, 'logs'))
-		fs.appendFileSync(path.join(__dirname, 'logs', `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================\ Début des logs ================================\n" : ''}${hideDetails ? '' : `[${new Date().toLocaleTimeString()}] ${type}   `}${typeof content == 'object' ? JSON.stringify(content) : content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '')}\n`)
+		if(!fs.existsSync(path.join(__dirname, "logs"))) fs.mkdirSync(path.join(__dirname, "logs"))
+		fs.appendFileSync(path.join(__dirname, "logs", `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================ Début des logs ================================\n" : ""}${hideDetails ? "" : `[${new Date().toLocaleTimeString()}] ${type}   `}${typeof content == "object" ? JSON.stringify(content) : content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "")}\n`)
 	}
 
 	// Retourner true
@@ -237,7 +211,7 @@ async function setCooldown(cooldownId, userId, cooldownTime){
 	// Utiliser la base de données pour le cooldown (reste présent après un redémarrage du bot)
 	if(cooldownTime > 100000){
 		// Si cooldownDb n'existe pas, le créé
-		if(!cooldownDb) cooldownDb = await getDatabase('persistantCooldown')
+		if(!cooldownDb) cooldownDb = await getDatabase("persistantCooldown")
 
 		// Ajouter le cooldown
 		await database_set(cooldownDb, `${cooldownId}-${userId}`, {
@@ -274,7 +248,7 @@ async function checkCooldown(cooldownId, userId){
 	// Sinon, vérifier dans la base de données
 	else {
 		// Si cooldownDb n'existe pas, le créé
-		if(!cooldownDb) cooldownDb = await getDatabase('persistantCooldown')
+		if(!cooldownDb) cooldownDb = await getDatabase("persistantCooldown")
 
 		// Obtenir le cooldown
 		var cooldown = await database_get(cooldownDb, `${cooldownId}-${userId}`)
@@ -301,14 +275,14 @@ async function checkCooldown(cooldownId, userId){
 }
 
 // Fonction pour supprimer le cooldown d'un utilisateur
-async function deleteCooldown(cooldownId, userId, waitForDelete=true){
+async function deleteCooldown(cooldownId, userId, waitForDelete = true){
 	// Si il est dans la map, le supprimer
 	if(cooldowns.has(`${cooldownId}-${userId}`)){
 		cooldowns.delete(`${cooldownId}-${userId}`)
 	}
 	// Sinon, vérifier dans la base de données
 	else {
-		if(!cooldownDb) cooldownDb = await getDatabase('persistantCooldown')
+		if(!cooldownDb) cooldownDb = await getDatabase("persistantCooldown")
 		if(waitForDelete) await database_delete(cooldownDb, `${cooldownId}-${userId}`)
 		else database_delete(cooldownDb, `${cooldownId}-${userId}`)
 	}
@@ -331,7 +305,7 @@ async function checkCooldownAndReply(interaction, cooldownId){
 	interaction.action({ embeds: [{
 		title: "Vous êtes limité",
 		description: `Cette commande est limitée à un certain nombre d'utilisations, veuillez patienter jusqu'à <t:${Math.round((Date.now() + cooldownTime) / 1000)}:T> avant de réessayer.`,
-		color: parseInt(config_getValue('bachero', 'embedColor').replace('#',''), 16)
+		color: parseInt(config_getValue("bachero", "secondEmbedColor").replace("#", ""), 16)
 	}], ephemeral: true, components: [], content: null })
 
 	// Retourner true
@@ -341,19 +315,19 @@ async function checkCooldownAndReply(interaction, cooldownId){
 // Fonction pour obtenir un rapport d'erreur
 async function report_get(id){
 	// Si le système est désactivé
-	if(config_getValue('bachero', 'disableReport') == true) return "Le système de rapport d'erreur est désactivé."
+	if(config_getValue("bachero", "disableReport") == true) return "Le système de rapport d'erreur est désactivé."
 
 	// Obtenir le rapport depuis la BDD
-	var report;
+	var report
 	try {
-		if(config_getValue('bachero', 'databaseType') == 'mongodb'){
-			var db = getDatabase('internalBachero.reports')
+		if(config_getValue("bachero", "databaseType") == "mongodb"){
+			var db = getDatabase("internalBachero.reports")
 			var report = await database_get(db, id)
 		} else {
-			if(!fs.existsSync(path.join(__dirname, 'reports'))) fs.mkdirSync(path.join(__dirname, 'reports'))
-			var report = fs.readFileSync(path.join(__dirname, 'reports', `${id}.txt`)).toString()
+			if(!fs.existsSync(path.join(__dirname, "reports"))) fs.mkdirSync(path.join(__dirname, "reports"))
+			var report = fs.readFileSync(path.join(__dirname, "reports", `${id}.txt`)).toString()
 		}
-	} catch (e) {
+	} catch (err) {
 		return "Ce rapport n'existe pas."
 	}
 
@@ -364,7 +338,7 @@ async function report_get(id){
 // Fonction pour créé un rapport d'erreur
 async function report_create(context, error, moreInfos, interaction){
 	// Si le système est désactivé
-	if(config_getValue('bachero', 'disableReport') == true) return false
+	if(config_getValue("bachero", "disableReport") == true) return false
 
 	// Préparer les informations facultatives
 	if(!error) var error = "Impossible d'obtenir des détails sur l'erreur."
@@ -381,20 +355,23 @@ async function report_create(context, error, moreInfos, interaction){
 		commandName: interaction?.commandName,
 	}
 
+	// Version du bot
+	var version = require("./package.json").version || "Inconnue"
+
 	// Préparer les informations de base
 	var randomid = nanoid()
 	var date = new Date().toLocaleString()
 
 	// Créer le rapport sous forme de texte
-	var report = `${randomid} | Rapport (${context}) générée le ${date}.\n\nIdentifiants en rapport avec l'interaction :\n•   Auteur: ${interaction.authorId}\n•   Serveur: ${interaction.guildId}\n•   Salon: ${interaction.channelId}\n•   Source: ${interaction.sourceType}\n•   Nom de la commande: ${interaction.commandName}\n\nInformations supplémentaires apportées par le module :\n   ${JSON.stringify(moreInfos) || moreInfos}\n\n${'='.repeat(15)}\n\n${error.stack || error.message || error.toString() || error}`
+	var report = `${randomid} | Rapport (${context}) générée le ${date} avec Bachero v${version}.\n\nIdentifiants en rapport avec l'interaction :\n•   Auteur: ${interaction.authorId}\n•   Serveur: ${interaction.guildId}\n•   Salon: ${interaction.channelId}\n•   Source: ${interaction.sourceType}\n•   Nom de la commande: ${interaction.commandName}\n\nInformations supplémentaires apportées par le module :\n   ${JSON.stringify(moreInfos) || moreInfos}\n\n${"=".repeat(15)}\n\n${error.stack || error.message || error.toString() || error}`
 
 	// L'enregistrer dans la BDD
-	if(config_getValue('bachero', 'databaseType') == 'mongodb'){
-		var db = getDatabase('internalBachero.reports')
+	if(config_getValue("bachero", "databaseType") == "mongodb"){
+		var db = getDatabase("internalBachero.reports")
 		await database_set(db, randomid, report)
 	} else {
-		if(!fs.existsSync(path.join(__dirname, 'reports'))) fs.mkdirSync(path.join(__dirname, 'reports'))
-		fs.writeFileSync(path.join(__dirname, 'reports', `${randomid}.txt`), report)
+		if(!fs.existsSync(path.join(__dirname, "reports"))) fs.mkdirSync(path.join(__dirname, "reports"))
+		fs.writeFileSync(path.join(__dirname, "reports", `${randomid}.txt`), report)
 	}
 
 	// Retourner l'identifiant du rapport
@@ -408,13 +385,15 @@ async function report_createAndReply(context, error, moreInfos, interaction){
 	else interaction.action = interaction.editReply
 
 	// Si le système est désactivé
-	if(config_getValue('bachero', 'disableReport') == true) return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande (" + context + ") :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```").setColor(config_getValue('bachero', 'embedColor')).setFooter({text:`N'hésitez pas à signaler ce problème au staff de ${botName} !`})], ephemeral: true }).catch(err => {})
+	if(config_getValue("bachero", "disableReport") == true) return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription(`Un problème est survenu lors de l'exécution de la commande (${context}) :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``).setColor(config_getValue("bachero", "dangerEmbedColor")).setFooter({ text: `N'hésitez pas à signaler ce problème au staff de ${botName} !` })], ephemeral: true }).catch(err => {})
 
 	// Créer le rapport
 	var reportId = await report_create(context, error, moreInfos, interaction)
 
 	// Répondre
-	return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription("Un problème est survenu lors de l'exécution de la commande (" + context + ") :\n```\n" + (error?.toString()?.replace(/`/g, ' `') || error) + "\n```\nEn cas de besoin, vous pourrez communiquer l'identifiant `" + reportId + "` au support pour les aider dans la résolution de problème.").setColor(config_getValue('bachero', 'embedColor'))], ephemeral: true })
+	return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription(`Un problème est survenu lors de l'exécution de la commande (${context}) :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\`\nEn cas de besoin, vous pourrez communiquer l'identifiant \`${reportId}\` au support pour les aider dans la résolution de problème.`).setColor(config_getValue("bachero", "dangerEmbedColor"))], ephemeral: true }).catch(err => {
+		showLog("warn", `Impossible de répondre à une interaction (${context}) : ${err}`, "error-report-send-failed")
+	})
 }
 
 // Exporter les fonctions
@@ -469,6 +448,28 @@ module.exports = {
 			return listener.emit(identifier, content)
 		}
 	},
+	colors: {
+		primary: config_getValue("bachero", "embedColor"),
+		secondary: config_getValue("bachero", "secondEmbedColor"),
+		success: config_getValue("bachero", "successEmbedColor"),
+		danger: config_getValue("bachero", "dangerEmbedColor"),
+		rouge: "#ed4245",
+		vert: "#12c700",
+		bleu: "#01579b",
+		orange: "#ff6f00",
+		blanc: "#fafafa",
+		noir: "#212121",
+		jaune: "#ffff00",
+		violet: "#512da8",
+		cyan: "#4fc3f7",
+		rose: "#ffafcc",
+		gris: "#f5f5f5",
+		grisfonce: "#524b50",
+		marron: "#604840",
+		saumon: "#f9906f"
+	},
 	showLog: showLog,
 	parseUserFromString: parseUserFromString,
+	foldersPath: foldersPath,
+	package: require("./package.json"),
 }
