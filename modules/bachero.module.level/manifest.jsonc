@@ -1,0 +1,59 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.level",
+
+	// Nom du module
+	"name": "Niveaux et XP",
+
+	// Description du module
+	"shortDescription": "Propose un système de niveaux avec points d'XP",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"main.js", // ajoute de l'XP en envoyant des messages
+		"level-leaderboard.js", // commande /level-leaderboard
+		"level-manage.js" // gérer le système sur un serveur 
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251"
+		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "hideGlobalLeaderboard",
+			"type": "boolean",
+			"default": false,
+			"description": "Masque le classement interserveur dans la commande /level-leaderboard, celui-ci sera toujours visible en utilisant la commande en message privé"
+		},
+		{
+			"name": "showMaxUsersInLeaderboard",
+			"type": "boolean",
+			"default": false,
+			"description": "Affiche 24 utilisateurs au maximum, au lieu de 12, dans chaque classement"
+		},
+		{
+			"name": "showLevelUpMessage",
+			"type": "boolean",
+			"default": true,
+			"description": "Affiche un message dans le chat lorsqu'un utilisateur passe un niveau"
+		},
+		{
+			"name": "levelUpMessage",
+			"type": "string",
+			"default": "Level up {user} ! Vous êtes désormais au niveau ${level}.",
+			"description": "Message affiché en réponse à un utilisateur qui passe un niveau. {user} sera remplacé par une mention, et {level} par son niveau"
+		}
+	]
+}

@@ -10,5 +10,4 @@ config/*
 TEMP_bachero_textcommandcompatibility
 reports
 logs
-modules/temporary.module.ogbadge
 .DS_Store

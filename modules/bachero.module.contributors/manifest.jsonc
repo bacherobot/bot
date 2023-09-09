@@ -1,0 +1,29 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.contributors",
+
+	// Nom du module
+	"name": "Liste des contributeurs",
+
+	// Description du module
+	"shortDescription": "Ce module affiche les contributeurs du dépôt GitHub.",
+
+	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
+	"onloadMessage": "",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"contributeurs.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251"
+		}
+	]
+}
