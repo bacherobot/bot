@@ -6,7 +6,7 @@ const escape = require("markdown-escape")
 module.exports = {
 	// Définir les infos de la commande slash
 	slashInfo: new SlashCommandBuilder()
-		.setName("avatar")
+		.setName("photo")
 		.setDescription("Affiche la photo complète d'un utilisateur")
 		.addUserOption(option => option.setName("user")
 			.setDescription("Sur quel utilisateur ?")
