@@ -13,7 +13,7 @@ module.exports = {
 	async execute(interaction){
 		// Vérifier si l'utilisateur est limité, et si c'est pas le cas, le limiter
 		var checkAndReply = await bacheroFunctions.cooldown.checkAndReply(interaction, 'firstCommandeUsage')
-		if(checkAndReply) return; else await bacheroFunctions.cooldown.set('firstCommandeUsage', interaction.user.id, 10000)
+		if(checkAndReply) return; else await bacheroFunctions.cooldown.set('firstCommandeUsage', interaction.user.id, 5000)
 
 		// Mettre la réponse en defer et obtenir la date
 		if(await interaction.deferReply().catch(err => { return 'stop' }) == 'stop') return
@@ -41,7 +41,7 @@ module.exports = {
 		// Créé un bouton
 		const row = new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
-			.setURL(first.url || "https://discord.com")
+			.setURL(first.url || "https://discord.com") // oui parce que si on a pas la valeur du .url, ça crash
 			.setStyle(ButtonStyle.Link)
 			.setLabel('Accéder au message'),
 		)
