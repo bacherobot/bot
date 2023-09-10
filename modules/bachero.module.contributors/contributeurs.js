@@ -20,7 +20,7 @@ module.exports = {
 	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// On defer l'interaction, si c'est pas une commande texte (on a pas besoin de defer pour les commandes texte car il n'y a pas de timeout)
-		if(interaction.sourceType != "textCommand" && await interaction.deferReply({ ephemeral: true }).catch(err => { return "stop" }) == "stop") return
+		if(interaction.sourceType != "textCommand" && await interaction.deferReply().catch(err => { return "stop" }) == "stop") return
 
 		// Si on a pas encore les contributeurs dans le cache, les récupérer
 		if(!cacheContributors?.data || cacheContributors?.lastUsed < Date.now() - (1000 * 60 * 60)){ // (une heure)
@@ -44,8 +44,8 @@ module.exports = {
 		}
 
 		// Si on a déjà l'embed dans le cache, l'utiliser
-		if(cacheContributors?.embed && interaction.sourceType != "textCommand") return interaction.reply({ embeds: [cacheContributors.embed], components: [row] }).catch(err => {})
-		else if(cacheContributors?.embed && interaction.sourceType == "textCommand") return interaction.editReply({ embeds: [cacheContributors.embed], components: [row] }).catch(err => {})
+		if(cacheContributors?.embed && interaction.sourceType == "textCommand") return interaction.reply({ embeds: [cacheContributors.embed], components: [row] }).catch(err => {})
+		else if(cacheContributors?.embed) return interaction.editReply({ embeds: [cacheContributors.embed], components: [row] }).catch(err => {})
 
 		// Sinon, on va créer l'embed
 		var embed = new EmbedBuilder()
@@ -68,6 +68,7 @@ module.exports = {
 		})
 
 		// Répondre avec l'embed
-		interaction.reply({ embeds: [embed], components: [row] }).catch(err => {})
+		if(interaction.sourceType == "textCommand") interaction.reply({ embeds: [embed], components: [row] }).catch(err => {})
+		else interaction.editReply({ embeds: [embed], components: [row] }).catch(err => {})
 	}
 }

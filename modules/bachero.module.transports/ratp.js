@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require("discord.js")
 const Fuse = require("fuse.js")
+const fetch = require("node-fetch")
 const bacheroFunctions = require("../../functions")
 
 // Ids d'interactions

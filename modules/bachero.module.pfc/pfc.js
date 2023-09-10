@@ -120,7 +120,7 @@ module.exports = {
 			var embed = new EmbedBuilder(interaction?.message?.embeds[0]?.data)
 			embed.setDescription(`Tu as choisi **${interaction.customId.replace("pfc-", "")}** et j'ai choisi **${botAnswer}**.\n\n${winner == "draw" ? "C'est un match nul !" : winner == "player" ? "Bravo, tu as gagné !" : "Dommage, tu as perdu !"}`)
 			embed.setFooter({ text: `${winCount} victoire${winCount.length > 1 ? "s" : ""} | ${loseCount} défaite${loseCount.length > 1 ? "s" : ""}${!Math.round(winPercent) ? "" : ` | ${Math.round(winPercent)}% des parties remportées`}` })
-			embed.setColor(bacheroFunctions.config.getValue("bachero", winner == "player" ? "successEmbedColor" : winner == "bot" ? "secondEmbedColor" : "embedColor"))
+			embed.setColor(winner == "draw" ? bacheroFunctions.colors.secondary : winner == "player" ? bacheroFunctions.colors.success : bacheroFunctions.colors.danger)
 			interaction.update({ embeds: [embed] }).catch(err => {})
 		})
 	},

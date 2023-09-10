@@ -197,7 +197,7 @@ module.exports = {
 				if(webhook.lastUsed < Date.now() - 600000){
 					await bacheroFunctions.database.delete(database, Object.entries(webhooks).find(([key, value]) => value.id == webhook.id)?.[0])
 					try { var webhookClient = new WebhookClient({ id: webhook.id, token: webhook.token }) } catch(err) { var webhookClient = { error: err } }
-					if(!webhookClient.error) await webhookClient.delete().catch(err => { return "stop" })
+					if(!webhookClient.error) try { await webhookClient.delete().catch(err => { return "stop" }) } catch(err) {}
 				}
 			})
 		}, 120000) // Vérifier toutes les 2 minutes s'il ne faut pas supprimer un/plusieurs webhooks
