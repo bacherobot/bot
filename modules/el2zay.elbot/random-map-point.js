@@ -29,8 +29,8 @@ function generateRandomCoordinates() {
 	const randomCity = cities[Math.floor(Math.random() * cities.length)]
 
 	// Ajoutez un décalage aléatoire pour obtenir une position GPS dans la ville, mais pas exactement au centre
-	const latitudeOffset = Math.random() * (0.8 - 0.1)
-	const longitudeOffset = Math.random() * (0.8 - 0.1)
+	const latitudeOffset = Math.random() * (0.2 - 0.1)
+	const longitudeOffset = Math.random() * (0.2 - 0.1)
 
 	// Calculez les coordonnées GPS finales, et les retourner
 	const latitude = randomCity.latitude + latitudeOffset
