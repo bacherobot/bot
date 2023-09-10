@@ -138,11 +138,11 @@ module.exports = {
 		// On met en cache
 		if(showGlobal) global_cacheLeaderboard = {
 			embed: global_embed,
-			expire: Date.now() + (1000 * 60 * 2) // 2 minutes
+			expire: Date.now() + (1000 * 60) // 1 minute
 		}
 		if(guildId) guild_cacheLeaderboard[guildId] = {
 			embed: server_embed,
-			expire: Date.now() + (1000 * 60 * 2) // 2 minutes
+			expire: Date.now() + (1000 * 60) // 1 minute
 		}
 
 		// On envoie l'embed
