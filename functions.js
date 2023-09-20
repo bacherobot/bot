@@ -36,6 +36,16 @@ var foldersPath = {
 }
 
 // Obtenir toute la configuration d'un module
+/**
+	Retourne la configuration entière d'un module par son nom de packet. La configuration de Bachero peut être obtenue avec bachero.
+
+	```js
+	var bacheroConfig = bacheroFunctions.config.getConfig('bachero')
+	console.log(bacheroConfig.embedColor)
+	```
+
+	@param {string} packageName Nom du packet du module
+*/
 function config_getConfig(packageName){
 	// Si elle est déjà cachée, on la retourne
 	if(cachedConfigs[packageName]) return cachedConfigs[packageName]
@@ -51,6 +61,17 @@ function config_getConfig(packageName){
 }
 
 // Obtenir une propriété de la configuration d'un module par son nom
+/**
+	Retourne la valeur d'une propriété de la configuration
+
+	```js
+	console.log(bacheroFunctions.config.getValue('bachero', 'embedColor'))
+	// Note: dans ce cas, vous devriez plutôt utiliser `bacheroFunctions.colors.primary`
+	```
+
+	@param {string} packageName Nom du packet du module
+	@param {string} property Nom de la propriété à obtenir
+*/
 function config_getValue(packageName, property){
 	// Obtenir la configuration entière du module
 	var config = config_getConfig(packageName)
@@ -63,11 +84,26 @@ function config_getValue(packageName, property){
 }
 
 // Vider le cache des configurations
+/**
+	Vide la liste des configurations en cache. Les configurations seront rechargées aux prochaines lectures.
+
+	@private
+*/
 function config_clearCache(){
 	cachedConfigs = {}
 }
 
 // Fonction pour obtenir une BDD
+/**
+	Retourne une base de données par son nom de packet, la réponse pourra faire des opérations.
+	L'élément retourné n'est pas le contenu de la base de données, vous pouvez l'obtenir avec `getAll()`.
+
+	```js
+	const database = bacheroFunctions.database.getDatabase('com.example.helloworld')
+	```
+
+	@param {string} packageName Nom du packet du module
+*/
 function getDatabase(packageName){
 	// Si elle existe déjà, on la retourne
 	if(databaseList.has(packageName)) return databaseList.get(packageName)
@@ -95,6 +131,17 @@ function getDatabase(packageName){
 }
 
 // Fonction pour obtenir une valeur dans une BDD
+/**
+	Retourne la valeur d'une propriété à partir d'une base de données.
+
+	```js
+	const database = bacheroFunctions.database.getDatabase('com.example.helloworld')
+	const statistics = bacheroFunctions.database.get(database, 'statistics')
+	```
+
+	@param {object} database Base de données à utiliser
+	@param {string} property Nom de la propriété à obtenir
+*/
 async function database_get(database, property){
 	// Obtenir la valeur
 	var value = await database.get(property)
@@ -105,6 +152,19 @@ async function database_get(database, property){
 }
 
 // Fonction pour mettre à jour une valeur dans une BDD
+/**
+	Modifie la valeur d'une propriété dans une base de données.
+
+	```js
+	const database = bacheroFunctions.database.getDatabase('com.example.helloworld')
+	const statistics = bacheroFunctions.database.get(database, 'statistics')
+	bacheroFunctions.database.set(database, 'statistics', statistics + 1)
+	```
+
+	@param {object} database Base de données à utiliser
+	@param {string} property Nom de la propriété à modifier
+	@param {any} value Nouvelle valeur à définir
+*/
 async function database_set(database, property, value){
 	// Mettre à jour la valeur
 	var result = await database.set(property, value)
@@ -115,6 +175,17 @@ async function database_set(database, property, value){
 }
 
 // Fonction pour vérifier si une valeur existe dans une BDD
+/**
+	Vérifie si une propriété existe dans une base de données.
+
+	```js
+	const database = bacheroFunctions.database.getDatabase('com.example.helloworld')
+	if(await bacheroFunctions.database.has(database, 'statistics')) console.log('La propriété existe !')
+	```
+
+	@param {object} database Base de données à utiliser
+	@param {string} property Nom de la propriété à vérifier
+*/
 async function database_has(database, property){
 	// Vérifier si la valeur existe
 	var result = await database.has(property)
@@ -125,6 +196,21 @@ async function database_has(database, property){
 }
 
 // Fonction pour supprimer une valeur dans une BDD
+/**
+	Supprime une propriété dans une base de données.
+
+	```js
+	const database = bacheroFunctions.database.getDatabase('com.example.helloworld')
+	if(bacheroFunctions.database.has(database, 'statistics')){
+		console.log('Les statistiques existent !')
+		bacheroFunctions.database.delete(database, 'statistics')
+		console.log('plus maintenant :)')
+	}
+	```
+
+	@param {object} database Base de données à utiliser
+	@param {string} property Nom de la propriété à supprimer
+*/
 async function database_delete(database, property){
 	// Supprimer la valeur
 	var result = await database.delete(property)
@@ -135,6 +221,16 @@ async function database_delete(database, property){
 }
 
 // Fonction pour obtenir la liste des valeurs dans une BDD
+/**
+	Retourne la liste des valeurs d'une base de données.
+
+	```js
+	const database = bacheroFunctions.database.getDatabase('com.example.helloworld')
+	const statistics = bacheroFunctions.database.getAll(database)
+	```
+
+	@param {object} database Base de données à utiliser
+*/
 async function database_getAll(database){
 	// Préparer la liste
 	var json = {}
@@ -153,6 +249,17 @@ async function database_getAll(database){
 }
 
 // Fonction pour parse une mention/identifiant Discord
+/**
+	Permet de "parser" et "convertir" un utilisateur, s'il est sous la forme d'une mention, d'un utilisateur (discord.js) ou d'un identifiant.
+
+	```js
+	var user = await bacheroFunctions.parseUserFromString('277825082334773251')
+	console.log(user.username)
+	```
+
+	@param {string|object} string Valeur à parser (id, mention, user DiscordJS)
+	@param {string} returnType Type de valeur à retourner (id, mention, ou user DiscordJS si non spécifié)
+*/
 async function parseUserFromString(string, returnType){
 	// Préparer la variable à retourner
 	var returnValueId = null
@@ -182,6 +289,22 @@ async function parseUserFromString(string, returnType){
 // Fonction pour afficher quelque chose dans la console
 var outputLogsInFile
 var showedLog = false
+/**
+	Affiche un message dans la console, et l'enregistre dans un fichier si cela n'a pas été désactivé par l'administrateur de l'instance.
+
+	```js
+	bacheroFunctions.showLog('ok', `L'API n'a rencontré aucun problème`, "example-module-api-ok")
+	bacheroFunctions.showLog('info', `L'API a répondu avec succès`, "example-module-api-success")
+	bacheroFunctions.showLog('warn', `Un problème a été rencontré avec l'API`, "example-module-api-problem")
+	bacheroFunctions.showLog('error', `L'API a rencontré une erreur`, "example-module-api-error")
+	```
+
+	@param {string} type Type de message à afficher (ok, info, warn, error)
+	@param {string} content Contenu du message à afficher
+	@param {string} id Identifiant du message à log, fortement recommandé
+	@param {boolean} showInConsole Si le message doit être affiché dans la console
+	@param {boolean} hideDetails Si les détails devraient ne pas s'afficher (heure, type)
+*/
 function showLog(type, content, id = "noid", showInConsole = true, hideDetails = false){
 	// Si l'identifiant est bloqué
 	if(config_getValue("bachero", "logBlockedIds").includes(id)) return false
@@ -206,6 +329,19 @@ function showLog(type, content, id = "noid", showInConsole = true, hideDetails =
 }
 
 // Fonction pour définir un cooldown à un utilisateur
+/**
+	Défini un cooldown à un utilisateur. Pour éviter un utilisateur d'effectuer de nombreuses fois une action par exemple.
+
+	```js
+	// Empêcher l'utilisateur avec l'identifiant "interaction.user.id" d'effectuer une action pendant les 5 prochaines secondes (5000 ms)
+	if(await bacheroFunctions.cooldown.check('helloworldUsage', interaction.user.id)) return interaction.reply('bonsoir non')
+	else await bacheroFunctions.cooldown.set('helloworldUsage', interaction.user.id, 1000)
+	```
+
+	@param {string} cooldownId Identifiant du cooldown, doit être unique
+	@param {string} userId Identifiant de l'utilisateur à limiter
+	@param {number} cooldownTime Durée du cooldown en millisecondes
+*/
 async function setCooldown(cooldownId, userId, cooldownTime){
 	// Si la durée est supérieure à 100000 (100 secondes)
 	// Utiliser la base de données pour le cooldown (reste présent après un redémarrage du bot)
@@ -236,6 +372,16 @@ async function setCooldown(cooldownId, userId, cooldownTime){
 }
 
 // Fonction pour vérifier si un utilisateur est bloqué par un cooldown
+/**
+	Vérifie si un utilisateur ne fais pas partie de la liste d'utilisateurs limités par un cooldown.
+
+	```js
+	// Vérifier uniquement si l'utilisateur avec l'identifiant "interaction.user.id" peut effectuer une action
+	if(await bacheroFunctions.cooldown.check('helloworldUsage', interaction.user.id)) return interaction.reply('bonsoir non')
+	```
+
+	@param {string} cooldownId Identifiant du cooldown, doit être unique
+*/
 async function checkCooldown(cooldownId, userId){
 	// Préparer dans une variable le cooldown
 	var cooldown
@@ -275,6 +421,17 @@ async function checkCooldown(cooldownId, userId){
 }
 
 // Fonction pour supprimer le cooldown d'un utilisateur
+/**
+	Supprime le cooldown d'un utilisateur, en supprimant la limite et le laissant effectuer des actions à nouveau.
+
+	```js
+	bacheroFunctions.cooldown.delete('helloworldUsage', interaction.user.id, true)
+	```
+
+	@param {string} cooldownId Identifiant du cooldown, doit être unique
+	@param {string} userId Identifiant de l'utilisateur à "rendre libre"
+	@param {boolean} waitForDelete Si la fonction doit attendre la suppression dans la base de données
+*/
 async function deleteCooldown(cooldownId, userId, waitForDelete = true){
 	// Si il est dans la map, le supprimer
 	if(cooldowns.has(`${cooldownId}-${userId}`)){
@@ -292,6 +449,19 @@ async function deleteCooldown(cooldownId, userId, waitForDelete = true){
 }
 
 // Fonction pour répondre à une interaction si la personne est limité par le cooldown
+/**
+	Vérifie si un utilisateur est limité, et répondre à l'interaction si c'est le cas.
+
+	```js
+	// Vérifier et répondre si l'utilisateur est limité, sinon on le limite
+	var checkAndReply = await bacheroFunctions.cooldown.checkAndReply(interaction, 'helloworldUsage')
+	if(checkAndReply) return; else await bacheroFunctions.cooldown.set('helloworldUsage', interaction.user.id, 1000)
+	```
+
+	@param {object} interaction Interaction DiscordJS à vérifier
+	@param {string} cooldownId Identifiant du cooldown, doit être unique
+*/
+// TODO: on ajoutera des @return parfois
 async function checkCooldownAndReply(interaction, cooldownId){
 	// Vérifier si la personne est limité
 	var cooldownTime = await checkCooldown(cooldownId, interaction.user.id || interaction.author.id)
@@ -313,6 +483,15 @@ async function checkCooldownAndReply(interaction, cooldownId){
 }
 
 // Fonction pour obtenir un rapport d'erreur
+/**
+	Retourne un rapport d'erreur par son identifiant, ou `false` si le système est désactivé.
+
+	```js
+	console.log(await bacheroFunctions.report.get('0dR2aEuesjTc2c'))
+	```
+
+	@param {string} id Identifiant du rapport d'erreur
+*/
 async function report_get(id){
 	// Si le système est désactivé
 	if(config_getValue("bachero", "disableReport") == true) return "Le système de rapport d'erreur est désactivé."
@@ -336,6 +515,23 @@ async function report_get(id){
 }
 
 // Fonction pour créé un rapport d'erreur
+/**
+	Crée un rapport d'erreur et retourne l'identifiant de celui-ci, ou `false` si le système est désactivé.
+
+	```js
+	try {
+		var fetchedContent = await fetch('http://localhost').then(res => res.json())
+	} catch (error) {
+		var reportId = await bacheroFunctions.report.create('error', error, { url: 'http://localhost' }, interaction)
+		interaction.reply(`Une erreur est survenue, le rapport d'erreur a été créé avec l'identifiant \`${reportId}\`.`)
+	}
+	```
+
+	@param {string} context Contexte rencontré lors de l'erreur
+	@param {object} error Erreur qui sera enregistrée dans le rapport
+	@param {object} moreInfos Objet qui contiendra des informations en plus
+	@param {object} interaction Interaction DiscordJS
+*/
 async function report_create(context, error, moreInfos, interaction){
 	// Si le système est désactivé
 	if(config_getValue("bachero", "disableReport") == true) return false
@@ -344,6 +540,9 @@ async function report_create(context, error, moreInfos, interaction){
 	if(!error) var error = "Impossible d'obtenir des détails sur l'erreur."
 	if(!context) var context = "contexte inconnu"
 	if(!moreInfos) var moreInfos = {}
+	
+	// Si les infos supplémentaires sont un string
+	if(typeof moreInfos == "string") moreInfos = { "fromstring": moreInfos }
 
 	// Informations facultatives sur l'interaction
 	if(!interaction) interaction = {}
@@ -379,6 +578,23 @@ async function report_create(context, error, moreInfos, interaction){
 }
 
 // Fonction pour créé un rapport d'erreur et le rapporter
+/**
+	Crée un rapport d'erreur et réponds à l'interaction avec l'identifiant du rapport et le contenu raccourci de l'erreur.
+	Si le système est désactivé, la fonction répondra quand même à l'interaction, mais sans l'identifiant du rapport.
+
+	```js
+	try {
+		var fetchedContent = await fetch('http://localhost').then(res => res.json())
+	} catch (error) {
+		await bacheroFunctions.report.createAndReply('error', error, { url: 'http://localhost' }, interaction)
+	}
+	```
+
+	@param {string} context Contexte rencontré lors de l'erreur
+	@param {object} error Erreur qui sera enregistrée dans le rapport
+	@param {object} moreInfos Objet qui contiendra des informations en plus
+	@param {object} interaction Interaction DiscordJS
+*/
 async function report_createAndReply(context, error, moreInfos, interaction){
 	// Décider si on doit répondre ou modifier
 	if(!interaction.replied && !interaction.deferred) interaction.action = interaction.reply
