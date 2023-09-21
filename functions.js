@@ -45,6 +45,7 @@ var foldersPath = {
 	```
 
 	@param {string} packageName Nom du packet du module
+	@returns {object} Configuration du module
 */
 function config_getConfig(packageName){
 	// Si elle est déjà cachée, on la retourne
@@ -71,6 +72,7 @@ function config_getConfig(packageName){
 
 	@param {string} packageName Nom du packet du module
 	@param {string} property Nom de la propriété à obtenir
+	@returns {any} Valeur de la propriété
 */
 function config_getValue(packageName, property){
 	// Obtenir la configuration entière du module
@@ -88,6 +90,7 @@ function config_getValue(packageName, property){
 	Vide la liste des configurations en cache. Les configurations seront rechargées aux prochaines lectures.
 
 	@private
+	@returns {void}
 */
 function config_clearCache(){
 	cachedConfigs = {}
@@ -141,6 +144,7 @@ function getDatabase(packageName){
 
 	@param {object} database Base de données à utiliser
 	@param {string} property Nom de la propriété à obtenir
+	@returns {any} Valeur de la propriété
 */
 async function database_get(database, property){
 	// Obtenir la valeur
@@ -164,6 +168,7 @@ async function database_get(database, property){
 	@param {object} database Base de données à utiliser
 	@param {string} property Nom de la propriété à modifier
 	@param {any} value Nouvelle valeur à définir
+	@returns {void}
 */
 async function database_set(database, property, value){
 	// Mettre à jour la valeur
@@ -185,6 +190,7 @@ async function database_set(database, property, value){
 
 	@param {object} database Base de données à utiliser
 	@param {string} property Nom de la propriété à vérifier
+	@returns {boolean} Si la valeur existe
 */
 async function database_has(database, property){
 	// Vérifier si la valeur existe
@@ -210,6 +216,7 @@ async function database_has(database, property){
 
 	@param {object} database Base de données à utiliser
 	@param {string} property Nom de la propriété à supprimer
+	@returns {void}
 */
 async function database_delete(database, property){
 	// Supprimer la valeur
@@ -230,6 +237,7 @@ async function database_delete(database, property){
 	```
 
 	@param {object} database Base de données à utiliser
+	@returns {object} Liste des valeurs
 */
 async function database_getAll(database){
 	// Préparer la liste
@@ -259,6 +267,7 @@ async function database_getAll(database){
 
 	@param {string|object} string Valeur à parser (id, mention, user DiscordJS)
 	@param {string} returnType Type de valeur à retourner (id, mention, ou user DiscordJS si non spécifié)
+	@returns {string|object} Valeur parsée
 */
 async function parseUserFromString(string, returnType){
 	// Préparer la variable à retourner
@@ -304,6 +313,7 @@ var showedLog = false
 	@param {string} id Identifiant du message à log, fortement recommandé
 	@param {boolean} showInConsole Si le message doit être affiché dans la console
 	@param {boolean} hideDetails Si les détails devraient ne pas s'afficher (heure, type)
+	@returns {boolean} Si le message a été affiché
 */
 function showLog(type, content, id = "noid", showInConsole = true, hideDetails = false){
 	// Si l'identifiant est bloqué
@@ -341,6 +351,7 @@ function showLog(type, content, id = "noid", showInConsole = true, hideDetails =
 	@param {string} cooldownId Identifiant du cooldown, doit être unique
 	@param {string} userId Identifiant de l'utilisateur à limiter
 	@param {number} cooldownTime Durée du cooldown en millisecondes
+	@returns {number} Durée du cooldown
 */
 async function setCooldown(cooldownId, userId, cooldownTime){
 	// Si la durée est supérieure à 100000 (100 secondes)
@@ -381,6 +392,8 @@ async function setCooldown(cooldownId, userId, cooldownTime){
 	```
 
 	@param {string} cooldownId Identifiant du cooldown, doit être unique
+	@param {string} userId Identifiant de l'utilisateur à vérifier
+	@returns {number} Durée du cooldown restante, ou 0 si l'utilisateur n'est pas limité
 */
 async function checkCooldown(cooldownId, userId){
 	// Préparer dans une variable le cooldown
@@ -431,6 +444,7 @@ async function checkCooldown(cooldownId, userId){
 	@param {string} cooldownId Identifiant du cooldown, doit être unique
 	@param {string} userId Identifiant de l'utilisateur à "rendre libre"
 	@param {boolean} waitForDelete Si la fonction doit attendre la suppression dans la base de données
+	@returns {boolean} true
 */
 async function deleteCooldown(cooldownId, userId, waitForDelete = true){
 	// Si il est dans la map, le supprimer
@@ -460,8 +474,8 @@ async function deleteCooldown(cooldownId, userId, waitForDelete = true){
 
 	@param {object} interaction Interaction DiscordJS à vérifier
 	@param {string} cooldownId Identifiant du cooldown, doit être unique
+	@returns {boolean} Si l'utilisateur est limité
 */
-// TODO: on ajoutera des @return parfois
 async function checkCooldownAndReply(interaction, cooldownId){
 	// Vérifier si la personne est limité
 	var cooldownTime = await checkCooldown(cooldownId, interaction.user.id || interaction.author.id)
@@ -491,6 +505,7 @@ async function checkCooldownAndReply(interaction, cooldownId){
 	```
 
 	@param {string} id Identifiant du rapport d'erreur
+	@returns {string} Contenu du rapport d'erreur
 */
 async function report_get(id){
 	// Si le système est désactivé
@@ -531,6 +546,7 @@ async function report_get(id){
 	@param {object} error Erreur qui sera enregistrée dans le rapport
 	@param {object} moreInfos Objet qui contiendra des informations en plus
 	@param {object} interaction Interaction DiscordJS
+	@returns {string} Identifiant du rapport d'erreur
 */
 async function report_create(context, error, moreInfos, interaction){
 	// Si le système est désactivé
@@ -540,7 +556,7 @@ async function report_create(context, error, moreInfos, interaction){
 	if(!error) var error = "Impossible d'obtenir des détails sur l'erreur."
 	if(!context) var context = "contexte inconnu"
 	if(!moreInfos) var moreInfos = {}
-	
+
 	// Si les infos supplémentaires sont un string
 	if(typeof moreInfos == "string") moreInfos = { "fromstring": moreInfos }
 
