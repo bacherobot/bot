@@ -220,7 +220,7 @@ async function whenStopObtained(interaction, stop, isComplete){
 	var embed = new EmbedBuilder()
 		.setTitle(`Horaires de passage à l'arrêt ${stops.find(s => s.id == stop).name}`)
 		.setDescription(!times.length ? "Aucun passages n'a pu être trouvé à cet arrêt. Tenter d'utiliser l'appli RATP pour plus de détails, ou réessayer plus tard." : times.map(t => {
-			return `### ${t.lineName} — ${t?.nextStops?.[0]?.name ? t?.nextStops?.[0]?.name?.substring(0, 106) : ""}${t?.situationCriticity ? "— Potentiels problèmes sur la ligne" : ""}\n${t.nextStops.map(s => {
+			return `### ${t.lineName} — ${t?.nextStops?.[0]?.name ? t?.nextStops?.[0]?.name?.substring(0, 106) : ""}${t?.situationCriticity ? " — Potentiels problèmes sur la ligne" : ""}\n${t.nextStops.map(s => {
 				return `- ${s.status != "AVAILABLE_WAITING_TIME" && s.status ? s.status.replace("APPROACHING", "**À l'approche**").replace("ATDOCK", "**À quai**") : ""}${s.status != "AVAILABLE_WAITING_TIME" && s.status && typeof s.wait == "number" ? ` | ${s.wait} minute${s.wait > 1 ? "s" : ""}` : (typeof s.wait == "number" ? `${s.wait} minute${s.wait > 1 ? "s" : ""}` : (s.dateTime ? new Date(s.dateTime).toLocaleString() : ""))}${s.additionalWaitingTimeNote?.length ? ` | ${s.additionalWaitingTimeNote}` : ""}`
 			}).join("\n")}`
 		}).join("\n"))
