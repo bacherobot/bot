@@ -38,6 +38,7 @@ module.exports = {
 
 		// Vérifier sa taille
 		if(text.length > 1999) return interaction.editReply({ content: "Votre message dépasse la limite de caractère (2000 caractères)" }).catch(err => {})
+		if(!text.length) return interaction.editReply({ content: "Vous devez fournir un texte à envoyer" }).catch(err => {})
 
 		// Obtenir l'attachement
 		var attachment = await interaction.options.getAttachment("attachment")

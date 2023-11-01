@@ -128,6 +128,7 @@ async function sendToChannel(interaction, userToFake){
 	// Modifier et vérifier le texte
 	text = text.replace(/\\n/g, "\n").replace(/%JUMP%/g, "\n").replace(/%DATE%/g, `<t:${Math.round(Date.now() / 1000)}:f>`)
 	if(text.length > 1999) return interaction.editReply({ content: "Votre message dépasse la limite de caractère (2000 caractères)" }).catch(err => {})
+	if(!text.length) return interaction.editReply({ content: "Vous devez fournir un texte à envoyer" }).catch(err => {})
 
 	// Obtenir le webhook, et l'utiliser pour envoyer un message
 	var webhook = await getWebhook(interaction)
