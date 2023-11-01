@@ -213,6 +213,9 @@ module.exports = {
 
 	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
+		// Si on est pas sur un serveur (les menus contextuels fonctionnent en DM mais on veut pas dans cette commande)
+		if(!interaction.guild) return interaction.reply({ content: "Cette commande n'est pas disponible en message privé.", ephemeral: true }).catch(err => {})
+
 		// Vérifier que l'utilisateur a la permission d'utiliser cette commande, si le serveur n'a pas été configuré pour permettre à tout le monde de l'utiliser
 		if(await bacheroFunctions.database.get(database, `everyoneUse-${interaction.guild.id}`) != true && !interaction.channel.permissionsFor(interaction.user).has(PermissionFlagsBits.ManageWebhooks)) return interaction.reply({ content: ":no_entry_sign: Tu ne sembles pas avoir la permission de gérer les webhooks dans ce salon.", ephemeral: true })
 
