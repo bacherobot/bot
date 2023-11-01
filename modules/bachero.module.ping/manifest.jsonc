@@ -6,7 +6,7 @@
 	"name": "Ping",
 
 	// Description du module
-	"shortDescription": "Ce module rajoute une commande ping, pour obtenir le temps de latence du bot",
+	"shortDescription": "Détermine le temps de latence entre le bot et Discord, et entre le bot et la base de données",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -20,7 +20,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	],
 

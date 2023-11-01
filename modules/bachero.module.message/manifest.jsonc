@@ -6,7 +6,7 @@
 	"name": "Gestion des messages",	
 
 	// Description du module
-	"shortDescription": "Ce module rajoute plusieurs commandes en lien avec la gestion des messages",
+	"shortDescription": "Ajoute plusieurs commandes en lien avec la gestion des messages",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -24,7 +24,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	],
 

@@ -1,7 +1,7 @@
 {
     "packageName": "el2zay.elbot",
     "name": "elbot",
-    "shortDescription": "Ce module ajoute plusieurs commandes de elbot.",
+    "shortDescription": "Ajoute différentes commandes venant à l'origine d'elbot",
     "source": "https://github.com/bacherobot/bot",
     "files": [ // toutes les commandes désactivées sont pas terminées
         "bingchiling.js", 
@@ -33,11 +33,13 @@
     "authors": [
         {
             "name": "el2zay",
-            "discordId": "727572859727380531"
+            "discordId": "727572859727380531",
+			"link": "https://github.com/el2zay"
         },
         {
             "name": "Johan",
-            "discordId": "277825082334773251"
+            "discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
         }
     ]
 }

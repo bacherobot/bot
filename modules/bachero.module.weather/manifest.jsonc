@@ -6,7 +6,7 @@
 	"name": "Météo",
 
 	// Description du module
-	"shortDescription": "Ce module permet d'afficher la météo d'une ville",
+	"shortDescription": "Afficher la météo d'une ville, de coordonnées GPS ou d'une adresse IP",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

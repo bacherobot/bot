@@ -6,7 +6,7 @@
 	"name": "Minuteur",
 
 	// Description du module
-	"shortDescription": "Ce module rajoute la commande /timer",
+	"shortDescription": "Ajoute une commande permettant de créer des minuteurs, et d'être notifié lorsque le temps est écoulé",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -20,7 +20,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	]
 }

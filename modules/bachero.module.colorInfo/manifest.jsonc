@@ -6,7 +6,7 @@
 	"name": "Informations sur une couleur",
 
 	// Description du module
-	"shortDescription": "Ce module vous donne des informations sur une couleur",
+	"shortDescription": "Donne des informations sur une couleur à partir de différents formats, et effectue des conversions",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -20,7 +20,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	]
 }

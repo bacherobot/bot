@@ -21,11 +21,13 @@
 	"authors": [
 		{
 			"name": "Orion",
-			"discordId": "902671568856047636"
+			"discordId": "902671568856047636",
+			"link": "https://www.oriondev.fr"
 		},
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	]
 }

@@ -6,7 +6,7 @@
 	"name": "Informations sur un utilisateur",	
 
 	// Description du module
-	"shortDescription": "Ajoute la possibilité d'obtenir des informations sur un utilisateur",
+	"shortDescription": "Ajoute la possibilité d'obtenir des informations sur un utilisateur, ainsi que sa photo de profil et sa bannière",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -21,7 +21,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	],
 

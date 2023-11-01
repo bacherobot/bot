@@ -6,7 +6,7 @@
 	"name": "Informations sur le bot",
 
 	// Description du module
-	"shortDescription": "Ce module renvoie des informations sur le robot",
+	"shortDescription": "Récupère différentes informations sur le robot et son infrastructure",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -20,7 +20,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	],
 

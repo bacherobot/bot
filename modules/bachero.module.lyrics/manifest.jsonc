@@ -6,7 +6,7 @@
 	"name": "Recherche de paroles",
 
 	// Description du module
-	"shortDescription": "Ce module récupère les paroles d'une musique et les affiche via une commande",
+	"shortDescription": "Recherche des paroles de musiques via Genius, et les affiche via une commande",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -20,7 +20,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	]
 }

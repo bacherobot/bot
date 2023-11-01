@@ -9,10 +9,10 @@
 	"name": "Database Test",
 
 	// Description du module
-	"shortDescription": "Ce module permet de faire des tests sur la base de données",
+	"shortDescription": "Ce module permet d'effectuer des tests sur la base de données",
 
 	// Message affiché lorsque le module finit de charger (recommandé de laisser vide)
-	"onloadMessage": "ce module n'est pas recommandé, n'importe qui peut accéder à la base de données",
+	"onloadMessage": "ce module n'est pas recommandé, n'importe qui peut accéder à une base de données",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -30,7 +30,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	]
 }

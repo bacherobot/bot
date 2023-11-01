@@ -9,7 +9,7 @@
 	"name": "Discord WhoIs",
 
 	// Description du module
-	"shortDescription": "Ajoute tous les membres des serveurs dans l'historique Discord WhoIs",
+	"shortDescription": "Récupère le plus de membres de serveurs et les ajoute à l'historique de noms Discord WhoIs",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

@@ -6,7 +6,7 @@
 	"name": "Niveaux et XP",
 
 	// Description du module
-	"shortDescription": "Propose un système de niveaux avec points d'XP",
+	"shortDescription": "Propose un système de niveaux interserveur, utilisant des points d'XP",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -22,7 +22,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	],
 

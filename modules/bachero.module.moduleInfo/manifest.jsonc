@@ -6,7 +6,7 @@
 	"name": "Informations sur les modules",
 
 	// Description du module
-	"shortDescription": "Ce module rajoute la commande /module",
+	"shortDescription": "Permet l'affichage de la liste des modules installés, ou affiche des informations sur un module spécifique",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -20,7 +20,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	],
 

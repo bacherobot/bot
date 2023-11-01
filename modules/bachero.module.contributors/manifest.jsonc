@@ -6,7 +6,7 @@
 	"name": "Liste des contributeurs",
 
 	// Description du module
-	"shortDescription": "Liste les contributeurs du dépôt GitHub de Bachero.",
+	"shortDescription": "Liste les utilisateurs ayant participés au développement de Bachero via le dépôt GitHub",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
@@ -20,7 +20,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	]
 }
