@@ -3,6 +3,15 @@ const bacheroFunctions = require("../../functions")
 const Genius = require("genius-lyrics"); const GeniusClient = new Genius.Client()
 const escape = require("markdown-escape")
 
+// Cache
+var cache
+if(global.autolinkCache) cache = global.autolinkCache
+else {
+	const NodeCache = require("node-cache")
+	cache = new NodeCache()
+	global.autolinkCache = cache
+}
+
 // Fonction pour tenter de "compresser" un texte tout en le gardant lisible pour un humain
 function compressText(text){
 	// Remplacer certains caractères par d'autres
@@ -47,16 +56,19 @@ module.exports = {
 		// Si on a pas de terme de recherche, on va chercher ce que l'utilisateur est en train d'écouter
 		if(!query && interaction.member?.presence?.activities?.length){
 			var listening = interaction.member?.presence?.activities.find(a => a.type == 2 && a?.details?.length && a?.state?.length)
-			if(listening) query = `${listening.details} ${listening.state}`
+			if(listening) query = `${listening.details} ${listening.state?.includes(";") ? listening.state?.split(";")[0] : listening.state}`
 		}
 
 		// Si on a toujours pas de terme de recherche, on affiche une erreur
 		if(!query) return interaction.editReply("Pour utiliser cette commande, vous devez inclure l'argument `search` dans votre commande, ou disposez d'un statut d'écoute sur votre profil Discord (ne fonctionne que sur un serveur).").catch(err => {})
 
+		// Si on a l'embed et les composants en cache, on les envoie
+		if(cache.has(query)) return interaction.editReply(cache.get(query)).catch(err => {})
+
 		// Faire une recherche sur Genius
 		var searchResult = await GeniusClient.songs.search(query)
 		if(!searchResult?.length) return interaction.editReply({ content: "Aucun résultat n'a pu être trouvé pour ce terme de résultat." }).catch(err => {})
-		searchResult = searchResult[0]
+		searchResult = searchResult?.[0]?.artist?.name == "Genius English Translations" ? (searchResult?.[1] || searchResult?.[0]) : searchResult?.[0]
 
 		// Obtenir les paroles
 		var lyrics = await searchResult.lyrics()
@@ -67,7 +79,6 @@ module.exports = {
 		var embed = new EmbedBuilder()
 			.setTitle(searchResult.fullTitle)
 			.setDescription(lyrics.substring(0, 4094).length < lyrics.length ? `${lyrics.substring(0, 4094)}…` : lyrics)
-			.setThumbnail(searchResult.thumbnail)
 			.setColor(bacheroFunctions.colors.primary)
 			.setFooter({ text: `Paroles récupérées via Genius sous la demande de ${interaction.user.discriminator == "0" ? interaction.user.username : interaction.user.tag}` })
 
@@ -79,5 +90,8 @@ module.exports = {
 
 		// Envoyer l'embed
 		interaction.editReply({ embeds: [embed], components: [row] }).catch(err => {})
+
+		// On enregistre en cache
+		cache.set(query, { embeds: [embed], components: [row] })
 	}
 }
