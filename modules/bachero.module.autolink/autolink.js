@@ -15,8 +15,16 @@ function formatBytes(bytes, decimals = 2){
 	return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }
 
+// Cache
+var cache
+if(global.autolinkCache) cache = global.autolinkCache
+else {
+	const NodeCache = require("node-cache")
+	cache = new NodeCache()
+	global.autolinkCache = cache
+}
+
 // Fonction pour obtenir des informations sur un lien
-var cachedData = {}
 async function getLinkData(link){
 	// Prendre uniquement les informations essentielles du lien
 	var parsedURL = new URL(link)
@@ -26,10 +34,10 @@ async function getLinkData(link){
 	if(stendApis[parsedURL.host]) cleanURL += parsedURL.search
 
 	// Si on a déjà des informations sur ce lien, on les renvoie
-	if(cachedData[cleanURL]){
-		cachedData[cleanURL].lastUsed = Date.now()
-		return cachedData[cleanURL].data
-	}
+	if(cache.has(cleanURL)) return cache.get(cleanURL)
+
+	// Donnée
+	var dataToReturn
 
 	// Sinon, on fait une requête
 	if(parsedURL.host.startsWith("github.com")){ // GitHub
@@ -37,16 +45,17 @@ async function getLinkData(link){
 		if(parsedURL.pathname.endsWith("/")) parsedURL.pathname = parsedURL.pathname.substring(0, parsedURL.pathname.length - 1)
 		var pathnameSplit = parsedURL.pathname.split("/")
 		if(pathnameSplit.length < 2) return
-		if(pathnameSplit?.[2]) var apiURL = `https://api.github.com/repos/${pathnameSplit?.[1]}/${pathnameSplit?.[2]}${pathnameSplit?.[3] && pathnameSplit?.[4] ? `/${pathnameSplit?.[3] == "pull" ? "pulls" : pathnameSplit?.[3]}/${pathnameSplit?.[4]}` : ""}`
+		if(pathnameSplit?.[2]) var apiURL = `https://api.github.com/repos/${pathnameSplit?.[1]}/${pathnameSplit?.[2]}${pathnameSplit?.[3] && pathnameSplit?.[4] ? `/${pathnameSplit?.[3] == "pull" ? "pulls" : pathnameSplit?.[3] == "commit" ? "commits" : pathnameSplit?.[3]}/${pathnameSplit?.[4]}` : ""}`
 		else var apiURL = `https://api.github.com/users/${pathnameSplit?.[1]}`
 
 		// Faire la requête et enregistrer dans le cache
 		var apiData = await fetch(apiURL, process.env.AUTOLINK_GITHUB_TOKEN ? { headers: { "Authorization": process.env.AUTOLINK_GITHUB_TOKEN } } : {}).then(res => res.json()).catch(err => { return {} })
 		if(apiData?.message && apiData?.message != "Not Found") return bacheroFunctions.showLog("warn", `Problème rencontré lors d'une vérification avec le module "bachero.module.autolink" : ${apiData?.message || JSON.stringify(apiData)}`, "autolink-verify-github")
-		if((pathnameSplit?.[3] == "pull" || pathnameSplit?.[3] == "pulls") && apiData?.title) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: "github", type: "pulls", commits: apiData?.commits, additions: apiData?.additions, deletions: apiData?.deletions, changed_files: apiData?.changed_files, state: apiData?.state, created_at: apiData?.created_at, closed_at: apiData?.closed_at, title: apiData?.title?.trim(), author: apiData?.user?.login, html_url: apiData?.html_url } }
-		else if((pathnameSplit?.[3] == "issue" || pathnameSplit?.[3] == "issues") && apiData?.title) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: "github", type: "issues", state: `${apiData?.state}${apiData?.state_reason ? ` (${apiData?.state_reason})` : ""}`, created_at: apiData?.created_at, closed_at: apiData?.closed_at, title: apiData?.title?.trim(), author: apiData?.user?.login, html_url: apiData?.html_url } }
-		else if(apiData?.login) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: "github", type: "user", login: apiData?.login, email: apiData?.email, name: apiData?.name, bio: apiData?.bio, blog: apiData?.blog && (apiData.blog.includes("http://") || apiData.blog.includes("https://")) ? apiData.blog : apiData?.blog ? `https://${apiData.blog}` : "", location: apiData?.location, twitter: apiData?.twitter_username?.length ? `https://twitter.com/${apiData?.twitter_username}` : "", followers: apiData?.followers, html_url: apiData?.html_url } }
-		else if(apiData?.name) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: "github", type: "repo", name: apiData?.name, description: apiData?.description?.trim(), author: apiData?.owner?.login, html_url: apiData?.html_url } }
+		if((pathnameSplit?.[3] == "pull" || pathnameSplit?.[3] == "pulls") && apiData?.title) dataToReturn = { lastUsed: Date.now(), data: { platform: "github", type: "pulls", commits: apiData?.commits, additions: apiData?.additions, deletions: apiData?.deletions, changed_files: apiData?.changed_files, state: apiData?.state, created_at: apiData?.created_at, closed_at: apiData?.closed_at, title: apiData?.title?.trim(), author: apiData?.user?.login, html_url: apiData?.html_url } }
+		else if((pathnameSplit?.[3] == "issue" || pathnameSplit?.[3] == "issues") && apiData?.title) dataToReturn = { lastUsed: Date.now(), data: { platform: "github", type: "issues", state: `${apiData?.state}${apiData?.state_reason ? ` (${apiData?.state_reason})` : ""}`, created_at: apiData?.created_at, closed_at: apiData?.closed_at, title: apiData?.title?.trim(), author: apiData?.user?.login, html_url: apiData?.html_url } }
+		else if((pathnameSplit?.[3] == "commit" || pathnameSplit?.[3] == "commits") && apiData?.commit?.message) dataToReturn = { lastUsed: Date.now(), data: { platform: "github", type: "commits", created_at: apiData?.commit?.author?.date, title: apiData?.commit?.message?.trim(), additions: apiData?.stats?.additions, deletions: apiData?.stats?.deletions, changed_files: apiData?.files?.length || 0, author: apiData?.author?.login, html_url: apiData?.html_url } }
+		else if(apiData?.login) dataToReturn = { lastUsed: Date.now(), data: { platform: "github", type: "user", login: apiData?.login, email: apiData?.email, name: apiData?.name, bio: apiData?.bio, blog: apiData?.blog && (apiData.blog.includes("http://") || apiData.blog.includes("https://")) ? apiData.blog : apiData?.blog ? `https://${apiData.blog}` : "", location: apiData?.location, twitter: apiData?.twitter_username?.length ? `https://twitter.com/${apiData?.twitter_username}` : "", followers: apiData?.followers, html_url: apiData?.html_url } }
+		else if(apiData?.name) dataToReturn = { lastUsed: Date.now(), data: { platform: "github", type: "repo", name: apiData?.name, description: apiData?.description?.trim(), author: apiData?.owner?.login, html_url: apiData?.html_url } }
 	}
 	if(parsedURL.host.startsWith("gist.github.com")){ // GitHub Gist
 		// Obtenir l'URL de l'API à fetch
@@ -56,7 +65,7 @@ async function getLinkData(link){
 		// Faire la requête et enregistrer dans le cache
 		var apiData = await fetch(`https://api.github.com/gists/${pathnameSplit[pathnameSplit.length - 1]}`).then(res => res.json()).catch(err => { return {} })
 		if(apiData?.message && apiData != "Not Found") return bacheroFunctions.showLog("warn", `Problème rencontré lors d'une vérification avec le module "bachero.module.autolink" : ${apiData?.message || JSON.stringify(apiData)}`, "autolink-verify-github")
-		if(apiData?.description || apiData?.comments_url || apiData?.history?.length) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: "github", type: "gist", description: apiData?.description, comments: apiData?.comments, author: apiData?.owner?.login, files: Object.keys(apiData?.files || {})?.length, created_at: apiData?.created_at, updated_at: apiData?.updated_at, html_url: apiData?.html_url } }
+		if(apiData?.description || apiData?.comments_url || apiData?.history?.length) dataToReturn = { lastUsed: Date.now(), data: { platform: "github", type: "gist", description: apiData?.description, comments: apiData?.comments, author: apiData?.owner?.login, files: Object.keys(apiData?.files || {})?.length, created_at: apiData?.created_at, updated_at: apiData?.updated_at, html_url: apiData?.html_url } }
 	}
 	if(parsedURL.host.startsWith("www.npmjs.com") || parsedURL.host.startsWith("npmjs.com")){ // NPMJS
 		// Obtenir l'URL de l'API à fetch
@@ -71,7 +80,7 @@ async function getLinkData(link){
 		// Faire la requête et enregistrer dans le cache
 		var apiData = await fetch(`https://registry.npmjs.org/${pathnameSplit[pathnameSplit.length - 1]}`).then(res => res.json()).catch(err => { return {} })
 		if(apiData?.error) return bacheroFunctions.showLog("warn", `Problème rencontré lors d'une vérification avec le module "bachero.module.autolink" : ${apiData?.error || JSON.stringify(apiData)}`, "autolink-verify-npmjs")
-		if(apiData?.name && apiData?.description) cachedData[cleanURL] = { lastUsed: Date.now(), data: {
+		if(apiData?.name && apiData?.description) dataToReturn = { lastUsed: Date.now(), data: {
 			platform: "npm",
 			name: apiData?.name,
 			description: apiData?.description,
@@ -97,12 +106,13 @@ async function getLinkData(link){
 
 			// Faire la requête et enregistrer dans le cache
 			var apiData = await fetch(`${apiURL}/files/info?sharekey=${shareKey}`, { headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).then(res => res.json()).catch(err => { return {} })
-			if(!apiData?.error && !apiData?.statusCode) cachedData[cleanURL] = { lastUsed: Date.now(), data: { platform: "stend", isGroup: apiData?.isGroup || false, groups: apiData?.groups || [], fileName: apiData?.fileName, fileSize: formatBytes(apiData?.fileSize), expireDate: apiData?.expireDate, download_url: apiData.downloadLink ? `${apiURL}${apiData.downloadLink}` : null, html_url: `https://${parsedURL.host}/d.html?${shareKey}` } }
+			if(!apiData?.error && !apiData?.statusCode) dataToReturn = { lastUsed: Date.now(), data: { platform: "stend", isGroup: apiData?.isGroup || false, groups: apiData?.groups || [], fileName: apiData?.fileName, fileSize: formatBytes(apiData?.fileSize), expireDate: apiData?.expireDate, download_url: apiData.downloadLink ? `${apiURL}${apiData.downloadLink}` : null, html_url: `https://${parsedURL.host}/d.html?${shareKey}` } }
 		}
 	}
 
 	// Si on a eu des nouvelles données, on les renvoie
-	if(cachedData[cleanURL]) return cachedData[cleanURL].data
+	if(dataToReturn) cache.set(cleanURL, dataToReturn, 3600) // 1 heure
+	return dataToReturn
 }
 
 // Exporter une fonction
@@ -139,10 +149,11 @@ module.exports = {
 
 				// GitHub
 				if(info?.platform == "github" && info?.type == "user") description.push(`(GitHub) [${escape(info?.login)}](${info?.html_url})${info?.name ? ` (${escape(info?.name)})` : ""}${info?.followers ? `\n- Abonnées : ${info?.followers}` : ""}${info?.location ? `\n- Localisation : ${escape(info?.location)}` : ""}${info?.email ? `\n- Adresse mail : ${escape(info?.email)}` : ""}${info?.twitter ? `\n- Twitter : ${info?.twitter}` : ""}${info?.blog ? `\n- Site : ${info?.blog}` : ""}${info?.bio ? `\n\n> ${escape(info?.bio)?.substring(0, 1400)}` : ""}`.trim())
-				if(info?.platform == "github" && info?.type == "repo") description.push(`(GitHub) [${escape(info?.name)}](${info?.html_url})\n> *[${escape(info?.author)}](https://github.com/${info?.author?.replace("[bot]", "")})*${info?.description ? ` | ${escape(info?.description)?.substring(0, 1400)}` : ""}`.trim())
-				if(info?.platform == "github" && info?.type == "pulls") description.push(`(GitHub) [${escape(info?.title)}](${info?.html_url})\n- Auteur : [${escape(info?.author)}](https://github.com/${info?.author?.replace("[bot]", "")})\n- ${info?.commits} commit${info?.commits > 1 ? "s" : ""}, pull request ${info?.state?.replace("closed", "fermée").replace("opened", "ouverte").replace("open", "ouverte").replace("merged", "fusionnée/merged")}${info?.additions || info?.deletions || info?.changed_files ? `\n- ${info?.additions ? `${info.additions} ajouts${info.deletions || info.changed_files ? ", " : ""}` : ""}${info?.deletions ? `${info.deletions} suppressions${info.changed_files ? ", " : ""}` : ""}${info?.changed_files ? `${info.changed_files} fichiers changés` : ""}` : ""}\n- ${info?.closed_at ? "" : "Création : "}<t:${Math.round(new Date(info?.created_at).getTime() / 1000)}:D>${info?.closed_at ? ` → <t:${Math.round(new Date(info?.closed_at).getTime() / 1000)}:D>` : ""}`.trim())
-				if(info?.platform == "github" && info?.type == "issues") description.push(`(GitHub) [${escape(info?.title)}](${info?.html_url})\n- Auteur : [${escape(info?.author)}](https://github.com/${info?.author?.replace("[bot]", "")})\n- Issue ${info?.state?.replace("closed", "fermée").replace("open", "ouverte").replace("completed", "completée").replace("not_planned", "non prévue").replace("reopened", "réouverte")}\n- <t:${Math.round(new Date(info?.created_at).getTime() / 1000)}:D>${info?.closed_at ? ` → <t:${Math.round(new Date(info?.closed_at).getTime() / 1000)}:D>` : ""}`.trim())
-				if(info?.platform == "github" && info?.type == "gist") description.push(`(GitHub Gist) [${escape(info?.description || "Aucune description").substring(0, 250)}](${info?.html_url})\n- Auteur : [${escape(info?.author)}](https://github.com/${info?.author?.replace("[bot]", "")})${info?.comments ? `\n- ${info?.comments} commentaire${info?.comments > 1 ? "s" : ""}` : ""}${info?.files ? `\n- ${info?.files} fichier${info?.files > 1 ? "s" : ""}` : ""}${info?.created_at ? `\n- Création : <t:${Math.round(new Date(info?.created_at).getTime() / 1000)}:f>` : ""}${info?.created_at && info?.updated_at && info?.created_at != info?.updated_at ? ` - Modification : <t:${Math.round(new Date(info?.updated_at).getTime() / 1000)}:f>` : ""}`.trim())
+				else if(info?.platform == "github" && info?.type == "repo") description.push(`(GitHub) [${escape(info?.name)}](${info?.html_url})\n> *[${escape(info?.author)}](https://github.com/${info?.author?.replace("[bot]", "")})*${info?.description ? ` | ${escape(info?.description)?.substring(0, 1400)}` : ""}`.trim())
+				else if(info?.platform == "github" && info?.type == "pulls") description.push(`(GitHub) [${escape(info?.title?.replace(/\n/g, " ")).replace(/\\/g, "")}](${info?.html_url})\n- Auteur : [${escape(info?.author)}](https://github.com/${info?.author?.replace("[bot]", "")})\n- ${info?.commits} commit${info?.commits > 1 ? "s" : ""}, pull request ${info?.state?.replace("closed", "fermée").replace("opened", "ouverte").replace("open", "ouverte").replace("merged", "fusionnée/merged")}${info?.additions || info?.deletions || info?.changed_files ? `\n- ${info?.additions ? `${info.additions} ajouts${info.deletions || info.changed_files ? ", " : ""}` : ""}${info?.deletions ? `${info.deletions} suppressions${info.changed_files ? ", " : ""}` : ""}${info?.changed_files ? `${info.changed_files} fichiers changés` : ""}` : ""}\n- ${info?.closed_at ? "" : "Création : "}<t:${Math.round(new Date(info?.created_at).getTime() / 1000)}:D>${info?.closed_at ? ` → <t:${Math.round(new Date(info?.closed_at).getTime() / 1000)}:D>` : ""}`.trim())
+				else if(info?.platform == "github" && info?.type == "issues") description.push(`(GitHub) [${escape(info?.title?.replace(/\n/g, " ")).replace(/\\/g, "")}](${info?.html_url})\n- Auteur : [${escape(info?.author)}](https://github.com/${info?.author?.replace("[bot]", "")})\n- Issue ${info?.state?.replace("closed", "fermée").replace("open", "ouverte").replace("completed", "completée").replace("not_planned", "non prévue").replace("reopened", "réouverte")}\n- <t:${Math.round(new Date(info?.created_at).getTime() / 1000)}:D>${info?.closed_at ? ` → <t:${Math.round(new Date(info?.closed_at).getTime() / 1000)}:D>` : ""}`.trim())
+				else if(info?.platform == "github" && info?.type == "commits") description.push(`(GitHub) [${escape(info?.title?.replace(/\n/g, " ")).replace(/\\/g, "")}](${info?.html_url})\n- Auteur : [${escape(info?.author)}](https://github.com/${info?.author?.replace("[bot]", "")})${info?.additions || info?.deletions || info?.changed_files ? `\n- ${info?.additions ? `${info.additions} ajouts${info.deletions || info.changed_files ? ", " : ""}` : ""}${info?.deletions ? `${info.deletions} suppressions${info.changed_files ? ", " : ""}` : ""}${info?.changed_files ? `${info.changed_files} fichiers changés` : ""}` : ""}\n- ${info?.created_at ? "Création : " : ""}<t:${Math.round(new Date(info?.created_at).getTime() / 1000)}:D>`.trim())
+				else if(info?.platform == "github" && info?.type == "gist") description.push(`(GitHub Gist) [${escape(info?.description || "Aucune description").substring(0, 250)}](${info?.html_url})\n- Auteur : [${escape(info?.author)}](https://github.com/${info?.author?.replace("[bot]", "")})${info?.comments ? `\n- ${info?.comments} commentaire${info?.comments > 1 ? "s" : ""}` : ""}${info?.files ? `\n- ${info?.files} fichier${info?.files > 1 ? "s" : ""}` : ""}${info?.created_at ? `\n- Création : <t:${Math.round(new Date(info?.created_at).getTime() / 1000)}:f>` : ""}${info?.created_at && info?.updated_at && info?.created_at != info?.updated_at ? ` - Modification : <t:${Math.round(new Date(info?.updated_at).getTime() / 1000)}:f>` : ""}`.trim())
 
 				// Stend
 				if(info?.platform == "stend" && info.isGroup) description.push(`(Stend) [Groupe de transferts](${info?.html_url})\n- Contient ${info?.groups?.length} transfert${info?.groups?.length > 1 ? "s" : ""}`.trim()) // si c'est un transfert groupé
