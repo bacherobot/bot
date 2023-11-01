@@ -12,3 +12,5 @@ reports
 logs
 modules/temporary.module.ogbadge
 .DS_Store
+# https://github.com/Freebox-Tools/bachero-call-notifier
+modules/freeboxtools.callnotifier
