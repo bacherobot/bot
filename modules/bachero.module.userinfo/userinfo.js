@@ -50,7 +50,7 @@ module.exports = {
 		userInfo = userInfo?.advancedInfo || userInfo
 
 		// Si c'est un bot, obtenir des informations venant d'ElWatch
-		if(!showMinimal && userInfo.bot) var botInfo = await fetch(`https://api.elwatch.johanstick.fr/api/status/${userId}`).then(res => res.json()).catch(err => { return {} }); else var botInfo = {}
+		if(!showMinimal && userInfo.bot) var botInfo = await fetch(`https://elwatchapi.johanstick.fr/api/status/${userId}`).then(res => res.json()).catch(err => { return {} }); else var botInfo = {}
 		if(botInfo?.error) botInfo = {}
 		if(botInfo?.info) botInfo = botInfo?.info
 		if(botInfo?.username == "Inconnu" && botInfo?.discriminator == "0000") botInfo = {}

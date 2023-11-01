@@ -12,7 +12,7 @@ async function getLatencyHistory(clientId){
 	if(latencyHistory.content && latencyHistory.lastFetched && latencyHistory.lastFetched > Date.now() - (1000 * 60 * 60 * 5)) return latencyHistory.content
 
 	// Sinon on fetch, enregistre dans le cache, et retourne
-	latencyHistory.content = await fetch(`https://api.elwatch.johanstick.fr/api/status/${clientId}`).then(res => res.json()).catch(err => { return {} })
+	latencyHistory.content = await fetch(`https://elwatchapi.johanstick.fr/api/status/${clientId}`).then(res => res.json()).catch(err => { return {} })
 	latencyHistory.lastFetched = new Date()
 	latencyHistory.content = latencyHistory?.content?.info?.pingHistory || latencyHistory?.content
 	return latencyHistory.content
