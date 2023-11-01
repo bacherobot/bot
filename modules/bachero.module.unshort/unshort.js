@@ -30,20 +30,27 @@ module.exports = {
 			// Chercher le message auquel on répond
 			if(interaction?.reference?.messageId){
 				var repliedTo = await interaction.channel.messages.fetch(interaction.reference.messageId).catch(err => {})
-				if(repliedTo.content.includes("https://") || repliedTo.content.includes("http://")) query = repliedTo.content
+				query = repliedTo?.content
 			}
 
 			// Sinon, on prend le dernier message
 			else {
 				query = await interaction.channel.messages.fetch({ limit: 1, before: interaction.id }).catch(err => {})
 				query = query.first()
-				query = query.content
-				if(!query.includes("https://") && !query.includes("http://")) query = undefined
+				if(query) query = query?.content
 			}
 		}
 
+		// Si on a un terme de recherche mais que c'est pas une URL
+		if(query && !query.startsWith("https://") && !query.startsWith("http://")){
+			// On utilise un regex pour trouver une URL dans le message
+			let match = query.match(/(https?:\/\/[^\s]+)/)
+			if(match) query = match[0]
+			else query = undefined
+		}
+
 		// Si on a toujours pas de terme de recherche, on affiche une erreur
-		if(!query) return interaction.editReply("Pour utiliser cette commande, vous devez inclure l'argument `url` dans votre commande, ou répondre à un message contenant un lien (ne fonctionne pas via les commandes slash).").catch(err => {})
+		if(!query) return interaction.editReply("Pour utiliser cette commande, vous devez inclure l'argument `url` dans votre commande, ou : répondre à un message contenant un lien (ne fonctionne pas via les commandes slash).").catch(err => {})
 		if(!query.includes("https://") && !query.includes("http://")) return interaction.editReply("L'URL obtenu ne semble pas être un lien valide.").catch(err => {})
 
 		// Obtenir l'URL originale
@@ -62,8 +69,8 @@ module.exports = {
 		var embed = new EmbedBuilder()
 			.setTitle("Résultat de l'analyse")
 			.addFields([
-				{ name: "Raccourci", value: escape(unshortened.url || query), inline: true },
-				{ name: "Originale", value: escape(unshortened.redirected), inline: true },
+				{ name: "Raccourci", value: unshortened.url || query, inline: true },
+				{ name: "Originale", value: unshortened.redirected, inline: true },
 				meta_title ? { name: "Titre", value: escape(meta_title) || "Aucun titre trouvé", inline: true } : undefined,
 				meta_description ? { name: "Description", value: escape(meta_description) || "Aucune description trouvée", inline: true } : undefined,
 			].filter(Boolean))
