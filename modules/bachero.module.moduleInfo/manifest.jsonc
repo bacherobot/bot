@@ -31,6 +31,18 @@
 			"type": "array",
 			"default": [],
 			"description": "Empêche tous les utilisateurs (sauf ceux dont l'identifient est dans la liste) d'utiliser la commande. Si la liste est vide, tout le monde pourra l'utiliser."
-		}
+		},
+		{
+			"name": "compactView",
+			"type": "boolean",
+			"default": false,
+			"description": "Affiche la liste des modules de manière compacte, de sorte à prendre le moins de place en affichant les mêmes informations."
+		},
+        {
+            "name": "addDetails",
+            "type": "boolean",
+            "default": true,
+            "description": "Affiche des détails supplémentaires sur un module lorsqu'on le recherche."
+        }
 	]
 }

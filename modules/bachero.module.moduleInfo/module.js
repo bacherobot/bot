@@ -1,6 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js")
 const bacheroFunctions = require("../../functions")
+const escape = require("markdown-escape")
 const authorizedIds = bacheroFunctions.config.getValue("bachero.module.moduleInfo", "authorizedIds")
+const compactList = bacheroFunctions.config.getValue("bachero.module.moduleInfo", "compactList")
+const addDetails = bacheroFunctions.config.getValue("bachero.module.moduleInfo", "addDetails")
 var allModulesDetails
 
 var listModules = []
@@ -23,7 +26,7 @@ module.exports = {
 		// Vérifier que la personne est autorisé
 		if(authorizedIds?.length && !authorizedIds?.includes(interaction.user.id)) return interaction.reply({ ephemeral: true, content: "Oupsi, tu n'as pas le droit d'utiliser cette commande..." }).catch(err => {})
 
-		// Si on a pas encore la liste des modules, le définir
+		// Si on a pas encore la liste des modules, la définir
 		if(!allModulesDetails) allModulesDetails = bacheroFunctions.modules.allModulesDetails()
 
 		// Obtenir le nom de packet
@@ -37,8 +40,8 @@ module.exports = {
 		if(!pages?.[1]) listModules.forEach(mod => {
 			if(modulesMessage.length > 3900){
 				pages.push(modulesMessage)
-				modulesMessage = `\n• *${mod.packageName}* : ${mod.shortDescription.replace(/`/g, "")}`
-			} else modulesMessage += `\n• *${mod.packageName}* : ${mod.shortDescription.replace(/`/g, "")}`
+				modulesMessage = compactList ? `\n• *${escape(mod.packageName)}* : ${escape(mod.shortDescription)}` : `\n\n**${escape(mod.packageName)}** :\n> ${escape(mod.shortDescription)}`
+			} else modulesMessage += compactList ? `\n• *${escape(mod.packageName)}* : ${escape(mod.shortDescription)}` : `\n\n**${escape(mod.packageName)}** :\n> ${escape(mod.shortDescription)}`
 		})
 		if(modulesMessage) pages.push(modulesMessage)
 
@@ -79,7 +82,7 @@ module.exports = {
 			// Sinon, créer un embed pour afficher les infos du module
 			var embed = new EmbedBuilder()
 				.setTitle(module.name)
-				.setDescription(`> ${module.shortDescription.replace(/\n/g, "  ").replace(/`/g, "")}\n\n**Nom de packet :** ${module.packageName}\n**Auteur${module.authors.length > 1 ? "s" : ""} :** ${module.authors.join(", ")}\n**Commande${module.commands.length > 1 ? "s" : ""} :** ${(module?.commands?.length > 0 ? module.commands : [{ name: "Aucune" }]).map(c => c.name).join(", ")}`)
+				.setDescription(`> ${escape(module.shortDescription)}\n\n**Nom de packet :** ${escape(module.packageName)}\n**Auteur${module.authors.length > 1 ? "s" : ""} :** ${module?.completeAuthors?.length ? module.completeAuthors.map(author => ((author?.discordId || author?.link) && author?.name) ? `[${escape(author.name)}](${author?.link ? escape(author.link) : `https://discord.com/users/${escape(author?.discordId)}`})` : (author?.name || author)).join(" ; ") : module.authors.join(" ; ")}\n**Commande${module.commands.length > 1 ? "s" : ""} :** ${(module?.commands?.length > 0 ? module.commands : [{ name: "Aucune" }]).map(c => `${module?.commands?.length > 1 ? "\nㅤ• " : ""}${escape(c.name)}${addDetails && c.slashToText === false ? "  *(slash uniquement)*" : ""}${addDetails && c.dm_permission === false ? " *(serveur uniquement)*" : ""}`).join(module?.commands?.length > 1 ? "" : " ; ")}${addDetails && module?.contextsMenus?.length ? `\n**Menu${module.contextsMenus.length > 1 ? "s" : ""} contextuel${module.contextsMenus.length > 1 ? "s" : ""} :** ${module.contextsMenus.map(c => `${module?.contextsMenus?.length > 1 ? "\nㅤ• " : ""}${escape(c.name)}`).join(module?.contextsMenus?.length > 1 ? "" : " ; ")}` : ""}`)
 				.setColor(bacheroFunctions.colors.primary)
 			if(module.source && typeof module.source == "string") embed.setURL(module.source)
 
