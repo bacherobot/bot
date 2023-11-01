@@ -13,7 +13,8 @@
 
 	// Liste des fichiers à charger
 	"files": [
-		"short.js"
+		"short.js",
+		"short-config.js"
 	],
 
 	// Liste du/des auteurs du module
@@ -21,16 +22,10 @@
 		{
 			"name": "Orion",
 			"discordId": "902671568856047636"
+		},
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251"
 		}
-	],
-
-	// Liste des valeurs que le module peut accéder depuis la configuration
-    "config": [
-        {
-            "name": "defaultInstance",
-            "type": "string",
-            "default": "https://s.oriondev.fr/",
-            "description": "Définit l'instance Quecto par défaut"
-        }
-    ]
+	]
 }
