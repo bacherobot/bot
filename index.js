@@ -197,7 +197,8 @@ function loadModules(){
 
 			// Vérifier que les librairies nécessaires existent
 			if(manifest?.dependencies) for(var dependencie of manifest.dependencies){
-				if(!moduleExists(dependencie)) errors.push(`Impossible de charger le module ${chalk.yellow(module)} : la librairie ${chalk.yellow(dependencie)} n'est pas installée (${chalk.yellow(`npm i ${dependencie}`)}).`)
+				if(dependencie?.length && typeof dependencie == "string") var name = dependencie.startsWith("@") ? `@${dependencie?.split("@")?.[1]}` : dependencie?.split("@")?.[0]
+				if(!moduleExists(name)) errors.push(`Impossible de charger le module ${chalk.yellow(module)} : la librairie ${chalk.yellow(name)} n'est pas installée (${chalk.yellow(`npm i ${dependencie}`)}).`)
 			}
 
 			// Vérifier que les fichiers existent
@@ -303,6 +304,7 @@ function loadModules(){
 			packageName: module,
 			shortDescription: manifest.shortDescription,
 			authors: manifest.authors.map(author => author.name || author.discordId || author || "Inconnu"),
+			completeAuthors: manifest.authors,
 			commands: thisModuleAllCommands,
 			contextsMenus: thisModuleAllContextsMenu,
 			source: manifest.source,
@@ -396,8 +398,37 @@ function createErrorEmbed(title, description, embedColor = "secondEmbedColor", s
 
 // Quand on reçoit une interaction
 client.on("interactionCreate", async interaction => {
+	// Si c'est un menu contextuel
+	// Note: doit rester au dessus de la vérification de commande slash, puisque les interactions comme celle-ci retourne true à la fonction isCommand()
+	if(interaction.isUserContextMenuCommand()){
+		// Récupérer le menu par son nom
+		var contextMenu = client.contextsMenus.get(interaction.commandName)
+
+		// Si aucune résultat
+		if(!contextMenu) return await interaction.reply({ embeds: [createErrorEmbed("Menu contextuel inexistant", `Ce menu contextuel est introuvable dans ${botName}.`, "dangerEmbedColor", true)], ephemeral: false })
+
+		// Vérifier qu'on est sur un serveur autorisé
+		if(contextMenu?.whitelistedGuildIds?.length && !contextMenu.whitelistedGuildIds.includes(interaction.guildId)){
+			return await interaction.reply({ embeds: [createErrorEmbed("Serveur interdit", "Ce menu contextuel ne peut pas être exécuté puisque ce serveur n'est pas autorisé.")], ephemeral: true })
+		}
+
+		// Exécuter la commande
+		try {
+			interaction.sourceType = "contextMenu"
+			await contextMenu.file.execute(interaction)
+		} catch (error){
+			bacheroFunctions.showLog("warn", `${interaction.user.discriminator == "0" ? escape(interaction.user.username) : escape(interaction.user.tag)} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, "user-contextmenu-error")
+			bacheroFunctions.showLog("warn", error.stack || error, "user-contextmenu-error", true, true)
+			try {
+				interaction.reply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution du menu contextuel :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
+			} catch (error){
+				await interaction.editReply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution du menu contextuel :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
+			}
+		}
+	}
+
 	// Si c'est une commande slash
-	if(interaction.isCommand()){
+	else if(interaction.isCommand()){
 		// Récupérer la commande par son nom
 		var command = client.commands.get(interaction.commandName)
 
@@ -425,48 +456,20 @@ client.on("interactionCreate", async interaction => {
 	}
 
 	// Dans certains cas, on l'envoie au listener
-	if(interaction.isModalSubmit()){
+	else if(interaction.isModalSubmit()){
 		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit("modal", interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
 		// else if(interaction?.message?.type) return interactionListenerText.emit('modal', interaction)
 		else interactionListener.emit("modal", interaction)
 	}
-	if(interaction.isButton()){
+	else if(interaction.isButton()){
 		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit("button", interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
 		// else if(interaction?.message?.type) return interactionListenerText.emit('button', interaction)
 		else return interactionListener.emit("button", interaction)
 	}
-	if(interaction.isAnySelectMenu()){
+	else if(interaction.isAnySelectMenu()){
 		if(interaction?.message?.type == 20 || interaction?.message?.type == 23) return interactionListener.emit("selectMenu", interaction) // "CHAT_INPUT_COMMAND" / "CONTEXT_MENU_COMMAND"
 		// else if(interaction?.message?.type) return interactionListenerText.emit('selectMenu', interaction)
 		else return interactionListener.emit("selectMenu", interaction)
-	}
-
-	// Si c'est un menu contextuel
-	if(interaction.isUserContextMenuCommand()){
-		// Récupérer le menu par son nom
-		var contextMenu = client.contextsMenus.get(interaction.commandName)
-
-		// Si aucune résultat
-		if(!contextMenu) return await interaction.reply({ embeds: [createErrorEmbed("Menu contextuel inexistant", `Ce menu contextuel est introuvable dans ${botName}.`, "dangerEmbedColor", true)], ephemeral: false })
-
-		// Vérifier qu'on est sur un serveur autorisé
-		if(contextMenu?.whitelistedGuildIds?.length && !contextMenu.whitelistedGuildIds.includes(interaction.guildId)){
-			return await interaction.reply({ embeds: [createErrorEmbed("Serveur interdit", "Ce menu contextuel ne peut pas être exécuté puisque ce serveur n'est pas autorisé.")], ephemeral: true })
-		}
-
-		// Exécuter la commande
-		try {
-			interaction.sourceType = "contextMenu"
-			await contextMenu.file.execute(interaction)
-		} catch (error){
-			bacheroFunctions.showLog("warn", `${interaction.user.discriminator == "0" ? escape(interaction.user.username) : escape(interaction.user.tag)} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, "user-contextmenu-error")
-			bacheroFunctions.showLog("warn", error.stack || error, "user-contextmenu-error", true, true)
-			try {
-				interaction.reply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution du menu contextuel :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
-			} catch (error){
-				await interaction.editReply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution du menu contextuel :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
-			}
-		}
 	}
 })
 
@@ -529,6 +532,7 @@ client.on("messageCreate", async message => {
 	message.user = message.author
 	delete message.author // pour pousser l'utilisateur à utiliser message.user --> meilleure compatibilité entre slash/texte
 	message.commandName = commandName
+	message.subCommandName = containsSubcommand ? cmdargs?.[1]?.toLowerCase() : null
 	message.sourceType = "textCommand"
 	message.options = {}
 	message.awaitModalSubmit = () => methodNotExists(message, "awaitModalSubmit")
@@ -581,6 +585,9 @@ client.on("messageCreate", async message => {
 	}
 	// Sinon, on créé un array avec le seul argument
 	else args = [args]
+
+	// On met aussi les arguments dans la variable message
+	message.args = args
 
 	// Obtenir le contenu d'un argument par son nom
 	function getArg(argName, returnFirstName = false){
