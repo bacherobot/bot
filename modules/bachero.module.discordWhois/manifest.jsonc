@@ -1,4 +1,7 @@
 {
+	// Désactivé le temps que j'refasse le backend de Discord WhoIs
+	"disabled": true,
+
 	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
 	"packageName": "bachero.module.discordWhois",
 
@@ -20,7 +23,8 @@
 	"authors": [
 		{
 			"name": "Johan",
-			"discordId": "277825082334773251"
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
 		}
 	]
 }
