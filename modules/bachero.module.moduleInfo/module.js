@@ -33,7 +33,10 @@ module.exports = {
 		var packageName = interaction.options.getString("packagename")
 
 		// Obtenir la liste des modules si elle n'a pas encore été défini
-		if(!listModules?.length) listModules = Object.values(Object.fromEntries(allModulesDetails))
+		if(!listModules?.length){
+			listModules = Object.values(Object.fromEntries(allModulesDetails))
+			listModules.sort((a, b) => a.packageName.localeCompare(b.packageName)) // On trie par ordre alphabétique du packageName
+		}
 
 		// Diviser la liste en plusieurs pages
 		var modulesMessage = ""
