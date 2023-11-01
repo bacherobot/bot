@@ -316,21 +316,27 @@ var showedLog = false
 	@returns {boolean} Si le message a été affiché
 */
 function showLog(type, content, id = "noid", showInConsole = true, hideDetails = false){
+	// Obtenir le nom du module qui a appelé la fonction
+	var callerPath = new Error().stack.split("\n")[2].split("(")[1].split(")")[0]
+	callerPath = callerPath.split(path.sep)
+	var callerModule = `${callerPath[callerPath.length - 2]}/${callerPath[callerPath.length - 1].split(":")[0]}`
+
 	// Si l'identifiant est bloqué
 	if(config_getValue("bachero", "logBlockedIds").includes(id)) return false
 
 	// Type à afficher
+	var _type = type
 	if(chalk) var coloredType = chalk[type == "ok" ? "green" : type == "info" ? "blue" : type == "error" ? "red" : type == "warn" ? "yellow" : "reset"]; else coloredType = type => type
 	var type = type ? `[${type.toUpperCase()}]` : ""
 
 	// Si on doit afficher dans la console, on le fait
-	if(showInConsole) console[type == "error" ? "error" : type == "warn" ? "warn" : "log"]((hideDetails ? "" : `${new Date().toLocaleTimeString()} ${coloredType(type)} `) + content)
+	if(showInConsole) console[type == "error" ? "error" : type == "warn" ? "warn" : "log"](((hideDetails ? "" : `${new Date().toLocaleTimeString()} ${coloredType(type)} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} ${chalk ? chalk.gray(`(${callerModule == "bot/index.js" ? "Module Loader" : callerModule == "bot/functions.js" ? "Bachero Functions" : callerModule})`) : `(${callerModule == "bot/index.js" ? "Module Loader" : callerModule == "bot/functions.js" ? "Bachero Functions" : callerModule})`} `) + content))
 
 	// L'ajouter à un fichier de log si on doit le faire
 	if(outputLogsInFile == undefined) outputLogsInFile = config_getValue("bachero", "outputLogsInFile")
 	if(outputLogsInFile){
 		if(!fs.existsSync(path.join(__dirname, "logs"))) fs.mkdirSync(path.join(__dirname, "logs"))
-		fs.appendFileSync(path.join(__dirname, "logs", `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================ Début des logs ================================\n" : ""}${hideDetails ? "" : `[${new Date().toLocaleTimeString()}] ${type}   `}${typeof content == "object" ? JSON.stringify(content) : content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "")}\n`)
+		fs.appendFileSync(path.join(__dirname, "logs", `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================ Début des logs ================================\n" : ""}${hideDetails ? "" : `[${new Date().toLocaleTimeString()}] ${type} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} (${callerModule == "bot/index.js" ? "Module Loader" : callerModule == "bot/functions.js" ? "Bachero Functions" : callerModule})   `}${typeof content == "object" ? JSON.stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "") : content}\n`)
 	}
 
 	// Retourner true
@@ -566,8 +572,15 @@ async function report_create(context, error, moreInfos, interaction){
 		authorId: interaction?.user?.id || interaction?.author?.id,
 		guildId: interaction?.guild?.id,
 		channelId: interaction?.channel?.id,
+		customId: interaction?.customId,
 		sourceType: `${interaction?.sourceType} (type: ${interaction?.type})`,
 		commandName: interaction?.commandName,
+		subCommandName: interaction?.subCommandName,
+		args: interaction?.args,
+		deferred: interaction?.deferred,
+		replied: interaction?.replied,
+		ephemeral: interaction?.ephemeral,
+		type: interaction?.type
 	}
 
 	// Version du bot
@@ -577,8 +590,12 @@ async function report_create(context, error, moreInfos, interaction){
 	var randomid = nanoid()
 	var date = new Date().toLocaleString()
 
+	// Obtenir le chemin du fichier qui a appelé la fonction
+	var callerPath = new Error().stack.split("\n")[2].split("(")[1].split(")")[0]
+	interaction.callerPath = callerPath.split(path.sep)
+
 	// Créer le rapport sous forme de texte
-	var report = `${randomid} | Rapport (${context}) générée le ${date} avec Bachero v${version}.\n\nIdentifiants en rapport avec l'interaction :\n•   Auteur: ${interaction.authorId}\n•   Serveur: ${interaction.guildId}\n•   Salon: ${interaction.channelId}\n•   Source: ${interaction.sourceType}\n•   Nom de la commande: ${interaction.commandName}\n\nInformations supplémentaires apportées par le module :\n   ${JSON.stringify(moreInfos) || moreInfos}\n\n${"=".repeat(15)}\n\n${error.stack || error.message || error.toString() || error}`
+	var report = `${randomid} | Rapport (${context}) générée le ${date} avec Bachero v${version}.\n\nÉléments en rapport avec l'interaction :${Object.entries(interaction).map(x => `\n   • ${x[0]}: ${typeof x[1] == "object" ? JSON.stringify(x[1]) : x[1]}`).join("")}\n\n${"=".repeat(15)}\n\nInformations supplémentaires apportées par le module :\n   ${JSON.stringify(moreInfos) || moreInfos}\n\n${"=".repeat(15)}\n\n${error.stack || error.message || error.toString() || error}`
 
 	// L'enregistrer dans la BDD
 	if(config_getValue("bachero", "databaseType") == "mongodb"){
