@@ -24,7 +24,7 @@ module.exports = {
 	// Définir les infos de la commande slash
 	slashInfo: new SlashCommandBuilder()
 		.setName("weather")
-		.setDescription("Recherche et obtient les paroles d'une chanson")
+		.setDescription("Afficher des informations sur la météo d'un lieu")
 		.addStringOption(option => option.setName("search")
 			.setDescription("Nom de la ville, latitude et longitude séparés par une virgule, ou adresse IP")
 			.setRequired(true)),
