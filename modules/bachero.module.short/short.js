@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, ModalBuilder, ActionRowBuilder, TextI
 const bacheroFunctions = require("../../functions")
 const fetch = require("node-fetch")
 const database = bacheroFunctions.database.getDatabase("bachero.module.short")
-const providersList = ["is.gd", "v.gd", "s.oriondev.fr", "s.3vm.cl", "s.ahpc.fi", "s.acme.si", "s.3play.cl", "s.fronturi.ro", "shor.vercel.app"]
+const providersList = ["is.gd", "v.gd", "s.oriondev.fr", "s.3vm.cl", "s.ahpc.fi", "s.acme.si", "s.3play.cl", "s.fronturi.ro", "shor.vercel.app", "s.jk.al", "s.amq.ro", "s.orns.net", "s.noble.sx", "s.18168.gq"]
 
 // Raccourcir une URL
 async function shortenUrl(url, provider, shortCode){

@@ -10,12 +10,14 @@ const providersList = [
 	{
 		name: "v.gd",
 		id: "v-gd",
-		shortcodes: true
+		shortcodes: true,
+		warning: "Ne redirige pas directement"
 	},
 	{
 		name: "s.oriondev.fr",
 		id: "s-oriondev-fr",
-		shortcodes: true
+		shortcodes: true,
+		warning: "Incompatible avec /unshort"
 	},
 	{
 		name: "s.3vm.cl",
@@ -46,6 +48,31 @@ const providersList = [
 		name: "shor.vercel.app",
 		id: "shor-vercel-app",
 		shortcodes: true
+	},
+	{
+		name: "s.jk.al",
+		id: "s-jk-al",
+		shortcodes: true
+	},
+	{
+		name: "s.amq.ro",
+		id: "s-amq-ro",
+		shortcodes: true
+	},
+	{
+		name: "s.orns.net",
+		id: "s-orns-net",
+		shortcodes: true
+	},
+	{
+		name: "s.noble.sx",
+		id: "s-noble-sx",
+		shortcodes: true
+	},
+	{
+		name: "s.18168.gq",
+		id: "s-18168-gq",
+		shortcodes: true
 	}
 ]
 
@@ -75,7 +102,7 @@ module.exports = {
 			// On répond à l'interaction
 			var embed = new EmbedBuilder()
 				.setTitle("Service actuel pour le racourcissement d'URL")
-				.setDescription(`Le service actuel est \`${provider.name}\`. Celui-ci ${provider.shortcodes ? "supporte" : "ne supporte pas"} la personnalisation du lien.`)
+				.setDescription(`Le service actuel est \`${provider.name}\`. Celui-ci ${provider.shortcodes ? "supporte" : "ne supporte pas"} la personnalisation du lien.${provider.warning ? `\n\n> ${provider.warning}.` : ""}`)
 				.setColor(bacheroFunctions.colors.primary)
 			await interaction.update({ embeds: [embed] }).catch(err => {})
 		})
@@ -85,18 +112,19 @@ module.exports = {
 	async execute(interaction){
 		// Obtenir le service actuel
 		var provider = await bacheroFunctions.database.get(database, `provider-${interaction.user.id}`)
+		var providerComplete = providersList.find(a => a.name == provider)
 
 		// Créer un embed
 		var embed = new EmbedBuilder()
 			.setTitle("Service actuel pour le racourcissement d'URL")
-			.setDescription(provider ? `Le service actuel est \`${provider}\`. Celui-ci ${providersList.find(a => a.name == provider)?.shortcodes ? "supporte" : "ne supporte pas"} la personnalisation du lien.` : "Aucun service n'est actuellement défini.")
+			.setDescription(provider ? `Le service actuel est \`${provider}\`. Celui-ci ${providerComplete?.shortcodes ? "supporte" : "ne supporte pas"} la personnalisation du lien.${providerComplete.warning ? `\n\n> ${providerComplete.warning}.` : ""}` : "Aucun service n'est actuellement défini.")
 			.setColor(bacheroFunctions.colors.primary)
 
 		// Créé un select menu pour changer de service
 		const row = new ActionRowBuilder().addComponents(new StringSelectMenuBuilder()
 			.setCustomId("shorten-config")
 			.setPlaceholder("Changer de service par défaut")
-			.addOptions(providersList.map(t => new StringSelectMenuOptionBuilder().setLabel(t.name).setValue(t.id).setDescription(`${t.shortcodes ? "Supporte" : "Ne supporte pas"} la personnalisation du lien${t.shortcodes ? " – via modal" : ""}`))))
+			.addOptions(providersList.sort((a, b) => a.name.length - b.name.length).map(t => new StringSelectMenuOptionBuilder().setLabel(t.name).setValue(t.id).setDescription(`${t.shortcodes ? "Supporte" : "Ne supporte pas"}${t.warning ? "" : " la"} modif${t.warning ? "." : "ication du"} lien${t.shortcodes && !t.warning ? " (via modal)" : ""}${t.warning ? ` – ${t.warning}` : ""}`))))
 
 		// Répondre à l'interaction
 		interaction.reply({ embeds: [embed], components: [row] }).catch(err => {})
