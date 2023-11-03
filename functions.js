@@ -329,14 +329,18 @@ function showLog(type, content, id = "noid", showInConsole = true, hideDetails =
 	if(chalk) var coloredType = chalk[type == "ok" ? "green" : type == "info" ? "blue" : type == "error" ? "red" : type == "warn" ? "yellow" : "reset"]; else coloredType = type => type
 	var type = type ? `[${type.toUpperCase()}]` : ""
 
+	// Obtenir le nom du dossier de Bachero
+	var bacheroFolderName = path.join(__dirname).split(path.sep)
+	bacheroFolderName = bacheroFolderName[bacheroFolderName.length - 1]
+
 	// Si on doit afficher dans la console, on le fait
-	if(showInConsole) console[type == "error" ? "error" : type == "warn" ? "warn" : "log"](((hideDetails ? "" : `${new Date().toLocaleTimeString()} ${coloredType(type)} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} ${chalk ? chalk.gray(`(${callerModule == "bot/index.js" ? "Module Loader" : callerModule == "bot/functions.js" ? "Bachero Functions" : callerModule})`) : `(${callerModule == "bot/index.js" ? "Module Loader" : callerModule == "bot/functions.js" ? "Bachero Functions" : callerModule})`} `) + content))
+	if(showInConsole) console[type == "error" ? "error" : type == "warn" ? "warn" : "log"](((hideDetails ? "" : `${new Date().toLocaleTimeString()} ${coloredType(type)} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} ${chalk ? chalk.gray(`(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`) : `(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`} `) + content))
 
 	// L'ajouter à un fichier de log si on doit le faire
 	if(outputLogsInFile == undefined) outputLogsInFile = config_getValue("bachero", "outputLogsInFile")
 	if(outputLogsInFile){
 		if(!fs.existsSync(path.join(__dirname, "logs"))) fs.mkdirSync(path.join(__dirname, "logs"))
-		fs.appendFileSync(path.join(__dirname, "logs", `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================ Début des logs ================================\n" : ""}${hideDetails ? "" : `[${new Date().toLocaleTimeString()}] ${type} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} (${callerModule == "bot/index.js" ? "Module Loader" : callerModule == "bot/functions.js" ? "Bachero Functions" : callerModule})   `}${typeof content == "object" ? JSON.stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "") : content}\n`)
+		fs.appendFileSync(path.join(__dirname, "logs", `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================ Début des logs ================================\n" : ""}${hideDetails ? "" : `[${new Date().toLocaleTimeString()}] ${type} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} (${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})   `}${typeof content == "object" ? JSON.stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "") : content}\n`)
 	}
 
 	// Retourner true
