@@ -1,25 +1,15 @@
 const { codeBlock } = require("discord.js")
 const bacheroFunctions = require("../../functions")
 if(bacheroFunctions.config.getValue("bachero", "disableReport") == true) return // si le système de rapports est désactivé, on arrête le chargement du module
-const secretPassword = bacheroFunctions.config.getValue("bachero.module.showReports", "secretPassword")
 
 module.exports = {
 	async getClient(client){
-		// Vérifier le mot de passe définit dans le fichier de configuration
-		if(secretPassword == "password") bacheroFunctions.showLog("warn", "Le mot de passe entré pour le module \"bachero.module.showReports\" n'a pas été changé. Pour plus de sécurité, veuillez le changer dans le fichier de configuration associé au module.", "showReports-default-password")
-
 		// Quand on reçoit un message
 		client.on("messageCreate", async (message) => {
 			if(message.content.startsWith("bachero-send-reports")){
-				// Si on est pas en message privé
-				if(message.channel.type != 1) return message.reply("Vous devez utiliser cette commande en message privé pour plus de sécurité.").catch(err => {})
-
-				// Si il n'y a pas de mot de passe
-				var password = message.content.split(" ")[1]
-				if(!password) return message.reply("Vous devez entrer un mot de passe pour utiliser cette commande. Exemple : `bachero-send-reports <votre mot de passe>.`").catch(err => {})
-
-				// Si le mot de passe est incorrect
-				if(password != secretPassword) return message.reply("Le mot de passe entré n'est pas celui entré dans le fichier de configuration.").catch(err => {})
+				// Vérifier si l'utilisateur est un administrateur du bot
+				if(!bacheroFunctions.ownerIds?.length) return message.reply("Au moins un administrateur doit être défini dans la configuration du bot : [page de la documentation](<https://bachero.johanstick.fr/docs/configuration/dotenv#owner_ids>)")
+				if(!bacheroFunctions.ownerIds?.includes(message.author.id)) return message.reply("Vous n'avez pas la permission d'utiliser cette commande.")
 
 				// Demander l'identifiant du rapport
 				var filter = m => m.author.id == message.author.id
