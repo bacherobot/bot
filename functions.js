@@ -27,6 +27,11 @@ var cachedConfigs = {}
 var botClient = null
 var botName = config_getValue("bachero", "botName") // jsp où le mettre
 
+// Identifiants propriétaires du bot
+var ownerIds = process.env.OWNER_IDS?.split(",")
+if(!ownerIds?.length) showLog("warn", "Aucun identifiant de propriétaire n'a été défini dans le fichier .env, certaines fonctionnalités seront manquantes", "no-owner-id"), ownerIds = []
+else ownerIds = ownerIds.map(x => x.trim()) || []
+
 // Liste de chemins spécifiques
 var foldersPath = {
 	config: path.join(__dirname, "config"),
@@ -743,4 +748,5 @@ module.exports = {
 	parseUserFromString: parseUserFromString,
 	foldersPath: foldersPath,
 	package: require("./package.json"),
+	ownerIds: ownerIds
 }
