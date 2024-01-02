@@ -4,6 +4,7 @@ const database = bacheroFunctions.database.getDatabase("bachero.module.level")
 
 // Options de la configuration
 const levelUpMessage = bacheroFunctions.config.getValue("bachero.module.level", "levelUpMessage") || "Level up {user} ! Vous êtes désormais au niveau {level}."
+const xpToLevelUp = bacheroFunctions.config.getValue("bachero.module.level", "xpToLevelUp") || 385
 
 // Tout les jours à minuit
 new CronJob("1 0 * * *", () => {
@@ -65,12 +66,12 @@ module.exports = {
 
 			// On ajoute un multiplicateur en fonction du niveau de l'utilisateur
 			var multiplicateur = 1
-			if(userDb?.level > 5) multiplicateur = 0.9
+			if(userDb?.level > 8) multiplicateur = 0.9
 			if(userDb?.level > 20) multiplicateur = 0.8
-			if(userDb?.level > 30) multiplicateur = 0.7
-			if(userDb?.level > 50) multiplicateur = 0.6
-			if(userDb?.level > 70) multiplicateur = 0.5
-			if(userDb?.level > 100) multiplicateur = 0.4
+			if(userDb?.level > 35) multiplicateur = 0.7
+			if(userDb?.level > 60) multiplicateur = 0.6
+			if(userDb?.level > 90) multiplicateur = 0.5
+			if(userDb?.level > 130) multiplicateur = 0.4
 			xpToAdd = Math.floor(xpToAdd * multiplicateur)
 
 			// On ajoute l'XP à l'utilisateur
@@ -80,12 +81,12 @@ module.exports = {
 			else userDb[`server-${guildId}`].xp += xpToAdd
 			userDb.todayXpChat += xpToAdd // XP obtenu cette journée
 
-			// Ajouter un niveau tous les 1125 XP
-			var newLevel_global = parseInt(userDb.global.xp / 1125)
+			// Ajouter un niveau si l'utilisateur a assez d'XP
+			var newLevel_global = parseInt(userDb.global.xp / xpToLevelUp)
 			if(newLevel_global != userDb?.global.level) userDb.global.level = newLevel_global
 
 			// On le refait, pour ce serveur, et en envoyant un message
-			var newLevel_server = parseInt(userDb[`server-${guildId}`].xp / 1125)
+			var newLevel_server = parseInt(userDb[`server-${guildId}`].xp / xpToLevelUp)
 			if(newLevel_server != userDb[`server-${guildId}`].level){
 				// On définit
 				userDb[`server-${guildId}`].level = newLevel_server

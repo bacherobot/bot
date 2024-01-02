@@ -5,6 +5,7 @@ const database = bacheroFunctions.database.getDatabase("bachero.module.level")
 // Options de la configuration
 const hideGlobalLeaderboard = bacheroFunctions.config.getValue("bachero.module.level", "hideGlobalLeaderboard") || false
 const showLevelUpMessage = bacheroFunctions.config.getValue("bachero.module.level", "showLevelUpMessage")
+const xpToLevelUp = bacheroFunctions.config.getValue("bachero.module.level", "xpToLevelUp") || 385
 
 // Exporter certaines fonctions
 module.exports = {
@@ -153,7 +154,7 @@ module.exports = {
 			if(userDbServer.xp < 0) userDbServer.xp = 0
 
 			// On modifie le niveau
-			var newLevel_server = parseInt(userDbServer.xp / 1125)
+			var newLevel_server = parseInt(userDbServer.xp / xpToLevelUp)
 			if(newLevel_server != userDbServer.level) userDbServer.level = newLevel_server
 
 			// On définit dans la base de données

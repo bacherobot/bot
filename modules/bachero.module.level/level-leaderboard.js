@@ -111,7 +111,7 @@ module.exports = {
 			var global_embed = new EmbedBuilder()
 				.setTitle("Classement - interserveur")
 				.setFields(global_leaderboard_embed)
-				.setFooter({ text: `Votre rang : ${global_userRank} / ${global_leaderboard.length} • ${userDb?.global?.level ? `Niveau ${userDb?.global?.level}` : "Aucun niveau"}, avec ${userDb?.global?.xp ? `${addSpaceNumbers(userDb?.global?.xp)} XP` : "Aucune XP"}` })
+				.setFooter({ text: `Votre rang : ${global_userRank} / ${global_leaderboard.length} • ${userDb?.global?.level ? `Niveau ${userDb?.global?.level}` : "Aucun niveau"}, avec ${userDb?.global?.xp ? `${addSpaceNumbers(userDb?.global?.xp)} XP` : "aucun XP"}` })
 				.setColor(bacheroFunctions.colors.primary)
 		}
 
@@ -131,7 +131,7 @@ module.exports = {
 			server_embed = new EmbedBuilder()
 				.setTitle("Classement - ce serveur")
 				.setFields(server_leaderboard_embed)
-				.setFooter({ text: `Votre rang : ${server_userRank} / ${server_leaderboard.length} • ${userDb?.[`server-${guildId}`]?.level ? `Niveau ${userDb?.[`server-${guildId}`]?.level}` : "Aucun niveau"}, avec ${userDb?.[`server-${guildId}`]?.xp ? `${addSpaceNumbers(userDb?.[`server-${guildId}`]?.xp)} XP` : "Aucune XP"}` })
+				.setFooter({ text: `Votre rang : ${server_userRank} / ${server_leaderboard.length} • ${userDb?.[`server-${guildId}`]?.level ? `Niveau ${userDb?.[`server-${guildId}`]?.level}` : "Aucun niveau"}, avec ${userDb?.[`server-${guildId}`]?.xp ? `${addSpaceNumbers(userDb?.[`server-${guildId}`]?.xp)} XP` : "Aucun XP"}` })
 				.setColor(bacheroFunctions.colors.primary)
 		}
 
