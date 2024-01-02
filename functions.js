@@ -147,6 +147,12 @@ function getDatabase(packageName){
 	@returns {any} Valeur de la propriété
 */
 async function database_get(database, property){
+	// On vérifie que la propriété existe
+	if(!property) return null
+	var hasProperty = await database.has(property)
+	if(hasProperty instanceof Error) return hasProperty
+	if(!hasProperty) return null
+
 	// Obtenir la valeur
 	var value = await database.get(property)
 
@@ -171,6 +177,9 @@ async function database_get(database, property){
 	@returns {void}
 */
 async function database_set(database, property, value){
+	// Si on a pas la propriété
+	if(!property) return null
+
 	// Mettre à jour la valeur
 	var result = await database.set(property, value)
 
@@ -193,6 +202,9 @@ async function database_set(database, property, value){
 	@returns {boolean} Si la valeur existe
 */
 async function database_has(database, property){
+	// Si on a pas la propriété
+	if(!property) return null
+
 	// Vérifier si la valeur existe
 	var result = await database.has(property)
 
@@ -219,6 +231,12 @@ async function database_has(database, property){
 	@returns {void}
 */
 async function database_delete(database, property){
+	// On vérifie que la propriété existe
+	if(!property) return null
+	var hasProperty = await database.has(property)
+	if(hasProperty instanceof Error) return hasProperty
+	if(!hasProperty) return null
+
 	// Supprimer la valeur
 	var result = await database.delete(property)
 

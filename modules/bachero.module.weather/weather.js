@@ -67,8 +67,8 @@ module.exports = {
 				typeof weather?.current?.precip_mm == "number" ? { name: "Précipitations", value: `${weather?.current?.precip_mm?.toString()?.replace(".", ",")} mm`, inline: true } : null,
 				typeof weather?.current?.cloud == "number" ? { name: "Nuages", value: `${weather?.current?.cloud}%`, inline: true } : null,
 				typeof weather?.current?.wind_kph == "number" ? { name: "Vent", value: `${weather?.current?.wind_kph?.toString()?.replace(".", ",")} km/h`, inline: true } : null,
-				today?.astro?.sunrise && today?.astro?.sunset ? { name: "Soleil", value: `Lever : ${convert12hTo24h(today?.astro?.sunrise)}\nCoucher : ${convert12hTo24h(today?.astro?.sunset)}`, inline: true } : null,
-				today?.astro?.moonrise && today?.astro?.moonset ? { name: "Lune", value: `Lever : ${convert12hTo24h(today?.astro?.moonrise)}\nCoucher : ${convert12hTo24h(today?.astro?.moonset)}`, inline: true } : null,
+				!isNaN(today?.astro?.sunrise) && !isNaN(today?.astro?.sunset) ? { name: "Soleil", value: `Lever : ${convert12hTo24h(today?.astro?.sunrise)}\nCoucher : ${convert12hTo24h(today?.astro?.sunset)}`, inline: true } : null,
+				!isNaN(today?.astro?.moonrise) && !isNaN(today?.astro?.moonset) ? { name: "Lune", value: `Lever : ${convert12hTo24h(today?.astro?.moonrise)}\nCoucher : ${convert12hTo24h(today?.astro?.moonset)}`, inline: true } : null,
 				hoursForecast?.length ? { name: "Prévisions par heures", value: hoursForecast.map(h => `- **${h?.time?.split(" ")[1]} :** Temp. ${Math.round(h?.temp_c)}°C  |  Ress. ${Math.round(h?.feelslike_c)}°C`).join("\n"), inline: false } : null
 			].filter(f => f != null))
 			.setThumbnail(`https:${weather?.current?.condition?.icon}`)

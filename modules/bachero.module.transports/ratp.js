@@ -105,7 +105,7 @@ async function whenLineObtained(interaction, line, isBus){
 	var _line = line
 	if(cache_lines[line]) line = cache_lines[line] // si on l'a déjà en cache, on l'utilise
 	else if(isBus){
-		line = await fetch("https://www.bonjour-ratp.fr/api/bff/lines/search/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: line }) }).then(r => r.json()).catch(err => { return { fetcherror: err } })
+		line = await fetch("https://www.bonjour-ratp.fr/api/bff/lines/search/", { method: "POST", headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)", "Content-Type": "application/json" }, body: JSON.stringify({ text: line }) }).then(r => r.json()).catch(err => { return { fetcherror: err } })
 		if(line.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API de la RATP (n°1)", line.fetcherror || line, {}, interaction)
 		if(!line?.[0]?.id) return interaction.editReply({ content: "Je n'ai pas trouvé cette ligne de bus..." }).catch(err => {})
 		line = { id: line?.[0]?.id, name: `BUS ${line?.[0]?.displayCode}` }
@@ -114,7 +114,7 @@ async function whenLineObtained(interaction, line, isBus){
 	// Obtenir les arrêts sur la ligne
 	if(cache_stops[line.id]) var stops = cache_stops[line.id]
 	else {
-		var stops = await fetch(`https://www.bonjour-ratp.fr/api/lines/${line.id}/stop-places/`).then(r => r.json()).catch(err => { return { fetcherror: err } })
+		var stops = await fetch(`https://www.bonjour-ratp.fr/api/lines/${line.id}/stop-places/`, { headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).then(r => r.json()).catch(err => { return { fetcherror: err } })
 		if(stops.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API de la RATP (n°2)", stops.fetcherror || stops, {}, interaction)
 		if(!stops?.length) return
 		stops = stops.map(s => { return { id: s.id, name: s.displayName, code: s.postalCode, city: s.city } })
@@ -193,7 +193,7 @@ async function whenStopObtained(interaction, stop, isComplete){
 	interactionIds = interactionIds.filter(i => i.id != interaction.customId.split("-")[2]) // On supprime l'interaction de la liste
 
 	// Obtenir les horaires
-	var times = await fetch(`https://www.bonjour-ratp.fr/api/next-stops/${stop}/preview/`).then(r => r.json()).catch(err => { return { fetcherror: err } })
+	var times = await fetch(`https://www.bonjour-ratp.fr/api/next-stops/${stop}/preview/`, { headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).then(r => r.json()).catch(err => { return { fetcherror: err } })
 	if(times.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API de la RATP (n°2)", times.fetcherror || times, {}, interaction)
 	if(!times?.length) return
 
