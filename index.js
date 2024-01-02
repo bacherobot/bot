@@ -7,10 +7,8 @@ const path = require("path")
 const jsonc = require("jsonc")
 const Fuse = require("fuse.js")
 const StackTracey = require("stacktracey")
-const escape = require("markdown-escape")
 const { EventEmitter } = require("events")
 const bacheroFunctions = require("./functions"); global.bacheroFunctions = bacheroFunctions // En profiter pour la partager aux modules
-require("dotenv").config()
 
 // Obtenir quelques variables en plus
 var optimized = process.argv.includes("--optimize")
@@ -417,7 +415,7 @@ client.on("interactionCreate", async interaction => {
 			interaction.sourceType = "contextMenu"
 			await contextMenu.file.execute(interaction)
 		} catch (error){
-			bacheroFunctions.showLog("warn", `${interaction.user.discriminator == "0" ? escape(interaction.user.username) : escape(interaction.user.tag)} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, "user-contextmenu-error")
+			bacheroFunctions.showLog("warn", `${interaction.user.discriminator == "0" ? interaction.user.username : interaction.user.tag} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, "user-contextmenu-error")
 			bacheroFunctions.showLog("warn", error.stack || error, "user-contextmenu-error", true, true)
 			try {
 				interaction.reply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution du menu contextuel :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
@@ -445,7 +443,7 @@ client.on("interactionCreate", async interaction => {
 			interaction.sourceType = "slashCommand"
 			await command.file.execute(interaction)
 		} catch (error){
-			bacheroFunctions.showLog("warn", `${interaction.user.discriminator == "0" ? escape(interaction.user.username) : escape(interaction.user.tag)} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, "user-slashcommand-error")
+			bacheroFunctions.showLog("warn", `${interaction.user.discriminator == "0" ? interaction.user.username : interaction.user.tag} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, "user-slashcommand-error")
 			bacheroFunctions.showLog("warn", error.stack || error, "user-slashcommand-error", true, true)
 			try {
 				interaction.reply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
@@ -867,7 +865,7 @@ client.on("messageCreate", async message => {
 	try {
 		await command.file.execute(message)
 	} catch (error){
-		bacheroFunctions.showLog("warn", `${message.user.discriminator == "0" ? escape(message.user.username) : escape(message.user.tag)} a exécuté la commande texte ${chalk.yellow(message.commandName)} qui a fini en une erreur :`, "user-textcommand-error")
+		bacheroFunctions.showLog("warn", `${message.user.discriminator == "0" ? message.user.username : message.user.tag} a exécuté la commande texte ${chalk.yellow(message.commandName)} qui a fini en une erreur :`, "user-textcommand-error")
 		bacheroFunctions.showLog("warn", error.stack || error, "user-textcommand-error", true, true)
 		try {
 			messageResponse = message.reply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)] }).catch(err => {})
