@@ -1,7 +1,6 @@
 // On importe quelques éléments via discord.js
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } = require("discord.js")
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, escapeMarkdown } = require("discord.js")
 const bacheroFunctions = require("../../functions")
-const escape = require("markdown-escape")
 var elbotStyle = bacheroFunctions.config.getValue("bachero", "elbotStyleInErrors")
 
 // Et on exporte ce qu'il faut
@@ -70,7 +69,7 @@ module.exports = {
 				await cloned.setPosition(channelPos).catch(err => { return { err: err } })
 
 				// On envoie un message dans le nouveau salon
-				await cloned.send(`Nuke posé dans le salon par ${i.user?.globalName ? i.user.globalName : ""} ${i.user?.globalName ? "(" : ""}${i.user?.discriminator == "0" ? `${i.user?.username}` : escape(i.user?.tag)}${i.user?.globalName ? ")" : ""} (<@${i.user?.id}>).`).catch(err => {})
+				await cloned.send(`Nuke posé dans le salon par ${i.user?.globalName ? i.user.globalName : ""} ${i.user?.globalName ? "(" : ""}${i.user?.discriminator == "0" ? `${i.user?.username}` : escapeMarkdown(i.user?.tag)}${i.user?.globalName ? ")" : ""} (<@${i.user?.id}>).`).catch(err => {})
 			}
 		})
 	}

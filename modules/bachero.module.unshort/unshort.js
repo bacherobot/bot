@@ -1,7 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, escapeMarkdown } = require("discord.js")
 const bacheroFunctions = require("../../functions")
 const fetch = require("node-fetch")
-const escape = require("markdown-escape")
 
 module.exports = {
 	// Définir les infos de la commande slash
@@ -69,10 +68,10 @@ module.exports = {
 		var embed = new EmbedBuilder()
 			.setTitle("Résultat de l'analyse")
 			.addFields([
-				{ name: "Raccourci", value: unshortened.url || query, inline: true },
-				{ name: "Originale", value: unshortened.redirected, inline: true },
-				meta_title ? { name: "Titre", value: escape(meta_title) || "Aucun titre trouvé", inline: true } : undefined,
-				meta_description ? { name: "Description", value: escape(meta_description) || "Aucune description trouvée", inline: true } : undefined,
+				{ name: "Raccourci", value: escapeMarkdown(unshortened.url || query), inline: true },
+				{ name: "Originale", value: escapeMarkdown(unshortened.redirected), inline: true },
+				meta_title ? { name: "Titre", value: escapeMarkdown(meta_title) || "Aucun titre trouvé", inline: true } : undefined,
+				meta_description ? { name: "Description", value: escapeMarkdown(meta_description) || "Aucune description trouvée", inline: true } : undefined,
 			].filter(Boolean))
 			.setColor(unshortened.safe ? bacheroFunctions.colors.primary : bacheroFunctions.colors.secondary)
 			.setFooter({ text: `Sous la demande de ${interaction.user.discriminator == "0" ? interaction.user.username : interaction.user.tag}` })

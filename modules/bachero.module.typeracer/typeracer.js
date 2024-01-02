@@ -1,6 +1,5 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ContextMenuCommandBuilder, ApplicationCommandType } = require("discord.js")
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ContextMenuCommandBuilder, ApplicationCommandType, escapeMarkdown } = require("discord.js")
 const { rando } = require("@nastyox/rando.js")
-const escape = require("markdown-escape")
 const { diffWords } = require("diff")
 const { colors } = require("../../functions")
 const listPhrases = [
@@ -148,7 +147,7 @@ module.exports = {
 		// Générer un embed
 		const embed = new EmbedBuilder()
 			.setTitle("Demande de duel d'écriture")
-			.setDescription(`${opponentMention}, **${interaction.user.discriminator == "0" ? escape(interaction.user.username) : escape(interaction.user.tag)}** vous défie à un duel d'écriture !\n\nUn texte sera envoyé, le premier à le recopier et l'envoyer dans ce salon deviendra vainqueur !\n\n> **Tips :** ${rando(tips).value}`)
+			.setDescription(`${opponentMention}, **${interaction.user.discriminator == "0" ? escapeMarkdown(interaction.user.username) : escapeMarkdown(interaction.user.tag)}** vous défie à un duel d'écriture !\n\nUn texte sera envoyé, le premier à le recopier et l'envoyer dans ce salon deviendra vainqueur !\n\n> **Tips :** ${rando(tips).value}`)
 			.setFooter({ text: "Vous avez 30 secondes pour accepter cette demande" })
 			.setColor(colors.primary)
 
@@ -195,7 +194,7 @@ module.exports = {
 			}
 
 			// Envoyer le message
-			await interaction.editReply({ embeds: [embed.setTitle(`${interaction.user.displayName.length ? escape(interaction.user.displayName) : interaction.user.username} VS ${opponent.displayName.length ? escape(opponent.displayName) : opponent.username}`).setDescription(`> ${phraseAntiCP.replaceAll("\n", "\n> ")}`).setColor(colors.secondary)] }).catch(err => {})
+			await interaction.editReply({ embeds: [embed.setTitle(`${interaction.user.displayName.length ? interaction.user.displayName : interaction.user.username} VS ${opponent.displayName.length ? opponent.displayName : opponent.username}`).setDescription(`> ${phraseAntiCP.replaceAll("\n", "\n> ")}`).setColor(colors.secondary)] }).catch(err => {})
 			var dateStartGame = Date.now()
 
 			// Attendre une réponse

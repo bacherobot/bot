@@ -1,6 +1,5 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ComponentType, ButtonBuilder, ButtonStyle, AttachmentBuilder } = require("discord.js")
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ComponentType, ButtonBuilder, ButtonStyle, AttachmentBuilder, escapeMarkdown } = require("discord.js")
 const bacheroFunctions = require("../../functions")
-const escape = require("markdown-escape")
 var elbotStyle = bacheroFunctions.config.getValue("bachero", "elbotStyleInErrors")
 
 module.exports = {
@@ -90,7 +89,7 @@ module.exports = {
 			var embed = new EmbedBuilder()
 				.setTitle("Bannissement")
 				.setAuthor({ name: interaction.user.displayName || interaction.user.username, iconURL: avatar })
-				.setDescription(`Un modérateur du serveur "${escape(interaction.guild.name)}" a frappé ! Raison : ${reason}`)
+				.setDescription(`Un modérateur du serveur "${escapeMarkdown(interaction.guild.name)}" a frappé ! Raison : ${reason}`)
 				.setColor(bacheroFunctions.colors.primary)
 			if(elbotStyle) embed.setFooter({ text: "Miskin" })
 			if(elbotStyle) embed.setImage("https://media.tenor.com/BeHgpjAGbJEAAAAd/ban-hammer.gif")

@@ -1,6 +1,5 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js")
+const { SlashCommandBuilder, EmbedBuilder, escapeMarkdown } = require("discord.js")
 const bacheroFunctions = require("../../functions")
-const escape = require("markdown-escape")
 const authorizedIds = bacheroFunctions.config.getValue("bachero.module.moduleInfo", "authorizedIds")
 const compactList = bacheroFunctions.config.getValue("bachero.module.moduleInfo", "compactList")
 const addDetails = bacheroFunctions.config.getValue("bachero.module.moduleInfo", "addDetails")
@@ -43,8 +42,8 @@ module.exports = {
 		if(!pages?.[1]) listModules.forEach(mod => {
 			if(modulesMessage.length > 3900){
 				pages.push(modulesMessage)
-				modulesMessage = compactList ? `\n• *${escape(mod.packageName)}* : ${escape(mod.shortDescription)}` : `\n\n**${escape(mod.packageName)}** :\n> ${escape(mod.shortDescription)}`
-			} else modulesMessage += compactList ? `\n• *${escape(mod.packageName)}* : ${escape(mod.shortDescription)}` : `\n\n**${escape(mod.packageName)}** :\n> ${escape(mod.shortDescription)}`
+				modulesMessage = compactList ? `\n• *${escapeMarkdown(mod.packageName)}* : ${escapeMarkdown(mod.shortDescription)}` : `\n\n**${escapeMarkdown(mod.packageName)}** :\n> ${escapeMarkdown(mod.shortDescription)}`
+			} else modulesMessage += compactList ? `\n• *${escapeMarkdown(mod.packageName)}* : ${escapeMarkdown(mod.shortDescription)}` : `\n\n**${escapeMarkdown(mod.packageName)}** :\n> ${escapeMarkdown(mod.shortDescription)}`
 		})
 		if(modulesMessage) pages.push(modulesMessage)
 
@@ -85,7 +84,7 @@ module.exports = {
 			// Sinon, créer un embed pour afficher les infos du module
 			var embed = new EmbedBuilder()
 				.setTitle(module.name)
-				.setDescription(`> ${escape(module.shortDescription)}\n\n**Nom de packet :** ${escape(module.packageName)}\n**Auteur${module.authors.length > 1 ? "s" : ""} :** ${module?.completeAuthors?.length ? module.completeAuthors.map(author => ((author?.discordId || author?.link) && author?.name) ? `[${escape(author.name)}](${author?.link ? escape(author.link) : `https://discord.com/users/${escape(author?.discordId)}`})` : (author?.name || author)).join(" ; ") : module.authors.join(" ; ")}\n**Commande${module.commands.length > 1 ? "s" : ""} :** ${(module?.commands?.length > 0 ? module.commands : [{ name: "Aucune" }]).map(c => `${module?.commands?.length > 1 ? "\nㅤ• " : ""}${escape(c.name)}${addDetails && c.slashToText === false ? "  *(slash uniquement)*" : ""}${addDetails && c.dm_permission === false ? " *(serveur uniquement)*" : ""}`).join(module?.commands?.length > 1 ? "" : " ; ")}${addDetails && module?.contextsMenus?.length ? `\n**Menu${module.contextsMenus.length > 1 ? "s" : ""} contextuel${module.contextsMenus.length > 1 ? "s" : ""} :** ${module.contextsMenus.map(c => `${module?.contextsMenus?.length > 1 ? "\nㅤ• " : ""}${escape(c.name)}`).join(module?.contextsMenus?.length > 1 ? "" : " ; ")}` : ""}`)
+				.setDescription(`> ${escapeMarkdown(module.shortDescription)}\n\n**Nom de packet :** ${escapeMarkdown(module.packageName)}\n**Auteur${module.authors.length > 1 ? "s" : ""} :** ${module?.completeAuthors?.length ? module.completeAuthors.map(author => ((author?.discordId || author?.link) && author?.name) ? `[${escapeMarkdown(author.name)}](${author?.link ? escapeMarkdown(author.link) : `https://discord.com/users/${escapeMarkdown(author?.discordId)}`})` : (author?.name || author)).join(" ; ") : module.authors.join(" ; ")}\n**Commande${module.commands.length > 1 ? "s" : ""} :** ${(module?.commands?.length > 0 ? module.commands : [{ name: "Aucune" }]).map(c => `${module?.commands?.length > 1 ? "\nㅤ• " : ""}${escapeMarkdown(c.name)}${addDetails && c.slashToText === false ? "  *(slash uniquement)*" : ""}${addDetails && c.dm_permission === false ? " *(serveur uniquement)*" : ""}`).join(module?.commands?.length > 1 ? "" : " ; ")}${addDetails && module?.contextsMenus?.length ? `\n**Menu${module.contextsMenus.length > 1 ? "s" : ""} contextuel${module.contextsMenus.length > 1 ? "s" : ""} :** ${module.contextsMenus.map(c => `${module?.contextsMenus?.length > 1 ? "\nㅤ• " : ""}${escapeMarkdown(c.name)}`).join(module?.contextsMenus?.length > 1 ? "" : " ; ")}` : ""}`)
 				.setColor(bacheroFunctions.colors.primary)
 			if(module.source && typeof module.source == "string") embed.setURL(module.source)
 

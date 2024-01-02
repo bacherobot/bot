@@ -1,6 +1,5 @@
-const { EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits, ButtonStyle, ButtonBuilder, ActionRowBuilder } = require("discord.js")
+const { EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits, ButtonStyle, ButtonBuilder, ActionRowBuilder, escapeMarkdown } = require("discord.js")
 const fetch = require("node-fetch")
-const escape = require("markdown-escape")
 const bacheroFunctions = require("../../functions")
 const database = bacheroFunctions.database.getDatabase("bachero.module.snipe")
 const hastebinUrl = process.env.HASTEBIN_URL || "https://hastebin.com"
@@ -51,14 +50,14 @@ async function addToDb(message, newMessage){
 		editTimestamp: Date.now(),
 		channelId: message.channelId, id: message.id,
 		oldContent: message.content, newContent: newMessage.content,
-		authorId: message.author.id, authorTag: message.author.discriminator == "0" ? escape(message.author.username) : escape(message.author.tag),
+		authorId: message.author.id, authorTag: message.author.discriminator == "0" ? escapeMarkdown(message.author.username) : escapeMarkdown(message.author.tag),
 	})
 	else snipes.push({
 		type: "delete",
 		deletedTimestamp: Date.now(),
 		channelId: message.channelId, id: message.id,
 		content: message.content, attachments: attachments,
-		authorId: message.author.id, authorTag: message.author.discriminator == "0" ? escape(message.author.username) : escape(message.author.tag),
+		authorId: message.author.id, authorTag: message.author.discriminator == "0" ? escapeMarkdown(message.author.username) : escapeMarkdown(message.author.tag),
 	})
 
 	// Mettre les snipes dans un ordre pour que les plus récents soient en haut

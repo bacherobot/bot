@@ -1,8 +1,7 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require("discord.js")
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, escapeMarkdown } = require("discord.js")
 const Fuse = require("fuse.js")
 const fetch = require("node-fetch")
 const bacheroFunctions = require("../../functions")
-const escape = require("markdown-escape")
 
 // Ids d'interactions
 var interactionIds = []
@@ -260,7 +259,7 @@ module.exports = {
 					// Créer un embed
 					var embed = new EmbedBuilder()
 						.setTitle(`${lines.length} lignes trouvées`)
-						.setDescription(lines.map(l => `- **${escape(l.commercialName || "Nom inconnu")}**${l.name ? l.name : ` > ${l.direction}` || "Direction inconnue"}`).join("\n"))
+						.setDescription(lines.map(l => `- **${escapeMarkdown(l.commercialName || "Nom inconnu")}**${l.name ? l.name : ` > ${l.direction}` || "Direction inconnue"}`).join("\n"))
 						.setColor(bacheroFunctions.colors.primary)
 
 					// Créer le bouton pour choisir via un modal
@@ -278,7 +277,7 @@ module.exports = {
 						.setCustomId("diviaCmd-line")
 						.setPlaceholder("Choissisez une ligne")
 						.addOptions(lines.map(l => {
-							return new StringSelectMenuOptionBuilder().setLabel(`${escape(l.commercialName || "Nom inconnu")}${l.name ? l.name : ` > ${l.direction}` || "Direction inconnue"}`).setValue(l.id)
+							return new StringSelectMenuOptionBuilder().setLabel(`${escapeMarkdown(l.commercialName || "Nom inconnu")}${l.name ? l.name : ` > ${l.direction}` || "Direction inconnue"}`).setValue(l.id)
 						})))
 					await interaction.update({ components: [row] }).catch(err => {})
 				}

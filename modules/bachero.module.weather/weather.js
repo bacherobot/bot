@@ -1,6 +1,5 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js")
+const { SlashCommandBuilder, EmbedBuilder, escapeMarkdown } = require("discord.js")
 const bacheroFunctions = require("../../functions")
-const escape = require("markdown-escape")
 const fetch = require("node-fetch")
 
 // Obtenir la clé d'API
@@ -56,7 +55,7 @@ module.exports = {
 		// Créer l'embed
 		var embed = new EmbedBuilder()
 			.setTitle(`Météo à ${weather.location.name}${weather.location?.region ? ` (${weather.location?.region})` : ""}${weather.location?.country != "France" ? `, ${weather.location?.country}` : ""}`)
-			.setDescription(`Météo actuelle : ${escape(weather?.current?.condition?.text)}\nHeure locale : ${weather?.location?.localtime?.split(" ")?.[1]} | Dernière MÀJ : <t:${Math.round(weather?.current?.last_updated_epoch)}:R>`)
+			.setDescription(`Météo actuelle : ${escapeMarkdown(weather?.current?.condition?.text)}\nHeure locale : ${weather?.location?.localtime?.split(" ")?.[1]} | Dernière MÀJ : <t:${Math.round(weather?.current?.last_updated_epoch)}:R>`)
 			.setFields([
 				typeof weather?.current?.temp_c == "number" ? { name: "Temp. actuelle", value: `${Math.round(weather?.current?.temp_c)}°C`, inline: true } : null,
 				typeof weather?.current?.feelslike_c == "number" ? { name: "Ressentie actuelle", value: `${Math.round(weather?.current?.feelslike_c)}°C`, inline: true } : null,

@@ -1,6 +1,5 @@
-const { SlashCommandBuilder, AttachmentBuilder } = require("discord.js")
+const { SlashCommandBuilder, AttachmentBuilder, escapeMarkdown } = require("discord.js")
 const bacheroFunctions = require("../../functions")
-const escape = require("markdown-escape")
 var sayShowAuthor = bacheroFunctions.config.getValue("bachero.module.message", "sayShowAuthor")
 var botClient
 
@@ -58,7 +57,7 @@ module.exports = {
 		if(interaction.sourceType !== "textCommand" && await interaction.deferReply({ ephemeral: true }).catch(err => { return "stop" }) == "stop") return
 
 		// Rajouter l'auteur
-		if(sayShowAuthor) text = `\`${interaction.user.discriminator == "0" ? escape(interaction.user.username) : escape(interaction.user.tag)}\`\n${text}`
+		if(sayShowAuthor) text = `\`${interaction.user.discriminator == "0" ? escapeMarkdown(interaction.user.username) : escapeMarkdown(interaction.user.tag)}\`\n${text}`
 
 		// Vérifier sa taille
 		if(text.length > 1999) return interaction.editReply({ content: "Votre message dépasse la limite de caractère (2000 caractères)" }).catch(err => {})

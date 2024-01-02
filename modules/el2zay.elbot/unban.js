@@ -1,6 +1,5 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require("discord.js")
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, escapeMarkdown } = require("discord.js")
 const bacheroFunctions = require("../../functions")
-const escape = require("markdown-escape")
 var elbotStyle = bacheroFunctions.config.getValue("bachero", "elbotStyleInErrors")
 
 module.exports = {
@@ -54,7 +53,7 @@ module.exports = {
 			var embed = new EmbedBuilder()
 				.setTitle("Bonne nouvelle !")
 				.setAuthor({ name: interaction.user.displayName || interaction.user.username, iconURL: avatar })
-				.setDescription(`Vous avez été débanni du serveur "${escape(interaction.guild.name)}" ! Vous pouvez revenir sur le serveur en cliquant [ici](https://discord.gg/${invite?.code})).`)
+				.setDescription(`Vous avez été débanni du serveur "${escapeMarkdown(interaction.guild.name)}" ! Vous pouvez revenir sur le serveur en cliquant [ici](https://discord.gg/${invite?.code})).`)
 				.setColor(bacheroFunctions.colors.primary)
 			if(elbotStyle) embed.setImage("https://github.com/bacherobot/ressources/blob/main/elbot/elbot%20D.png?raw=true")
 

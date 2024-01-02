@@ -1,6 +1,5 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, SlashCommandBuilder, time } = require("discord.js")
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, SlashCommandBuilder, time, escapeMarkdown } = require("discord.js")
 const bacheroFunctions = require("../../functions")
-const escape = require("markdown-escape")
 const { rando } = require("@nastyox/rando.js")
 
 module.exports = {
@@ -95,7 +94,7 @@ module.exports = {
 			// Modifier l'embed
 			embed.setFields(
 				{ name: "Temps restant", value: relative, inline: true },
-				{ name: "Cadeau à gagner", value: `||${escape(cadeau)}||`, inline: true },
+				{ name: "Cadeau à gagner", value: `||${escapeMarkdown(cadeau)}||`, inline: true },
 				{ name: "Participants", value: participation ? participation.length.toString() : "0", inline: true }
 			)
 			if (max_participants != 999) embed.addFields({ name: "Nombre restant de participations", value: `${max_participants - participation.length}`, inline: true })
@@ -113,7 +112,7 @@ module.exports = {
 			.setColor(bacheroFunctions.colors.primary)
 			.addFields(
 				{ name: "Temps restant", value: relative, inline: true },
-				{ name: "Cadeau à gagner", value: `||${escape(cadeau)}||`, inline: true },
+				{ name: "Cadeau à gagner", value: `||${escapeMarkdown(cadeau)}||`, inline: true },
 				{ name: "Participants", value: participation ? participation.length.toString() : "0", inline: true }
 			)
 		if (max_participants != 999) embed.addFields({ name: "Nombre restant de participations", value: `${max_participants}`, inline: true })
@@ -151,7 +150,7 @@ module.exports = {
 			} else {
 				embed = new EmbedBuilder()
 					.setTitle("Roulette")
-					.setDescription(`Le grand gagnant (ou perdant) de cette roulette est ||<@${winner}>|| qui a gagné "${escape(cadeau)}" !`)
+					.setDescription(`Le grand gagnant (ou perdant) de cette roulette est ||<@${winner}>|| qui a gagné "${escapeMarkdown(cadeau)}" !`)
 					.setColor(bacheroFunctions.colors.primary)
 					.setFooter({ text: "J'espère ton cadeau est bien" })
 				await interaction.editReply({ embeds: [embed], components: [] }).catch(err => {})
