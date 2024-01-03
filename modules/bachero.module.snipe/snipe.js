@@ -6,8 +6,16 @@ const hastebinUrl = process.env.HASTEBIN_URL || "https://hastebin.com"
 const hastebinAPI = `${hastebinUrl}/documents`
 const hastebinTokenRequired = hastebinUrl == "https://hastebin.com"
 
-// Liste des serveurs où la fonctionnalité est activé (cache), et le client
-var allGuildStatus = {}
+// Cache
+var cache
+if(global.snipeGuildStatusCache) cache = global.snipeGuildStatusCache
+else {
+	const NodeCache = require("node-cache")
+	cache = new NodeCache()
+	global.snipeGuildStatusCache = cache
+}
+
+// Client Discord
 var client
 
 // Fonction pour ajouter à la base de données un message supprimé/modifié
@@ -22,17 +30,13 @@ async function addToDb(message, newMessage){
 	if(message.author.bot || Date.now() - message.createdTimestamp > 1000 * 60 * 60 * 24 * 3) return
 
 	// Obtenir le status du serveur dans le cache
-	var guildStatus = allGuildStatus[message.guildId]
-	if(guildStatus && guildStatus.expireDate < Date.now()) delete allGuildStatus[message.guildId]
+	var guildStatus = cache.get(message.guildId)
 
 	// Si la fonctionnalité est désactivée, on ne fait rien
 	if(guildStatus && !guildStatus?.enabled) return
 	else if(!guildStatus){
 		var dbStatus = await bacheroFunctions.database.get(database, `enabled-${message.guildId}`)
-		allGuildStatus[message.guildId] = {
-			enabled: dbStatus,
-			expireDate: Date.now() + 1000 * 90
-		}
+		cache.set(message.guildId, { enabled: dbStatus }, 1000 * 90) // on enregistre pendant 90 secondes
 		if(!dbStatus) return
 	}
 
@@ -47,21 +51,19 @@ async function addToDb(message, newMessage){
 	var snipes = client.snipes.get(message.guildId) || []
 	if(newMessage) snipes.push({
 		type: "edit",
-		editTimestamp: Date.now(),
-		channelId: message.channelId, id: message.id,
+		timestamp: Date.now(),
 		oldContent: message.content, newContent: newMessage.content,
 		authorId: message.author.id, authorTag: message.author.discriminator == "0" ? escapeMarkdown(message.author.username) : escapeMarkdown(message.author.tag),
 	})
 	else snipes.push({
 		type: "delete",
-		deletedTimestamp: Date.now(),
-		channelId: message.channelId, id: message.id,
+		timestamp: Date.now(),
 		content: message.content, attachments: attachments,
 		authorId: message.author.id, authorTag: message.author.discriminator == "0" ? escapeMarkdown(message.author.username) : escapeMarkdown(message.author.tag),
 	})
 
 	// Mettre les snipes dans un ordre pour que les plus récents soient en haut
-	snipes.sort((a, b) => (b.deletedTimestamp || b.editTimestamp) - (a.deletedTimestamp || a.editTimestamp))
+	snipes.sort((a, b) => b.timestamp - a.timestamp)
 
 	// Ne garder que les 500 derniers snipes, puis les enregistrer
 	if(snipes.length > 500) snipes = snipes.slice(0, 500)
@@ -104,7 +106,7 @@ module.exports = {
 			var snipes = client.snipes.entries()
 			for(var [guildId, snipes] of snipes){
 				// Supprimer les snipes trop vieux
-				snipes = snipes.filter(snipe => Date.now() - snipe.deletedTimestamp < 1000 * 5)
+				snipes = snipes.filter(snipe => Date.now() - snipe.timestamp < 1000 * 60 * 60 * 24)
 				client.snipes.set(guildId, snipes)
 			}
 
@@ -121,6 +123,10 @@ module.exports = {
 
 	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
+		// Vérifier si la fonctionnalité est activée
+		var isEnabled = await bacheroFunctions.database.get(database, `enabled-${interaction.guild.id}`)
+		if(!isEnabled) return interaction.reply({ content: "La fonctionnalité Snipe est désactivée sur ce serveur.", ephemeral: true }).catch(err => {})
+
 		// Mettre la réponse en defer
 		if(await interaction.deferReply().catch(err => { return "stop" }) == "stop") return
 
@@ -128,13 +134,12 @@ module.exports = {
 		var snipes = interaction.client?.snipes?.get(interaction.guildId) || []
 		if(!snipes?.length) return interaction.editReply({ content: "Aucun message n'a été supprimé ou modifié récemment..." }).catch(err => {})
 
-		// Appliquer les filtres
-		// Obtenir les options
+		// Obtenir les options de filtres
 		var user = await interaction.options.getUser("de")
 		var contains = await interaction.options.getString("contient")
 		var query = await interaction.options.getString("query")
 
-		// Filtrer les snipes
+		// Filtrer et trier les snipes
 		snipes = snipes.filter(snipe => {
 			// Si on a un utilisateur, on ne garde que les snipes de cet utilisateur
 			if(user && snipe.authorId != user.id) return false
@@ -149,7 +154,7 @@ module.exports = {
 
 			// Sinon, on garde le snipe
 			return true
-		})
+		}).sort((a, b) => b.timestamp - a.timestamp)
 
 		// Si on a aucun snipe, on annule
 		if(!snipes?.length) return interaction.editReply({ content: "Aucun snipe ne correspond à ces critères de recherche..." }).catch(err => {})
@@ -160,7 +165,7 @@ module.exports = {
 		// Lister les champs (fields) de l'embed
 		var fields = snipes.slice(0, 13).map(snipe => {
 			// Obtenir le contenu
-			var content = snipe.type == "delete" ? snipe.content : `**Avant :** ${snipe.oldContent}\n**Après :** ${snipe.newContent}`
+			var content = snipe.type == "edit" ? `**Avant :** ${snipe.oldContent}\n**Après :** ${snipe.newContent}` : snipe.content
 
 			// Obtenir les attachements
 			var attachments = snipe?.attachments?.map(attachment => { return `[${attachment.filename}](${attachment.url})` })?.join("\n") || ""
@@ -173,7 +178,7 @@ module.exports = {
 
 			// Retourner le champ
 			return {
-				name: `${snipe.authorTag} *(ID: ${snipe.authorId})* — ${snipe.type == "delete" ? "suppression" : "modification"} — <t:${Math.round(new Date(snipe.deletedTimestamp || snipe.editTimestamp).getTime() / 1000)}:f>`,
+				name: `${snipe.authorTag} *(ID: ${snipe.authorId})* — ${snipe.type == "delete" ? "suppression" : snipe.type == "edit" ? "modification" : snipe.type} — <t:${Math.round(new Date(snipe.timestamp).getTime() / 1000)}:f>`,
 				value: content,
 			}
 		})
@@ -182,7 +187,7 @@ module.exports = {
 		var embed = new EmbedBuilder()
 			.setTitle("Fonctionnalité Snipe")
 			.addFields(fields)
-			.setDescription(`Affichage ${snipes.length == 1 ? "de la dernière modification ou suppression de message" : `des **${snipes.slice(0, 13).length}** dernières modifications et suppressions de messages`}.${isSomeSnipeTooLong ? "\n⚠️ Certains snipes sont trop longs pour être affichés ici : ils ont été tronqués..." : ""}`)
+			.setDescription(`Affichage ${snipes.length == 1 ? "de la dernière action sur ce serveur" : `des **${snipes.slice(0, 13).length}** dernières actions sur ce serveur`}.${isSomeSnipeTooLong ? "\n⚠️ Certains snipes sont trop longs pour être affichés ici : ils ont été tronqués..." : ""}`)
 			.setColor(bacheroFunctions.colors.primary)
 
 		// Ajouter un bouton pour accéder au haste
@@ -200,10 +205,10 @@ module.exports = {
 		if(isSomeSnipeTooLong && ((hastebinTokenRequired && process.env.HASTEBIN_TOKEN) || !hastebinTokenRequired)){
 			// Générer le contenu du haste
 			var content = snipes.slice(0, 13).map(snipe => {
-				var content = snipe.type == "delete" ? snipe.content : `* Avant :    ${snipe.oldContent}\n* Après :    ${snipe.newContent}`
+				var content = snipe.type == "edit" ? `**Avant :** ${snipe.oldContent}\n**Après :** ${snipe.newContent}` : snipe.content
 				var attachments = snipe?.attachments?.map(attachment => { return `- ${attachment.filename} : ${attachment.url}` })?.join("\n") || ""
 				content = `${attachments}\n${content}`.trim()
-				return `${snipe.authorTag} (ID: ${snipe.authorId}) — ${snipe.type == "delete" ? "suppression" : "modification"} — ${new Date(snipe.deletedTimestamp || snipe.editTimestamp).toLocaleString()}\n\n${content}`
+				return `${snipe.authorTag} (ID: ${snipe.authorId}) — ${snipe.type == "delete" ? "suppression" : snipe.type == "edit" ? "modification" : snipe.type} — ${new Date(snipe.timestamp).toLocaleString()}\n\n${content}`
 			})
 				.join("\n\n\n\n\n")
 

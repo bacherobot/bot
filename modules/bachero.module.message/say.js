@@ -64,6 +64,14 @@ module.exports = {
 
 			// Répondre à l'interaction
 			if(interaction.sourceType !== "textCommand" && !isFailed) interaction.editReply({ content: `Message envoyé !\n> **Tips :** ${randomAstuce}` }).catch(err => {})
+
+			// Créer un snipe
+			bacheroFunctions.message.send("createSnipe", {
+				guildId: interaction.guild.id,
+				user: interaction.user,
+				type: "say",
+				content: text
+			})
 		} catch(err) {
 			return await bacheroFunctions.report.createAndReply("envoi du message", err, {}, interaction)
 		}

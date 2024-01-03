@@ -19,12 +19,13 @@ module.exports = {
 				var embed = new EmbedBuilder()
 					.setTitle("Confidentialité des données avec la fonctionnalité Snipe")
 					.setDescription(`Nous tenons à la vie privée de nos utilisateurs, nous avons donc mis en place certaines mesures listées ici :\n
-				• Les messages supprimés sont enregistrés dans une base de données non persistante : ils sont supprimés à chaque redémarrage de l'infrastructure ou après 24 heures.
+				• Les actions sont enregistrés dans une base de données non persistante : ils sont supprimés à chaque redémarrage de l'infrastructure ou après 24 heures.
 				• Les messages qui ont été envoyés il y a plus de trois jours, ou envoyés par un robot ne sont pas enregistrés.
 				• La fonctionnalité est désactivée par défaut sur tous les serveurs, et doit être activée par un membre ayant la permission de gérer le serveur.
 				• Il est impossible pour un modérateur d'exporter toutes les données enregistrées sur un serveur.
-				• Notre base de données n'inclut que 500 messages par serveur, les anciens messages seront supprimés si le serveur dépasse cette limite.
-				• Seules les informations suivantes sont enregistrées : les identifiants du message, de l'utilisateur et du salon ; le tag de l'auteur ; le contenu du message ; la date de suppression ou de modification ; les attachements.`)
+				• Notre base de données n'inclut que 500 actions par serveur, les anciennes seront supprimés si le serveur dépasse cette limite.
+				• Les autres fonctionnalités du bot peuvent également enregistrer des actions qui peuvent être liées à un utilisateur, aucun rôle peut passer outre cette règle.
+				• Seules ces informations peuvent être enregistrées : l'identifiant de l'utilisateur ; le tag de l'auteur ; le contenu du message ; la date de création du snipe ; les attachements du message ; le type d'action.`)
 					.setColor(bacheroFunctions.colors.primary)
 				return interaction.reply({ embeds: [embed], ephemeral: true }).catch(err => {})
 			}
@@ -52,7 +53,7 @@ module.exports = {
 		// Créer un embed
 		var embed = new EmbedBuilder()
 			.setTitle("Configuration de la fonctionnalité Snipe")
-			.setDescription(isEnabled ? "La fonctionnalité Snipe est activée sur l'ensemble de ce serveur.\nCelle-ci détecte lorsqu'un utilisateur supprime un message et permet aux modérateurs de l'afficher à nouveau en utilisant la commande `snipe`." : "La fonctionnalité Snipe est désactivée sur ce serveur.\nLorsqu'elle est activée, elle détecte lorsqu'un utilisateur supprime un message sur votre serveur et permet aux modérateurs de l'afficher à nouveau en utilisant la commande `snipe`.")
+			.setDescription(isEnabled ? "La fonctionnalité Snipe est activée sur l'ensemble de ce serveur.\nCelle-ci détecte lorsqu'un utilisateur supprime/modifie un message ou lorsqu'il exécute certaines commandes anonymes du bot et permet aux modérateurs de l'afficher à nouveau en utilisant la commande `snipe`." : "La fonctionnalité Snipe est désactivée sur ce serveur.\nLorsqu'elle est activée, elle détecte lorsqu'un utilisateur supprime/modifie un message ou lorsqu'il exécute certaines commandes anonymes du bot et permet aux modérateurs de l'afficher à nouveau en utilisant la commande `snipe`.")
 			.setColor(bacheroFunctions.colors.primary)
 
 		// Créé deux boutons

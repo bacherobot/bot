@@ -93,6 +93,14 @@ async function sendToChannel(interaction, embedInfos){
 
 		// Répondre à l'interaction
 		if(!isFailed) interaction.editReply({ content: `L'embed a été envoyé avec l'identifiant \`${uniqueId}\` !\n> **Tips :** ${notes.length ? notes.join(",") : randomAstuce}` }).catch(err => {})
+
+		// Créer un snipe
+		bacheroFunctions.message.send("createSnipe", {
+			guildId: interaction.guild.id,
+			user: interaction.user,
+			type: "embed",
+			content: `Un embed a été envoyé dans <#${interaction.channel.id}>. Identifiant de l'embed : \`${uniqueId}\``
+		})
 	} catch(err) {
 		return await bacheroFunctions.report.createAndReply("envoi du message", err, {}, interaction)
 	}

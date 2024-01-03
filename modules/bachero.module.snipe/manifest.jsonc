@@ -14,7 +14,8 @@
 	// Liste des fichiers à charger
 	"files": [
 		"snipe.js",
-		"snipe-config.js"
+		"snipe-config.js",
+		"utils.js"
 	],
 
 	// Liste du/des auteurs du module

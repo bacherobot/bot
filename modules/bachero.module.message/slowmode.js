@@ -35,8 +35,17 @@ module.exports = {
 
 		// Modifier le temps dans le salon
 		try {
+			// Modifier le slowmode et répondre
 			interaction.channel.setRateLimitPerUser(nextTime, `${interaction.user.discriminator == "0" ? interaction.user.username : interaction.user.tag} (ID : ${interaction.user.id}) a modifié le slowmode via la commande /slowmode`).catch(err => { return err })
 			interaction.editReply({ content: `Le temps à attendre entre chaque message est passé de ${currentTime} ${currentTime > 1 ? "secondes" : "seconde"} à ${nextTime} ${nextTime > 1 ? "secondes" : "seconde"}.` })
+
+			// Créer un snipe
+			bacheroFunctions.message.send("createSnipe", {
+				guildId: interaction.guild.id,
+				user: interaction.user,
+				type: "slowmode",
+				content: `Le mode lent dans <#${interaction.channel.id}> est passé de ${currentTime} ${currentTime > 1 ? "secondes" : "seconde"} à ${nextTime} ${nextTime > 1 ? "secondes" : "seconde"}.`
+			})
 		} catch(err) {
 			// S’il y a eu une erreur
 			// Note : cet embed est assez commun lorsque le bot n'a pas la permission, pour éviter de créer trop de rapports d'erreurs, cette méthode ne sera pas utilisée

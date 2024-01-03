@@ -146,6 +146,14 @@ async function sendToChannel(interaction, userToFake){
 		try { interaction.delete().catch(err => {}) } catch(err) {} // Le choix de la sécurité
 	}
 
+	// Créer un snipe
+	bacheroFunctions.message.send("createSnipe", {
+		guildId: interaction.guild.id,
+		user: interaction.user,
+		type: "fake",
+		content: `**Profil :** ${user?.username}\n**Message :** ${text}`
+	})
+
 	// Répondre à l'interaction
 	if(interaction.sourceType != "textCommand") return interaction.editReply({ content: "Message envoyé !" }).catch(err => {})
 }

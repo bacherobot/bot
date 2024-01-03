@@ -69,9 +69,18 @@ module.exports = {
 			// Modifier le temps dans le salon
 			var successMessage
 			try {
+				// Supprimer les messages et répondre
 				await interaction.channel.bulkDelete(count == 100 ? count : count + 1, true) // ajouter +1 (car on inclus l'interaction)
-				successMessage = await interaction.channel.send({ content: `Tout est bon <@${interaction.user.id}>, ${count} message${count == 1 ? "" : "s"} devrait avoir été supprimé${count == 1 ? "" : "s"} !` })
+				successMessage = await interaction.channel.send({ content: `Tout est bon <@${interaction.user.id}>, ${count} message${count == 1 ? "" : "s"} devrai${count == 1 ? "t" : "ent"} avoir été supprimé${count == 1 ? "" : "s"} !` })
 				setTimeout(() => successMessage.edit({ components: [rowDeleteMessageSuccess] }).catch(err => {}), 2000)
+
+				// Créer un snipe
+				bacheroFunctions.message.send("createSnipe", {
+					guildId: interaction.guild.id,
+					user: interaction.user,
+					type: "clear",
+					content: `**${count} message${count == 1 ? "" : "s"}** ont été supprimé${count == 1 ? "" : "s"} dans <#${interaction.channel.id}>.`
+				})
 			} catch(err) {
 				// S’il y a eu une erreur
 				// Note : cet embed est assez commun lorsque le bot n'a pas la permission, pour éviter de créer trop de rapports d'erreurs, cette méthode ne sera pas utilisée
