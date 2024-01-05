@@ -340,8 +340,8 @@ var showedLog = false
 */
 function showLog(type, content, id = "noid", showInConsole = true, hideDetails = false){
 	// Obtenir le nom du module qui a appelé la fonction
-	var callerPath = new Error().stack.split("\n")[2].split("(")[1].split(")")[0]
-	callerPath = callerPath.split(path.sep)
+	var callerPath = new Error()?.stack?.split("\n")?.[2]?.split("(")?.[1]?.split(")")?.[0]
+	callerPath = callerPath?.split(path.sep)
 	var callerModule = `${callerPath[callerPath.length - 2]}/${callerPath[callerPath.length - 1].split(":")[0]}`
 
 	// Si l'identifiant est bloqué
@@ -357,13 +357,13 @@ function showLog(type, content, id = "noid", showInConsole = true, hideDetails =
 	bacheroFolderName = bacheroFolderName[bacheroFolderName.length - 1]
 
 	// Si on doit afficher dans la console, on le fait
-	if(showInConsole) console[type == "error" ? "error" : type == "warn" ? "warn" : "log"](((hideDetails ? "" : `${new Date().toLocaleTimeString()} ${coloredType(type)} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} ${chalk ? chalk.gray(`(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`) : `(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`} `) + content))
+	if(showInConsole) console[type == "error" ? "error" : type == "warn" ? "warn" : "log"](((hideDetails ? "" : `${new Date().toLocaleTimeString()} ${coloredType(type)} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} ${chalk ? chalk.gray(`(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`) : `(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`} `) + (typeof content == "object" ? JSON.stringify(content) : content)))
 
 	// L'ajouter à un fichier de log si on doit le faire
 	if(outputLogsInFile == undefined) outputLogsInFile = config_getValue("bachero", "outputLogsInFile")
 	if(outputLogsInFile){
 		if(!fs.existsSync(path.join(__dirname, "logs"))) fs.mkdirSync(path.join(__dirname, "logs"))
-		fs.appendFileSync(path.join(__dirname, "logs", `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================ Début des logs ================================\n" : ""}${hideDetails ? "" : `[${new Date().toLocaleTimeString()}] ${type} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} (${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})   `}${typeof content == "object" ? JSON.stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "") : content}\n`)
+		fs.appendFileSync(path.join(__dirname, "logs", `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================ Début des logs ================================\n" : ""}${hideDetails ? "" : `[${new Date().toLocaleTimeString()}] ${type} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} (${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})   `}${typeof content == "object" ? JSON.stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "") : content}\n`) // l'expression régulière est utilisée pour supprimer les couleurs de la console (caractères ANSI)
 	}
 
 	// Retourner true
