@@ -2,6 +2,7 @@
 var performanceStart = performance.now()
 
 // Importer quelques librairies
+require("dotenv").config()
 const fs = require("fs")
 const path = require("path")
 const jsonc = require("jsonc")
@@ -22,11 +23,13 @@ var statsDatabase
 var databaseTextCommandDisabledGuilds
 var botName
 var disableTextCommand
+var disableCommandAnalytics
 var elbotStyleInErrors // easter egg :> p'tite ref pour le module elbot
 if(optimized){
 	chalk = { red: (text) => text, yellow: (text) => text, green: (text) => text, blue: (text) => text, bold: (text) => text, gray: (text) => text }
 	botName = "Bachero"
 	disableTextCommand = true
+	disableCommandAnalytics = true
 	elbotStyleInErrors = false
 } else {
 	chalk = require("chalk")
@@ -35,6 +38,7 @@ if(optimized){
 	statsDatabase = bacheroFunctions.database.getDatabase("internalBachero.stats")
 	databaseTextCommandDisabledGuilds = bacheroFunctions.database.getDatabase("textCommandDisabledGuilds")
 	disableTextCommand = bacheroFunctions.config.getValue("bachero", "disableTextCommand")
+	disableCommandAnalytics = bacheroFunctions.config.getValue("bachero", "disableCommandAnalytics")
 	elbotStyleInErrors = bacheroFunctions.config.getValue("bachero", "elbotStyleInErrors")
 }
 
@@ -381,6 +385,80 @@ async function checkUpdates(){
 	}
 }
 
+// Modifier le suivi analytics d'une commande
+async function updateCommandAnalytics(guildId, commandName, subCommand, method){
+	// Si on a désactivé les statistiques des commandes, ignorer la suite du code
+	if(disableCommandAnalytics) return
+
+	// Obtenir et définir les valeurs par défaut pour cette commande si elle n'existe pas ou que le mois a changé
+	var allCmdsAnalytics = await bacheroFunctions.database.get(statsDatabase, `commands-${guildId}`)
+	if(!allCmdsAnalytics || allCmdsAnalytics?.month != new Date().getMonth()){
+		allCmdsAnalytics = {
+			month: new Date().getMonth(),
+			commands: {}
+		}
+	}
+	if(!allCmdsAnalytics.commands[commandName]) allCmdsAnalytics.commands[commandName] = {
+		totalCount: 0,
+		lastExecution: Date.now(),
+		subCommands: {},
+		periods: {
+			morning: 0, // entre 6h et 12h
+			afternoon: 0, // entre 12h et 18h
+			evening: 0, // entre 18h et 00h
+			night: 0 // entre 00h et 6h
+		},
+		weekday: {
+			monday: 0, // lundi
+			tuesday: 0, // mardi
+			wednesday: 0, // mercredi
+			thursday: 0, // jeudi
+			friday: 0, // vendredi
+			saturday: 0, // samedi
+			sunday: 0 // dimanche
+		},
+		method: {
+			slash: 0,
+			text: 0
+		}
+	}
+	var commandAnalytics = allCmdsAnalytics.commands[commandName]
+
+	// Ajouter +1 au nombre total d'utilisation de la commande
+	commandAnalytics.totalCount++
+
+	// Date de la dernière exécution
+	commandAnalytics.lastExecution = Date.now()
+
+	// Ajouter les stats pour la sous commande utilisée
+	if(subCommand){
+		if(!commandAnalytics.subCommands[subCommand]) commandAnalytics.subCommands[subCommand] = 0
+		commandAnalytics.subCommands[subCommand]++
+	}
+
+	// Ajouter les stats pour la méthode utilisée
+	commandAnalytics.method[method]++
+
+	// Ajouter les stats pour le moment de la journée où la commande a été utilisée
+	if(new Date().getHours() >= 6 && new Date().getHours() < 12) commandAnalytics.periods.morning++
+	else if(new Date().getHours() >= 12 && new Date().getHours() < 18) commandAnalytics.periods.afternoon++
+	else if(new Date().getHours() >= 18 && new Date().getHours() < 24) commandAnalytics.periods.evening++
+	else if(new Date().getHours() >= 0 && new Date().getHours() < 6) commandAnalytics.periods.night++
+
+	// Ajouter les stats pour le jour de la semaine où la commande a été utilisée
+	if(new Date().getDay() == 1) commandAnalytics.weekday.monday++
+	else if(new Date().getDay() == 2) commandAnalytics.weekday.tuesday++
+	else if(new Date().getDay() == 3) commandAnalytics.weekday.wednesday++
+	else if(new Date().getDay() == 4) commandAnalytics.weekday.thursday++
+	else if(new Date().getDay() == 5) commandAnalytics.weekday.friday++
+	else if(new Date().getDay() == 6) commandAnalytics.weekday.saturday++
+	else if(new Date().getDay() == 0) commandAnalytics.weekday.sunday++
+
+	// Enregistrer les stats de la commande dans la BDD et terminer
+	bacheroFunctions.database.set(statsDatabase, `commands-${guildId}`, allCmdsAnalytics)
+	return true
+}
+
 // Fonction pour créer un embed d'erreur / avertissement
 function createErrorEmbed(title, description, embedColor = "secondEmbedColor", showErrorFooter = false){
 	if(elbotStyleInErrors) title = title.replace("Une erreur est survenue", "Erreur de la console")
@@ -451,6 +529,13 @@ client.on("interactionCreate", async interaction => {
 				await interaction.editReply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
 			}
 		}
+
+		// Mettre à jour les statistiques
+		var subCommandName
+		try {
+			subCommandName = interaction.options.getSubcommand()
+		} catch (err){}
+		if(interaction.guildId) updateCommandAnalytics(interaction.guildId, interaction.commandName, subCommandName, "slash")
 	}
 
 	// Dans certains cas, on l'envoie au listener
@@ -873,6 +958,9 @@ client.on("messageCreate", async message => {
 			await messageResponse.edit({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)] }).catch(err => {})
 		}
 	}
+
+	// Mettre à jour les statistiques
+	if(message.guildId) updateCommandAnalytics(message.guildId, commandName, message.options.getSubcommand(), "text")
 })
 
 // Générer un fichier pour les commandes slash

@@ -121,6 +121,13 @@
             "default": false,
             "value": false,
             "description": "Désactive la minification des fichiers générés pour les commandes textes (+ facile lors du développement)"
+        },
+        {
+            "name": "disableCommandAnalytics",
+            "type": "boolean",
+            "default": false,
+            "value": false,
+            "description": "Empêche le suivi du nombre d'utilisations des commandes dans le bot, vous pourrez désinstaller le module analytics"
         }
     ]
 }

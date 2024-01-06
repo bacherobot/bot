@@ -1,0 +1,27 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.analytics",
+
+	// Nom du module
+	"name": "Statistiques",
+
+	// Description du module
+	"shortDescription": "Affiche des données statistiques sur l'utilisation des commandes dans ce serveur",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"analytics.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
+		}
+	]
+}
