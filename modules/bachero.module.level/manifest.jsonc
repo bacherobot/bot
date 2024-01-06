@@ -50,7 +50,7 @@
 		{
 			"name": "levelUpMessage",
 			"type": "string",
-			"default": "Level up {user} ! Vous êtes désormais au niveau ${level}.",
+			"default": "Level up {user} ! Vous êtes désormais au niveau {level}.",
 			"description": "Message affiché en réponse à un utilisateur qui passe un niveau. {user} sera remplacé par une mention, et {level} par son niveau"
 		},
 		{
