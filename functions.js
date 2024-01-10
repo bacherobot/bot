@@ -20,12 +20,11 @@ var cooldownDb
 // Liste des bases de données dans le cache
 const databaseList = new Map()
 
-// Liste des configurations (histoire de pas avoir à les charger toutes à la fois)
+// Variables et configurations
 var cachedConfigs = {}
-
-// Créé une variable qui contiendra le client du bot
 var botClient = null
-var botName = config_getValue("bachero", "botName") // jsp où le mettre
+var botName = config_getValue("bachero", "botName")
+var showDebugLogsInConsole = config_getValue("bachero", "showDebugLogsInConsole")
 
 // Identifiants propriétaires du bot
 var ownerIds = process.env.OWNER_IDS?.split(",")
@@ -38,6 +37,15 @@ var foldersPath = {
 	modules: path.join(__dirname, "modules"),
 	node_modules: path.join(__dirname, "node_modules"), // eslint-disable-line
 	root: path.join(__dirname)
+}
+
+// Fonction pour JSON.stringify en vérifiant les erreurs
+function stringify(object){
+	try {
+		return JSON.stringify(object)
+	} catch (err) {
+		return "<Impossible de convertir l'objet en JSON>"
+	}
 }
 
 // Obtenir toute la configuration d'un module
@@ -357,21 +365,56 @@ function showLog(type, content, id = "noid", showInConsole = true, hideDetails =
 	bacheroFolderName = bacheroFolderName[bacheroFolderName.length - 1]
 
 	// Si on doit afficher dans la console, on le fait
-	if(showInConsole) console[type == "error" ? "error" : type == "warn" ? "warn" : "log"](((hideDetails ? "" : `${new Date().toLocaleTimeString()} ${coloredType(type)} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} ${chalk ? chalk.gray(`(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`) : `(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`} `) + (typeof content == "object" ? JSON.stringify(content) : content)))
+	if(showInConsole) console[type == "error" ? "error" : type == "warn" ? "warn" : "log"](((hideDetails ? "" : `${new Date().toLocaleTimeString()} ${coloredType(type)} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} ${chalk ? chalk.gray(`(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`) : `(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`} `) + (typeof content == "object" ? stringify(content) : content)))
 
 	// L'ajouter à un fichier de log si on doit le faire
 	if(outputLogsInFile == undefined) outputLogsInFile = config_getValue("bachero", "outputLogsInFile")
 	if(outputLogsInFile){
 		if(!fs.existsSync(path.join(__dirname, "logs"))) fs.mkdirSync(path.join(__dirname, "logs"))
-		fs.appendFileSync(path.join(__dirname, "logs", `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================ Début des logs ================================\n" : ""}${hideDetails ? "" : `[${new Date().toLocaleTimeString()}] ${type} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} (${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})   `}${typeof content == "object" ? JSON.stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "") : content}\n`) // l'expression régulière est utilisée pour supprimer les couleurs de la console (caractères ANSI)
+		fs.appendFileSync(path.join(__dirname, "logs", `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================ Début des logs ================================\n" : ""}${hideDetails ? "" : `[${new Date().toLocaleTimeString()}] ${type} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} (${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})   `}${typeof content == "object" ? stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "") : content}\n`) // l'expression régulière est utilisée pour supprimer les couleurs de la console (caractères ANSI)
 	}
 
 	// L'ajouter également aux fichiers de logs machines récentes (et le supprimer s'il existe déjà et qu'on affiche la première log)
-	if(!showedLog && fs.existsSync(path.join(__dirname, "logs", "machine-latest.txt"))) fs.unlinkSync(path.join(__dirname, "logs", "machine-latest.txt"))
-	fs.appendFileSync(path.join(__dirname, "logs", "machine-latest.txt"), `${Date.now()}▮${type.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}▮${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}▮${typeof content == "object" ? JSON.stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "").replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%") : content.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}\n`)
+	if(!showedLog_debug && !showedLog && fs.existsSync(path.join(__dirname, "logs", "machine-latest.txt"))) fs.unlinkSync(path.join(__dirname, "logs", "machine-latest.txt"))
+	fs.appendFileSync(path.join(__dirname, "logs", "machine-latest.txt"), `REGULAR▮${Date.now()}▮${type.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}▮${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}▮${typeof content == "object" ? stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "").replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%") : content.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}\n`)
 
 	// Retourner true
 	if(!showedLog) showedLog = true
+	return true
+}
+
+// Fonction pour afficher une log de debug
+var showedLog_debug = false
+/**
+	Enregistre une information utile à des fins de débogage, elle sera incluse dans les rapports d'erreurs si nécessaire, et l'administrateur d'instance pourra la consulter.
+
+	```js
+	var res = await fetch('...').then(res => res.json())
+	bacheroFunctions.showDebug('fetch result', res)
+	```
+
+	@param {...string} args Eléments à afficher
+	@returns {boolean} true
+*/
+function showDebug(...args){
+	// Obtenir le nom du module qui a appelé la fonction
+	var callerPath = new Error()?.stack?.split("\n")?.[2]?.split("(")?.[1]?.split(")")?.[0]
+	callerPath = callerPath?.split(path.sep)
+	var callerModule = `${callerPath[callerPath.length - 2]}/${callerPath[callerPath.length - 1].split(":")[0]}`
+
+	// Obtenir le nom du dossier de Bachero
+	var bacheroFolderName = path.join(__dirname).split(path.sep)
+	bacheroFolderName = bacheroFolderName[bacheroFolderName.length - 1]
+
+	// Si on doit afficher dans la console, on le fait
+	if(showDebugLogsInConsole) console.debug(`${new Date().toLocaleTimeString()} ${chalk.magenta("[DEBUG]")}  ${chalk ? chalk.gray(`(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`) : `(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`}`, ...args)
+
+	// L'ajouter également aux fichiers de logs machines récentes (et le supprimer s'il existe déjà et qu'on affiche la première log)
+	if(!showedLog_debug && !showedLog && fs.existsSync(path.join(__dirname, "logs", "machine-latest.txt"))) fs.unlinkSync(path.join(__dirname, "logs", "machine-latest.txt"))
+	fs.appendFileSync(path.join(__dirname, "logs", "machine-latest.txt"), `DEBUG▮${Date.now()}▮[DEBUG]▮${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}▮${args.map(x => typeof x == "object" ? stringify(x) : x).join(" ")}\n`)
+
+	// Retourner true
+	if(!showedLog_debug) showedLog_debug = true
 	return true
 }
 
@@ -626,7 +669,7 @@ async function report_create(context, error, moreInfos, interaction){
 	interaction.callerPath = callerPath.split(path.sep)
 
 	// Créer le rapport sous forme de texte
-	var report = `${randomid} | Rapport (${context}) générée le ${date} avec Bachero v${version}.\n\nÉléments en rapport avec l'interaction :${Object.entries(interaction).map(x => `\n   • ${x[0]}: ${typeof x[1] == "object" ? JSON.stringify(x[1]) : x[1]}`).join("")}\n\n${"=".repeat(15)}\n\nInformations supplémentaires apportées par le module :\n   ${JSON.stringify(moreInfos) || moreInfos}\n\n${"=".repeat(15)}\n\n${error.stack || error.message || error.toString() || error}`
+	var report = `${randomid} | Rapport (${context}) générée le ${date} avec Bachero v${version}.\n\nÉléments en rapport avec l'interaction :${Object.entries(interaction).map(x => `\n   • ${x[0]}: ${typeof x[1] == "object" ? stringify(x[1]) : x[1]}`).join("")}\n\n${"=".repeat(15)}\n\nInformations supplémentaires apportées par le module :\n   ${stringify(moreInfos) || moreInfos}\n\n${"=".repeat(15)}\n\n${error.stack || error.message || error.toString() || error}`
 
 	// L'enregistrer dans la BDD
 	if(config_getValue("bachero", "databaseType") == "mongodb"){
@@ -749,6 +792,7 @@ module.exports = {
 		saumon: "#f9906f"
 	},
 	showLog: showLog,
+	showDebug: showDebug,
 	parseUserFromString: parseUserFromString,
 	foldersPath: foldersPath,
 	package: require("./package.json"),

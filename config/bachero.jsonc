@@ -128,6 +128,13 @@
             "default": false,
             "value": false,
             "description": "Empêche le suivi du nombre d'utilisations des commandes dans le bot, vous pourrez désinstaller le module analytics"
+        },
+        {
+            "name": "showDebugLogsInConsole",
+            "type": "boolean",
+            "default": false,
+            "value": false,
+            "description": "Affiche les logs de débogage dans la console, en plus des logs normaux"
         }
     ]
 }
