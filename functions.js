@@ -366,6 +366,10 @@ function showLog(type, content, id = "noid", showInConsole = true, hideDetails =
 		fs.appendFileSync(path.join(__dirname, "logs", `${new Date().toISOString().slice(0, 10)}.txt`), `${showedLog == false ? "\n\n\n================================ Début des logs ================================\n" : ""}${hideDetails ? "" : `[${new Date().toLocaleTimeString()}] ${type} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} (${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})   `}${typeof content == "object" ? JSON.stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "") : content}\n`) // l'expression régulière est utilisée pour supprimer les couleurs de la console (caractères ANSI)
 	}
 
+	// L'ajouter également aux fichiers de logs machines récentes (et le supprimer s'il existe déjà et qu'on affiche la première log)
+	if(!showedLog && fs.existsSync(path.join(__dirname, "logs", "machine-latest.txt"))) fs.unlinkSync(path.join(__dirname, "logs", "machine-latest.txt"))
+	fs.appendFileSync(path.join(__dirname, "logs", "machine-latest.txt"), `${Date.now()}▮${type.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}▮${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}▮${typeof content == "object" ? JSON.stringify(content) : typeof content == "string" ? content.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "").replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%") : content.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}\n`)
+
 	// Retourner true
 	if(!showedLog) showedLog = true
 	return true
