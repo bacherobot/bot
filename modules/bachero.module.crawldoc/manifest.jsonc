@@ -1,0 +1,27 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.crawldoc",
+
+	// Nom du module
+	"name": "Recherche de documentation",
+
+	// Description du module
+	"shortDescription": "Lance des recherches sur différentes documentations via le service CrawlDoc",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"docs.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
+		}
+	]
+}
