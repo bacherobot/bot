@@ -1,5 +1,20 @@
+// TODO: faire un big ctrl+f dans le code et remplacer "si il" par "s'il"
+
 // Commencer à mesurer le temps que le bot a pris pour s'allumer
 var performanceStart = performance.now()
+
+// Date
+var intlFormatter = new Intl.DateTimeFormat("fr-FR", {
+	timeZone: "Europe/Paris", // TODO: faudrait ptet laisser la possibilité de changer ça
+	year: "numeric",
+	month: "2-digit",
+	day: "2-digit",
+	hour: "2-digit",
+	minute: "2-digit",
+	second: "2-digit"
+})
+global.intlFormatter = intlFormatter
+// TODO: l'utiliser ici, et dans le functions.js
 
 // Importer quelques librairies
 require("dotenv").config()
@@ -74,7 +89,7 @@ function showException(err){
 		return i == 0 ? chalk.bold(content) : content
 	}).join("\n"), "bachero-exception", true, true)
 	bacheroFunctions.showLog("error", `\n${isBecauseOfBacheroModule ? `Module Bachero : ${chalk.yellow(isBecauseOfBacheroModule)} ; ` : ""}NodeJS : ${chalk.blue(process.version.replace("v", ""))} ; Bachero : ${chalk.blue(require("./package.json")?.version || "Inconnu")} ; DiscordJS : ${chalk.blue(require("discord.js")?.version || "Inconnu")}`, "bachero-exception", true, true)
-	bacheroFunctions.showLog("error", chalk.gray(`(${new Date().toLocaleDateString()} ; ${new Date().toLocaleTimeString()})`), "bachero-exception", true, true)
+	bacheroFunctions.showLog("error", chalk.gray(`(${intlFormatter.format(new Date()).replace(" ", " ; ")})`), "bachero-exception", true, true)
 }
 process.on("uncaughtException", err => showException(err))
 process.on("unhandledRejection", err => showException(err))
