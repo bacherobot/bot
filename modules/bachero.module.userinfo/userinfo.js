@@ -48,13 +48,6 @@ module.exports = {
 		// Utiliser les informations fournis par WhoIs
 		userInfo = userInfo?.advancedInfo || userInfo
 
-		// Si c'est un bot, obtenir des informations venant d'ElWatch
-		if(!showMinimal && userInfo.bot) var botInfo = await fetch(`https://elwatchapi.johanstick.fr/api/status/${userId}`).then(res => res.json()).catch(err => { return {} }); else var botInfo = {}
-		if(botInfo?.error) botInfo = {}
-		if(botInfo?.info) botInfo = botInfo?.info
-		if(botInfo?.username == "Inconnu" && botInfo?.discriminator == "0000") botInfo = {}
-		if(botInfo?.ping == "-1") botInfo.ping = null
-
 		// Obtenir les pronoms de l'utilisateur
 		if(!showMinimal && !userInfo.bot && fetchPronouns == true) var { pronouns } = await fetch(`https://pronoundb.org/api/v1/lookup?platform=discord&id=${userId}`).then(res => res.json()).catch(err => { return "" }); else var pronouns = ""
 		var listPronounsFR = {
@@ -87,12 +80,6 @@ module.exports = {
 				.setCustomId(`userinfo-nameHistory-${date}`)
 				.setStyle(ButtonStyle.Primary)
 				.setLabel("Historique de pseudos"))
-
-			// Si c'est un bot, et qu'on a eu des informations depuis ElWatch
-			if(userInfo?.bot && botInfo?.username) row.addComponents(new ButtonBuilder()
-				.setURL(`https://elwatch.johanstick.fr/status/${userId}`)
-				.setStyle(ButtonStyle.Link)
-				.setLabel("Voir sur ElWatch"))
 
 			// Si on a réussi à obtenir son lien d'invitation
 			if(userInfo?.bot_invite_link) row.addComponents(new ButtonBuilder()
@@ -160,7 +147,7 @@ module.exports = {
 		var embed = new EmbedBuilder()
 			.setTitle(`${userInfo?.global_name || userInfo?.globalName ? userInfo.global_name || userInfo.globalName : ""} ${userInfo?.global_name || userInfo?.globalName ? "(" : ""}${userInfo?.discriminator == "0" ? `@${userInfo?.username}` : `${userInfo.username}#${userInfo.discriminator}`}${userInfo?.global_name || userInfo?.globalName ? ")" : ""} ${pronouns?.length ? `*(${pronouns})*` : ""}`)
 			.setColor(colors.primary)
-		if(!showMinimal) embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? ", ElWatch" : ""}${pronouns?.length ? ", PronounDB" : ""}` })
+		if(!showMinimal) embed.setFooter({ text: `Informations obtenues via Discord WhoIs${pronouns?.length ? " et PronounDB" : ""}` })
 		if(userInfo.avatar_url) embed.setThumbnail(userInfo.avatar_url)
 		if(userInfo.banner_url) embed.setImage(userInfo.banner_url)
 		if(badges?.length || userInfo?.bio) embed.setDescription(description)
@@ -169,12 +156,10 @@ module.exports = {
 		var listFields = [
 			{ name: "Bot ?", value: userInfo.bot ? "Oui" : "Non", inline: true },
 			memberInfo?.nickname ? { name: "Surnom", value: escapeMarkdown(memberInfo.nickname), inline: true } : null,
-			(memberInfo?.presence?.status || botInfo.status) ? { name: "Statut", value: (memberInfo?.presence?.status || botInfo.status).replace("online", "En ligne").replace("idle", "Inactif").replace("dnd", "Ne pas déranger").replace("offline", "Hors ligne"), inline: true } : null,
 			memberInfo?._roles?.length ? { name: `${memberInfo?._roles?.length?.toString()} rôle${memberInfo?._roles?.length > 1 ? "s" : ""}`, value: `+ haut : \`${memberInfo?.roles?.cache.sort((a, b) => b.position - a.position)?.map(role => role.name)[0]?.replace(/`/g, "")}\``, inline: true } : null,
 			{ name: "Identifiant", value: `\`${userInfo.id.replace(/`/g, "")}\``, inline: true },
 			userInfo?.created_at_unix ? { name: "Création du compte", value: `<t:${Math.round(userInfo.created_at_unix / 1000)}:f>`, inline: true } : null,
 			memberInfo?.joinedTimestamp ? { name: "Arrivée ici", value: `<t:${Math.round(memberInfo.joinedTimestamp / 1000)}:f>`, inline: true } : null,
-			botInfo?.ping ? { name: "Latence", value: `${botInfo?.ping} ms`, inline: true } : null,
 			userInfo?.tags?.length ? { name: "Tags", value: userInfo?.tags?.map(tag => `\`${escapeMarkdown(tag.replace(/`/g, ""))}\``)?.join(", "), inline: true } : null,
 		]
 		embed.addFields(listFields.filter(field => field != null))
@@ -208,7 +193,7 @@ module.exports = {
 				embed.setTitle("Historique de pseudos")
 				embed.setDescription(`${usernameHistory.map(u => `<t:${Math.round(u.date / 1000)}:f> | ${escapeMarkdown(u.username)}`).join("\n").slice(0, 3800)}\n\n> L'historique de pseudos se base sur le moment auquel [Discord WhoIs](https://bachero.johanstick.fr/blog/discord-whois) a été utilisé pour obtenir les informations de l'utilisateur.\n\n> À chaque fois qu'un utilisateur obtient les informations d'un autre utilisateur, le pseudo sera modifié dans l'historique.`)
 				embed.setColor(colors.primary)
-				embed.setFooter({ text: `Informations obtenues via Discord WhoIs${userInfo?.bot && botInfo?.username ? " et ElWatch" : ""}` })
+				embed.setFooter({ text: "Informations obtenues via Discord WhoIs" })
 
 				// Répondre et modifier l'ancienne réponse pour enlever le bouton
 				if(await i.editReply({ embeds: [embed] }).catch(err => { return "stop" }) == "stop") return

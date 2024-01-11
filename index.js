@@ -573,9 +573,6 @@ client.on("interactionCreate", async interaction => {
 
 // Quand le bot reçoit un message
 client.on("messageCreate", async message => {
-	// Répondre à ElWatch
-	if(message.content === "Hello from ElWatch!" && message.author.id === "898255769827430460") return message.reply(":eye:")
-
 	// Si on a désactivé les commandes par message, ignorer la suite du code
 	if(disableTextCommand) return
 

@@ -32,7 +32,7 @@
 			"name": "alwaysShowMinimal",
 			"type": "boolean",
 			"default": false,
-			"description": "Désactive l'intégration de Discord WhoIs, ElWatch et PronounDB dans la commande"
+			"description": "Désactive l'intégration de Discord WhoIs et PronounDB dans la commande"
 		},
 		{
 			"name": "disableBadges",

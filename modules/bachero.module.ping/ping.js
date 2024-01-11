@@ -1,22 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require("discord.js")
-const fetch = require("node-fetch")
-const { database, config, cooldown, botClient, colors } = require("../../functions")
+const { database, config, cooldown, colors } = require("../../functions")
 const db = database.getDatabase("bachero.module.ping")
 const showPingFromDatabase = config.getValue("bachero.module.ping", "showPingFromDatabase")
 var botName = config.getValue("bachero", "botName")
-
-// Fonction pour obtenir l'historique de latence
-var latencyHistory = {}
-async function getLatencyHistory(clientId){
-	// Si on a déjà enregistrer dans le cache y'a moins de 5 heures, on retourne
-	if(latencyHistory.content && latencyHistory.lastFetched && latencyHistory.lastFetched > Date.now() - (1000 * 60 * 60 * 5)) return latencyHistory.content
-
-	// Sinon on fetch, enregistre dans le cache, et retourne
-	latencyHistory.content = await fetch(`https://elwatchapi.johanstick.fr/api/status/${clientId}`).then(res => res.json()).catch(err => { return {} })
-	latencyHistory.lastFetched = new Date()
-	latencyHistory.content = latencyHistory?.content?.info?.pingHistory || latencyHistory?.content
-	return latencyHistory.content
-}
 
 module.exports = {
 	// Définir les infos de la commande slash
@@ -75,19 +61,8 @@ module.exports = {
 			// Arrêter le collecteur
 			collector.stop()
 
-			// Obtenir des infos via l'API d'ElWatch
-			var pingHistory = []
-			if(config.getValue("bachero.module.ping", "monitoredByElwatch") == true){
-				var elwatchStatus = await getLatencyHistory(interaction.client.user.id || botClient.get().user.id)
-				if(elwatchStatus["6"]) pingHistory.push(`6h : \`${elwatchStatus["6"]}\` ms`)
-				if(elwatchStatus["12"]) pingHistory.push(`12h : \`${elwatchStatus["12"]}\` ms`)
-				if(elwatchStatus["18"]) pingHistory.push(`18h : \`${elwatchStatus["18"]}\` ms`)
-				if(elwatchStatus["23"]) pingHistory.push(`23h : \`${elwatchStatus["23"]}\` ms`)
-				embed.data.description += `\nHistorique Discord sur plusieurs heures :\n${pingHistory.map(a => `ㅤ  • ${a}`).join("\n")}`
-			}
-
 			// Mettre à jour l'embed
-			embed.setDescription(`${embed.data.description}\n\n> Pour obtenir la latence Discord, ${botName} calcule le temps qu'il prend pour envoyer et recevoir des réponses, ceci inclut le temps que Discord prend à s'exécuter.${config.getValue("bachero.module.ping", "monitoredByElwatch") ? `\n\n> Également, ce bot est surveillé par ElWatch et supporte la mesure du ping, vous pouvez [cliquer ici](https://elwatch.johanstick.fr/status/${interaction.client.user.id || botClient.get().user.id}) pour obtenir la latence obtenue par un tiers.` : ""}`)
+			embed.setDescription(`${embed.data.description}\n\n> Pour obtenir la latence Discord, ${botName} calcule le temps qu'il prend pour envoyer et recevoir des réponses, ceci inclut le temps que Discord prend à s'exécuter.`)
 			i.update({ embeds: [embed], components: [] }).catch(err => {})
 		})
 

@@ -32,12 +32,6 @@
 			"type": "boolean",
 			"default": false,
 			"description": "La commande devrait afficher le ping de la base de données ?"
-		},
-		{
-			"name": "monitoredByElwatch",
-			"type": "boolean",
-			"default": false,
-			"description": "Es-ce que Bachero est sous la surveillance d'ElWatch (https://elwatch.johanstick.fr) ?"
 		}
 	]
 }
