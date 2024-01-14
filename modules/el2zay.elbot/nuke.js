@@ -30,7 +30,7 @@ module.exports = {
 		// Créer un embed pour demander confirmation, et répondre avec
 		var embed = new EmbedBuilder()
 			.setTitle("ATTENTION !!!")
-			.setDescription("⚠️ Cette commande va effacer certaines informations présentes dans ce salon. **Cette action est irréversible** !\n\n• Seront supprimés : les messages, les webhooks, les intégrations.\n• Sera réinitialisé : l'identifiant du salon.")
+			.setDescription("⚠️ Cette commande va effacer certaines informations présentes dans ce salon.\n**Cette action est irréversible** !\n\n• Seront supprimés : les messages, les webhooks, les intégrations.\n• Sera réinitialisé : l'identifiant du salon.")
 			.setColor(bacheroFunctions.colors.danger)
 		if(elbotStyle) embed.setThumbnail("https://github.com/bacherobot/ressources/blob/main/elbot/elbot%20attention.jpeg?raw=true")
 		await interaction.editReply({ embeds: [embed], components: [rowConfirm] }).catch(err => {})
@@ -56,6 +56,14 @@ module.exports = {
 
 				// Ne rien faire pendant 1 seconde pour que la personne puisse voir le message
 				await new Promise(resolve => setTimeout(resolve, 1000))
+
+				// Créer un snipe
+				bacheroFunctions.message.send("createSnipe", {
+					guildId: interaction.guild.id,
+					user: interaction.user,
+					type: "nuke",
+					content: `Le salon "${interaction.channel.name}" a été entièrement réinitialisé.`,
+				})
 
 				// On clone le salon
 				var cloned = await interaction.channel.clone().catch(err => { return { err: err } })
