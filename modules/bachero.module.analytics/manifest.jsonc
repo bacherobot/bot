@@ -6,7 +6,7 @@
 	"name": "Statistiques",
 
 	// Description du module
-	"shortDescription": "Affiche des données statistiques sur l'utilisation des commandes dans ce serveur",
+	"shortDescription": "Affiche des données statistiques sur l'utilisation des commandes dans un serveur en fonction du mois",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

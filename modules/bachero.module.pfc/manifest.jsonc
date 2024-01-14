@@ -6,7 +6,7 @@
 	"name": "Pierre feuille ciseau",
 
 	// Description du module
-	"shortDescription": "Ajoute une commande permettant de jouer au pierre feuille ciseau contre le robot",
+	"shortDescription": "Ajoute une commande permettant de jouer au jeu du pierre feuille ciseau contre le robot",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

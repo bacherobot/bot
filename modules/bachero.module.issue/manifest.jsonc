@@ -3,7 +3,7 @@
 	"packageName": "bachero.module.issue",
 
 	// Nom du module
-	"name": "Rapporter des problèmes",	
+	"name": "Signalement de problème",	
 
 	// Description du module
 	"shortDescription": "Permet de rapporter des problèmes en rapport avec le robot à l'administrateur de cette instance",

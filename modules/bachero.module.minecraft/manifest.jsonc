@@ -6,7 +6,7 @@
 	"name": "Serveur Minecraft",
 
 	// Description du module
-	"shortDescription": "Obtient des informations sur un serveur Minecraft via une commande",
+	"shortDescription": "Envoie une requête pour obtenir des informations sur un serveur Minecraft via une commande",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

@@ -6,7 +6,7 @@
 	"name": "Recherche de paroles",
 
 	// Description du module
-	"shortDescription": "Recherche des paroles de musiques via Genius, et les affiche via une commande",
+	"shortDescription": "Recherche et affiche des paroles de musiques via le service Genius",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

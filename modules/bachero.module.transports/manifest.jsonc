@@ -6,7 +6,7 @@
 	"name": "Infos transports en commun",
 
 	// Description du module
-	"shortDescription": "Récupère et affiche les horaires des passages de différents transports en commun",
+	"shortDescription": "Récupère et affiche les horaires des passages de différents services de transports en commun",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

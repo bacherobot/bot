@@ -6,7 +6,7 @@
 	"name": "Affichage des rapports",
 
 	// Description du module
-	"shortDescription": "Permet à l'hébergeur de Bachero d'obtenir des informations sur un rapport d'erreur",
+	"shortDescription": "Permet à l'hébergeur de cette instance d'obtenir des informations sur un rapport d'erreur",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

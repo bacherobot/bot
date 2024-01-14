@@ -6,7 +6,7 @@
 	"name": "Page d'aide",
 
 	// Description du module
-	"shortDescription": "Obtient la liste des commandes disponibles, ou affiche des informations sur une commande spécifique",
+	"shortDescription": "Envoie la liste des commandes disponibles, ou affiche des informations sur l'une d'entre elles",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

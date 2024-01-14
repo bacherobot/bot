@@ -6,7 +6,7 @@
 	"name": "Unshorten",
 
 	// Description du module
-	"shortDescription": "Prélève l'URL originale à partir de n'importe quel lien raccourci",
+	"shortDescription": "Prélève l'URL originale de n'importe quel lien raccourci",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

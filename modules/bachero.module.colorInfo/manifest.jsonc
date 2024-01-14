@@ -6,7 +6,7 @@
 	"name": "Informations sur une couleur",
 
 	// Description du module
-	"shortDescription": "Donne des informations sur une couleur à partir de différents formats, et effectue des conversions",
+	"shortDescription": "Donne des informations sur une couleur à partir de différents formats et la convertis en d'autres formats",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

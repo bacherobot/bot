@@ -6,7 +6,7 @@
 	"name": "Snipe",
 
 	// Description du module
-	"shortDescription": "Enregistre les messages supprimés par les membres de votre serveur, pour les réafficher avec une commande",
+	"shortDescription": "Enregistre certaines actions effectuées par les membres de votre serveur, pour les réafficher avec une commande",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

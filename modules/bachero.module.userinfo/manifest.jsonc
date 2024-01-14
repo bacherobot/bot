@@ -6,7 +6,7 @@
 	"name": "Informations sur un utilisateur",	
 
 	// Description du module
-	"shortDescription": "Ajoute la possibilité d'obtenir des informations sur un utilisateur, ainsi que sa photo de profil et sa bannière",
+	"shortDescription": "Permet d'obtenir des informations sur un utilisateur, ainsi que sa photo de profil et sa bannière, via différents services",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

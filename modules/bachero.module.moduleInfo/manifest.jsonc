@@ -6,7 +6,7 @@
 	"name": "Informations sur les modules",
 
 	// Description du module
-	"shortDescription": "Permet l'affichage de la liste des modules installés, ou affiche des informations sur un module spécifique",
+	"shortDescription": "Permet l'affichage de la liste des modules installés, ou affiche des informations sur l'un d'entre eux",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

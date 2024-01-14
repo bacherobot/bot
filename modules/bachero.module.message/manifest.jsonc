@@ -6,7 +6,7 @@
 	"name": "Gestion des messages",	
 
 	// Description du module
-	"shortDescription": "Ajoute plusieurs commandes en lien avec la gestion des messages",
+	"shortDescription": "Ajoute plusieurs commandes en lien avec la gestion et l'affichage des messages sur un serveur",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",

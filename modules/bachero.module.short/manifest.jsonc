@@ -6,7 +6,7 @@
 	"name": "Shorten",
 
 	// Description du module
-	"shortDescription": "Permet de raccourcir n'importe quel lien pour obtenir une URL courte",
+	"shortDescription": "Permet de raccourcir n'importe quel lien en une URL plus courte",
 
 	// Source (par exemple, lien du module sur GitHub),
 	"source": "https://github.com/bacherobot/bot",
