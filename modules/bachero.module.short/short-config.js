@@ -1,80 +1,16 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require("discord.js")
+const moreshort = require("moreshort")
 const bacheroFunctions = require("../../functions")
 const database = bacheroFunctions.database.getDatabase("bachero.module.short")
-const providersList = [
-	{
-		name: "is.gd",
-		id: "is-gd",
-		shortcodes: true
-	},
-	{
-		name: "v.gd",
-		id: "v-gd",
-		shortcodes: true,
-		warning: "Ne redirige pas directement"
-	},
-	{
-		name: "s.oriondev.fr",
-		id: "s-oriondev-fr",
-		shortcodes: true,
-		warning: "Incompatible avec /unshort"
-	},
-	{
-		name: "s.3vm.cl",
-		id: "s-3vm-cl",
-		shortcodes: true
-	},
-	{
-		name: "s.ahpc.fi",
-		id: "s-ahpc-fi",
-		shortcodes: true
-	},
-	{
-		name: "s.acme.si",
-		id: "s-acme-si",
-		shortcodes: true
-	},
-	{
-		name: "s.3play.cl",
-		id: "s-3play-cl",
-		shortcodes: true
-	},
-	{
-		name: "s.fronturi.ro",
-		id: "s-fronturi-ro",
-		shortcodes: true
-	},
-	{
-		name: "shor.vercel.app",
-		id: "shor-vercel-app",
-		shortcodes: true
-	},
-	{
-		name: "s.jk.al",
-		id: "s-jk-al",
-		shortcodes: true
-	},
-	{
-		name: "s.amq.ro",
-		id: "s-amq-ro",
-		shortcodes: true
-	},
-	{
-		name: "s.orns.net",
-		id: "s-orns-net",
-		shortcodes: true
-	},
-	{
-		name: "s.noble.sx",
-		id: "s-noble-sx",
-		shortcodes: true
-	},
-	{
-		name: "s.18168.gq",
-		id: "s-18168-gq",
-		shortcodes: true
-	}
-]
+
+// Liste de services
+const providersWarning = { // La lib MoreShort ajoute d'autres avertissements
+	"s.oriondev.fr": "Est incompatible avec /unshort"
+}
+const providersList = Object.entries(moreshort.servicesInfos)
+	.sort((a, b) => a[1].name.length - b[1].name.length) // on prend les plus courts en premier
+	.slice(0, 25) // on évite d'avoir trop de choix (la limite dans un select menu est de 25)
+	.map(a => { return { name: a[1].name, website: a[1].website, id: a[1].id, shortcodes: a[1].shortcodes, warning: !a[1].instantRedirect ? "Ne redirige pas directement" : providersWarning[a[1].name] } })
 
 // Exporter certaines fonctions
 module.exports = {
@@ -102,7 +38,7 @@ module.exports = {
 			// On répond à l'interaction
 			var embed = new EmbedBuilder()
 				.setTitle("Service actuel pour le racourcissement d'URL")
-				.setDescription(`Le service actuel est \`${provider.name}\`. Celui-ci ${provider.shortcodes ? "supporte" : "ne supporte pas"} la personnalisation du lien.${provider.warning ? `\n\n> ${provider.warning}.` : ""}`)
+				.setDescription(`Le service actuel est [\`${provider.name}\`](${provider.website}). Celui-ci ${provider.shortcodes ? "supporte" : "ne supporte pas"} la personnalisation du lien.${provider.warning ? `\n\n> ${provider.warning}.` : ""}`)
 				.setColor(bacheroFunctions.colors.primary)
 			await interaction.update({ embeds: [embed] }).catch(err => {})
 		})
@@ -124,7 +60,7 @@ module.exports = {
 		const row = new ActionRowBuilder().addComponents(new StringSelectMenuBuilder()
 			.setCustomId("shorten-config")
 			.setPlaceholder("Changer de service par défaut")
-			.addOptions(providersList.sort((a, b) => a.name.length - b.name.length).map(t => new StringSelectMenuOptionBuilder().setLabel(t.name).setValue(t.id).setDescription(`${t.shortcodes ? "Supporte" : "Ne supporte pas"}${t.warning ? "" : " la"} modif${t.warning ? "." : "ication du"} lien${t.shortcodes && !t.warning ? " (via modal)" : ""}${t.warning ? ` – ${t.warning}` : ""}`))))
+			.addOptions(providersList.map(t => new StringSelectMenuOptionBuilder().setLabel(t.name).setValue(t.id).setDescription(`${t.shortcodes ? "Supporte" : "Ne supporte pas"}${t.warning ? "" : " la"} modif${t.warning ? "." : "ication du"} lien${t.shortcodes && !t.warning ? " (via modal)" : ""}${t.warning ? ` – ${t.warning}` : ""}`))))
 
 		// Répondre à l'interaction
 		interaction.reply({ embeds: [embed], components: [row] }).catch(err => {})

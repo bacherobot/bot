@@ -10,6 +10,10 @@
 		"dev-optimize": "nodemon index.js --optimize"
 	},
 	"author": "JohanStickman",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/bacherobot/bot"
+	},
 	"license": "MIT",
 	"dependencies": {
 		"@discordjs/rest": "^1.7.1",
@@ -29,6 +33,7 @@
 		"genius-lyrics": "^4.4.3",
 		"jsonc": "^2.0.0",
 		"markdown-escape": "^2.0.0",
+		"moreshort": "^1.0.0",
 		"nanoid": "3.3.6",
 		"nearest-color": "^0.4.4",
 		"node-cache": "^5.1.2",

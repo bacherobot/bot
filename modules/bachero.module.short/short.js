@@ -1,48 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require("discord.js")
+const moreshort = require("moreshort")
 const bacheroFunctions = require("../../functions")
-const fetch = require("node-fetch")
 const database = bacheroFunctions.database.getDatabase("bachero.module.short")
-const providersList = ["is.gd", "v.gd", "s.oriondev.fr", "s.3vm.cl", "s.ahpc.fi", "s.acme.si", "s.3play.cl", "s.fronturi.ro", "shor.vercel.app", "s.jk.al", "s.amq.ro", "s.orns.net", "s.noble.sx", "s.18168.gq"]
-
-// Raccourcir une URL
-async function shortenUrl(url, provider, shortCode){
-	// On ajoute soi-même https:// au début de l'URL s'il le faut
-	if(!url) return { success: false, message: "Aucune URL spécifiée." }
-	if(!url.startsWith("http://") && !url.startsWith("https://")) url = `https://${url}`
-
-	// Pour Quecto
-	if(provider === "s.oriondev.fr"){
-		var result = await fetch("https://s.oriondev.fr/api/shorten", {
-			method: "POST",
-			body: new URLSearchParams({ link: url, custom_code: shortCode || "" })
-		}).then(res => res.json()).catch(err => { return { fetcherror: err } })
-
-		if(result?.fetcherror || result?.status !== 200) return { success: false, message: result?.data || result?.fetcherror || result }
-		else return { success: true, url: result.data.shorten }
-	}
-
-	// Pour is.gd/v.gd
-	if(provider === "is.gd" || provider === "v.gd"){
-		var result = await fetch(`https://${provider}/create.php`, {
-			method: "POST",
-			body: new URLSearchParams({ url: url, format: "json", shorturl: shortCode || "" })
-		}).then(res => res.json()).catch(err => { return { fetcherror: err } })
-
-		if(result?.fetcherror || result?.errormessage || result?.errorcode) return { success: false, message: result?.errormessage || result?.fetcherror || result }
-		else return { success: true, url: result.shorturl }
-	}
-
-	// Pour les autres
-	else {
-		var result = await fetch(`https://${provider}/create`, {
-			method: "POST",
-			body: JSON.stringify({ url: url, shorturl: shortCode || "" })
-		}).then(res => res.json()).catch(err => { return { fetcherror: err } })
-
-		if(result?.fetcherror || result?.message || result?.error) return { success: false, message: result?.fetcherror || result?.message || result?.error }
-		else return { success: true, url: `https://${result.domain}/${result.shorturl}` }
-	}
-}
 
 // Répondre à une interaction en raccourcissant une URL
 async function replyShortenUrl(interaction, url, provider, shortCode){
@@ -52,22 +11,22 @@ async function replyShortenUrl(interaction, url, provider, shortCode){
 	// Si on a pas un provider, on obtient celui dans la BDD
 	if(!provider){
 		provider = await bacheroFunctions.database.get(database, `provider-${interaction.user.id}`)
-		if(!provider) provider = "is.gd"
+		if(!provider) provider = "s.jk.al"
 	}
 
 	// On vérifie si le provider sélectionné est valide
-	if(!providersList.includes(provider)) return await interaction.editReply("Le service sélectionné n'est pas autorisé.").catch(err => {})
+	if(!moreshort.servicesDomains.includes(provider)) return await interaction.editReply("Le service sélectionné n'est pas autorisé.").catch(err => {})
 
 	// Raccourcir le lien
-	let shortened = await shortenUrl(url, provider, shortCode)
+	var shortened = await moreshort.short(url, provider, shortCode).catch(err => err)
 
 	// Si on a une erreur
-	if(!shortened.success) return await bacheroFunctions.report.createAndReply("requête vers l'API pour raccourcir une URL", shortened.message || shortened, {}, interaction)
+	if(typeof shortened != "string") return await bacheroFunctions.report.createAndReply("raccourcir une URL", shortened.message || shortened, { url, provider, shortCode }, interaction)
 
 	// Créer l'embed
 	var embed = new EmbedBuilder()
 		.setTitle("Résultat du raccourcissement")
-		.setDescription(shortened?.url || shortened)
+		.setDescription(shortened)
 		.setColor(bacheroFunctions.colors.primary)
 		.setThumbnail(`https://chart.googleapis.com/chart?cht=qr&chld=L|1&chs=256x256&chl=${encodeURI(shortened?.url)}`)
 		.setFooter({ text: `Sous la demande de ${interaction.user.discriminator == "0" ? interaction.user.username : interaction.user.tag}` })
