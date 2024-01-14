@@ -23,5 +23,33 @@
 			"discordId": "277825082334773251",
 			"link": "https://johanstick.fr"
 		}
+	],
+
+	// Liste des valeurs que le module peut accéder depuis la configuration
+	"config": [
+		{
+			"name": "disallowHexColors",
+			"type": "boolean",
+			"default": false,
+			"description": "Désactive la sous-commande 'hex' et empêche d'afficher des informations à partir de ce format"
+		},
+		{
+			"name": "disallowRgbColors",
+			"type": "boolean",
+			"default": false,
+			"description": "Désactive la sous-commande 'rgb' et empêche d'afficher des informations à partir de ce format"
+		},
+		{
+			"name": "disallowHslColors",
+			"type": "boolean",
+			"default": false,
+			"description": "Désactive la sous-commande 'hsl' et empêche d'afficher des informations à partir de ce format"
+		},
+		{
+			"name": "disallowCmykColors",
+			"type": "boolean",
+			"default": false,
+			"description": "Désactive la sous-commande 'cmyk' et empêche d'afficher des informations à partir de ce format"
+		}
 	]
 }
