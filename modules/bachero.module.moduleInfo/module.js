@@ -42,8 +42,8 @@ module.exports = {
 		if(!pages?.[1]) listModules.forEach(mod => {
 			if(modulesMessage.length > 3900){
 				pages.push(modulesMessage)
-				modulesMessage = compactList ? `\n• *${escapeMarkdown(mod.packageName)}* : ${escapeMarkdown(mod.shortDescription)}` : `\n\n**${escapeMarkdown(mod.packageName)}** :\n> ${escapeMarkdown(mod.shortDescription)}`
-			} else modulesMessage += compactList ? `\n• *${escapeMarkdown(mod.packageName)}* : ${escapeMarkdown(mod.shortDescription)}` : `\n\n**${escapeMarkdown(mod.packageName)}** :\n> ${escapeMarkdown(mod.shortDescription)}`
+				modulesMessage = compactList ? `\n• *${escapeMarkdown(mod.packageName)}* : ${escapeMarkdown(mod.shortDescription)}` : `\n\n**${escapeMarkdown(mod.name)}** (*${escapeMarkdown(mod.packageName)}*) :\n> ${escapeMarkdown(mod.shortDescription)}`
+			} else modulesMessage += compactList ? `\n• *${escapeMarkdown(mod.packageName)}* : ${escapeMarkdown(mod.shortDescription)}` : `\n\n**${escapeMarkdown(mod.name)}** (*${escapeMarkdown(mod.packageName)}*) :\n> ${escapeMarkdown(mod.shortDescription)}`
 		})
 		if(modulesMessage) pages.push(modulesMessage)
 
