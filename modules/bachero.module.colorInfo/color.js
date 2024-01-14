@@ -1,6 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const convert = require("color-convert")
 const cherangi = require("cherangi")
+const bacheroFunctions = require("../../functions.js")
+var disallowHexColors = bacheroFunctions.config.getValue("bachero.module.colorInfo", "disallowHexColors")
+var disallowRgbColors = bacheroFunctions.config.getValue("bachero.module.colorInfo", "disallowRgbColors")
+var disallowHslColors = bacheroFunctions.config.getValue("bachero.module.colorInfo", "disallowHslColors")
+var disallowCmykColors = bacheroFunctions.config.getValue("bachero.module.colorInfo", "disallowCmykColors")
 
 // Fonction pour obtenir l'opposé d'une couleur
 const invertColor = (col) => {
@@ -34,83 +39,89 @@ const getClosestColor = (hex) => {
 	return nearestColor(hex)
 }
 
+// Créé la commande slash
+var slashInfo = new SlashCommandBuilder()
+	.setName("color")
+	.setDescription("Affiche des informations sur une couleur")
+	.addSubcommand((subcommand) => subcommand
+		.setName("random")
+		.setDescription("Affiche une couleur aléatoire"))
+
+// Ajouter des propriétés en plus en fonction de la config
+if(!disallowHexColors) slashInfo.addSubcommand((subcommand) => subcommand
+	.setName("hex")
+	.setDescription("Affiche des informations sur une couleur hexadécimale")
+	.addStringOption(option => option.setName("color")
+		.setDescription("Couleur hexadécimale (avec ou sans le #)")
+		.setRequired(true)))
+if(!disallowRgbColors) slashInfo.addSubcommand((subcommand) => subcommand
+	.setName("rgb")
+	.setDescription("Affiche des informations sur une couleur RGB")
+	.addNumberOption(option => option.setName("r")
+		.setDescription("Valeur de rouge (0-255)")
+		.setRequired(true)
+		.setMinValue(0)
+		.setMaxValue(255))
+	.addNumberOption(option => option.setName("g")
+		.setDescription("Valeur de vert (0-255)")
+		.setRequired(true)
+		.setMinValue(0)
+		.setMaxValue(255))
+	.addNumberOption(option => option.setName("b")
+		.setDescription("Valeur de bleu (0-255)")
+		.setRequired(true)
+		.setMinValue(0)
+		.setMaxValue(255)))
+if(!disallowHslColors) slashInfo.addSubcommand((subcommand) => subcommand
+	.setName("hsl")
+	.setDescription("Affiche des informations sur une couleur HSL")
+	.addNumberOption(option => option.setName("h")
+		.setDescription("Valeur de teinte (0-360)")
+		.setRequired(true)
+		.setMinValue(0)
+		.setMaxValue(360))
+	.addNumberOption(option => option.setName("s")
+		.setDescription("Valeur de saturation (0-100)")
+		.setRequired(true)
+		.setMinValue(0)
+		.setMaxValue(100))
+	.addNumberOption(option => option.setName("l")
+		.setDescription("Valeur de luminosité (0-100)")
+		.setRequired(true)
+		.setMinValue(0)
+		.setMaxValue(100)))
+if(!disallowCmykColors) slashInfo.addSubcommand((subcommand) => subcommand
+	.setName("cmyk")
+	.setDescription("Affiche des informations sur une couleur CMYK")
+	.addNumberOption(option => option.setName("c")
+		.setDescription("Valeur de cyan (0-100)")
+		.setRequired(true)
+		.setMinValue(0)
+		.setMaxValue(100))
+	.addNumberOption(option => option.setName("m")
+		.setDescription("Valeur de magenta (0-100)")
+		.setRequired(true)
+		.setMinValue(0)
+		.setMaxValue(100))
+	.addNumberOption(option => option.setName("y")
+		.setDescription("Valeur de jaune (0-100)")
+		.setRequired(true)
+		.setMinValue(0)
+		.setMaxValue(100))
+	.addNumberOption(option => option.setName("k")
+		.setDescription("Valeur de noir (0-100)")
+		.setRequired(true)
+		.setMinValue(0)
+		.setMaxValue(100)))
+
 module.exports = {
 	// Définir les infos de la commande slash
-	slashInfo: new SlashCommandBuilder()
-		.setName("color")
-		.setDescription("Affiche des informations sur une couleur")
-		.addSubcommand((subcommand) => subcommand
-			.setName("hex")
-			.setDescription("Affiche des informations sur une couleur hexadécimale")
-			.addStringOption(option => option.setName("color")
-				.setDescription("Couleur hexadécimale (avec ou sans le #)")
-				.setRequired(true)))
-		.addSubcommand((subcommand) => subcommand
-			.setName("rgb")
-			.setDescription("Affiche des informations sur une couleur RGB")
-			.addNumberOption(option => option.setName("r")
-				.setDescription("Valeur de rouge (0-255)")
-				.setRequired(true)
-				.setMinValue(0)
-				.setMaxValue(255))
-			.addNumberOption(option => option.setName("g")
-				.setDescription("Valeur de vert (0-255)")
-				.setRequired(true)
-				.setMinValue(0)
-				.setMaxValue(255))
-			.addNumberOption(option => option.setName("b")
-				.setDescription("Valeur de bleu (0-255)")
-				.setRequired(true)
-				.setMinValue(0)
-				.setMaxValue(255)))
-		.addSubcommand((subcommand) => subcommand
-			.setName("hsl")
-			.setDescription("Affiche des informations sur une couleur HSL")
-			.addNumberOption(option => option.setName("h")
-				.setDescription("Valeur de teinte (0-360)")
-				.setRequired(true)
-				.setMinValue(0)
-				.setMaxValue(360))
-			.addNumberOption(option => option.setName("s")
-				.setDescription("Valeur de saturation (0-100)")
-				.setRequired(true)
-				.setMinValue(0)
-				.setMaxValue(100))
-			.addNumberOption(option => option.setName("l")
-				.setDescription("Valeur de luminosité (0-100)")
-				.setRequired(true)
-				.setMinValue(0)
-				.setMaxValue(100)))
-		.addSubcommand((subcommand) => subcommand
-			.setName("cmyk")
-			.setDescription("Affiche des informations sur une couleur CMYK")
-			.addNumberOption(option => option.setName("c")
-				.setDescription("Valeur de cyan (0-100)")
-				.setRequired(true)
-				.setMinValue(0)
-				.setMaxValue(100))
-			.addNumberOption(option => option.setName("m")
-				.setDescription("Valeur de magenta (0-100)")
-				.setRequired(true)
-				.setMinValue(0)
-				.setMaxValue(100))
-			.addNumberOption(option => option.setName("y")
-				.setDescription("Valeur de jaune (0-100)")
-				.setRequired(true)
-				.setMinValue(0)
-				.setMaxValue(100))
-			.addNumberOption(option => option.setName("k")
-				.setDescription("Valeur de noir (0-100)")
-				.setRequired(true)
-				.setMinValue(0)
-				.setMaxValue(100)))
-		.addSubcommand((subcommand) => subcommand
-			.setName("random")
-			.setDescription("Affiche une couleur aléatoire")),
+	slashInfo,
 
 	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Obtenir les arguments
+		bacheroFunctions.showDebug("Obtention du format et de la couleur")
 		var format = interaction.options.getSubcommand()
 		var color
 		if(format == "hex") color = interaction.options.getString("color")
@@ -128,6 +139,7 @@ module.exports = {
 		// Convertir dans un maximum de formats
 		if(color && format){
 			// Convertir en HEX
+			bacheroFunctions.showDebug("Conversion : hex")
 			if(format != "hex" && format == "rgb") colors.hex = convert.rgb.hex(color)
 			if(format != "hex" && format == "hsl") colors.hex = convert.hsl.hex(color)
 			if(format != "hex" && format == "cmyk") colors.hex = convert.cmyk.hex(color)
@@ -139,23 +151,24 @@ module.exports = {
 			}
 
 			// Convertir de HEX à tout le reste
-			if(!colors.rgb) colors.rgb = convert.hex.rgb(colors.hex)
-			colors.decimal = parseInt(colors.hex, 16)
-			colors.hsl = convert.hex.hsl(colors.hex)
-			colors.cmyk = convert.hex.cmyk(colors.hex)
-			colors.hsv = convert.hex.hsv(colors.hex)
-			colors.hwb = convert.hex.hwb(colors.hex)
-			colors.ansi16 = convert.hex.ansi16(colors.hex)
-			colors.ansi256 = convert.hex.ansi256(colors.hex)
-			colors.lab = convert.hex.lab(colors.hex)
-			colors.xyz = convert.hex.xyz(colors.hex)
-			colors.tailwindcss = getClosestColor(colors.hex)?.name
-			colors.name = cherangi(colors.hex)?.name
-			colors.opposite = invertColor(colors.hex)
-			colors.isDark = colors.hsl[2] < 50
+			if(!colors.rgb) bacheroFunctions.showDebug("Conversion : rgb"), colors.rgb = convert.hex.rgb(colors.hex)
+			bacheroFunctions.showDebug("Conversion : decimal"), colors.decimal = parseInt(colors.hex, 16)
+			bacheroFunctions.showDebug("Conversion : hsl"), colors.hsl = convert.hex.hsl(colors.hex)
+			bacheroFunctions.showDebug("Conversion : cmyk"), colors.cmyk = convert.hex.cmyk(colors.hex)
+			bacheroFunctions.showDebug("Conversion : hsv"), colors.hsv = convert.hex.hsv(colors.hex)
+			bacheroFunctions.showDebug("Conversion : hwb"), colors.hwb = convert.hex.hwb(colors.hex)
+			bacheroFunctions.showDebug("Conversion : ansi16"), colors.ansi16 = convert.hex.ansi16(colors.hex)
+			bacheroFunctions.showDebug("Conversion : ansi256"), colors.ansi256 = convert.hex.ansi256(colors.hex)
+			bacheroFunctions.showDebug("Conversion : lab"), colors.lab = convert.hex.lab(colors.hex)
+			bacheroFunctions.showDebug("Conversion : xyz"), colors.xyz = convert.hex.xyz(colors.hex)
+			bacheroFunctions.showDebug("Conversion : tailwindcss"), colors.tailwindcss = getClosestColor(colors.hex)?.name
+			bacheroFunctions.showDebug("Conversion : name"), colors.name = cherangi(colors.hex)?.name
+			bacheroFunctions.showDebug("Conversion : opposite"), colors.opposite = invertColor(colors.hex)
+			bacheroFunctions.showDebug("Conversion : isDark"), colors.isDark = colors.hsl[2] < 50
 		}
 
 		// Créer l'embed
+		bacheroFunctions.showDebug("Création de l'embed")
 		var embed = new EmbedBuilder()
 			.setTitle(colors.name)
 			.setColor(colors.hex)
@@ -183,6 +196,7 @@ module.exports = {
 			.setLabel("Informations sur Color Pizza"))
 
 		// Envoyer l'embed
+		bacheroFunctions.showDebug("Envoi de l'embed")
 		interaction.reply({ embeds: [embed], components: [row] }).catch(err => {})
 	}
 }
