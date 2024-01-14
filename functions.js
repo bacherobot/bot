@@ -668,8 +668,20 @@ async function report_create(context, error, moreInfos, interaction){
 	var callerPath = new Error().stack.split("\n")[2].split("(")[1].split(")")[0]
 	interaction.callerPath = callerPath.split(path.sep)
 
+	// Obtenir les logs récentes (il y a moins de 5sec)
+	var logs = fs.readFileSync(path.join(__dirname, "logs", "machine-latest.txt")).toString().split("\n").filter(x => x).map(x => {
+		var log = x.split("▮")
+		return {
+			type: log[0],
+			date: log[1],
+			level: log[2],
+			invoker: log[3],
+			details: log[4]
+		}
+	}).filter(x => x.date > Date.now() - 5000)
+
 	// Créer le rapport sous forme de texte
-	var report = `${randomid} | Rapport (${context}) générée le ${date} avec Bachero v${version}.\n\nÉléments en rapport avec l'interaction :${Object.entries(interaction).map(x => `\n   • ${x[0]}: ${typeof x[1] == "object" ? stringify(x[1]) : x[1]}`).join("")}\n\n${"=".repeat(15)}\n\nInformations supplémentaires apportées par le module :\n   ${stringify(moreInfos) || moreInfos}\n\n${"=".repeat(15)}\n\n${error.stack || error.message || error.toString() || error}`
+	var report = `${randomid} | Rapport (${context}) générée le ${date} avec Bachero v${version}.\n\nÉléments en rapport avec l'interaction :${Object.entries(interaction).map(x => `\n   • ${x[0]}: ${typeof x[1] == "object" ? stringify(x[1]) : x[1]}`).join("")}\n\n${"=".repeat(15)}\n\nInformations supplémentaires apportées par le module :\n   ${stringify(moreInfos) || moreInfos}\n\n${"=".repeat(15)}\n\n${logs.length ? logs.map(log => `${global.intlFormatter.format(new Date(parseInt(log?.date) || 0)).split(" ")?.[0]} ${log?.level} (${log?.invoker}) ${log?.details}`).join("\n") : "Aucune log n'a pu être trouvé"}\n\n${"=".repeat(15)}\n\n${error.stack || error.message || error.toString() || error}`
 
 	// L'enregistrer dans la BDD
 	if(config_getValue("bachero", "databaseType") == "mongodb"){
