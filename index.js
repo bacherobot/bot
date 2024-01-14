@@ -3,7 +3,7 @@ var performanceStart = performance.now()
 
 // Date
 var intlFormatter = new Intl.DateTimeFormat("fr-FR", {
-	timeZone: "Europe/Paris", // TODO: faudrait ptet laisser la possibilité de changer ça
+	timeZone: process.env.DEFAULT_TIMEZONE || "Europe/Paris", // TODO: faudrait ptet laisser la possibilité de changer ça
 	year: "numeric",
 	month: "2-digit",
 	day: "2-digit",
@@ -38,7 +38,7 @@ var disableTextCommand
 var disableCommandAnalytics
 var elbotStyleInErrors // easter egg :> p'tite ref pour le module elbot
 if(optimized){
-	chalk = { red: (text) => text, yellow: (text) => text, green: (text) => text, blue: (text) => text, bold: (text) => text, gray: (text) => text, magenta: (text) => text }
+	chalk = { red: (text) => text, yellow: (text) => text, green: (text) => text, blue: (text) => text, bold: (text) => text, gray: (text) => text }
 	botName = "Bachero"
 	disableTextCommand = true
 	disableCommandAnalytics = true
