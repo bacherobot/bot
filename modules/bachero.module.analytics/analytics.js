@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js")
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const bacheroFunctions = require("../../functions")
 const database = bacheroFunctions.database.getDatabase("internalBachero.stats")
 const disableTextCommand = bacheroFunctions.config.getValue("bachero", "disableTextCommand")
@@ -34,6 +34,26 @@ module.exports = {
 		.setName("analytics")
 		.setDescription("Affiche des données sur l'utilisation des commandes")
 		.setDMPermission(false),
+
+	// Récupérer le listener et savoir lorsque quelqu'un renvoie le bouton
+	async interactionListener(listener){
+		listener.on("button", async (interaction) => {
+			// Vérifier l'identifiant du bouton
+			if(interaction.customId != "analytics-safety") return
+
+			// Répondre avec un embed
+			var embed = new EmbedBuilder()
+				.setTitle("Confidentialité des données avec le suivi d'utilisation")
+				.setDescription(`Nous tenons à la vie privée de nos utilisateurs, nous avons donc mis en place certaines mesures listées ici :\n
+					• Aucune donnée ne peut permettre d'identifier un utilisateur.
+					• Les données sont enregistrées par serveur, et non par utilisateur.
+					• À la fin de chaque mois, les nouvelles statistiques remplacent définitivement les précédentes.
+					• Seules les données d'utilisation des commandes sont enregistrées.
+					• Les informations contenues dans le message envoyé via la commande \`/analytics\` sont les seules informations que nous possédons.`)
+				.setColor(bacheroFunctions.colors.primary)
+			return interaction.reply({ embeds: [embed], ephemeral: true }).catch(err => {})
+		})
+	},
 
 	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
@@ -97,7 +117,14 @@ module.exports = {
 
 		// Mettre en cache les données
 		cache.set(interaction.guild.id, { embed: embed }, timeTaken > 10000 ? 180 : 25)
-		interaction.editReply({ embeds: [embed] })
 
+		// Créé un bouton d'explication
+		const row = new ActionRowBuilder().addComponents(new ButtonBuilder()
+			.setCustomId("analytics-safety")
+			.setLabel("Comment votre confidentialité reste assurée")
+			.setStyle(ButtonStyle.Secondary),)
+
+		// Répondre à l'interaction
+		interaction.editReply({ embeds: [embed], components: [row] }).catch(err => {})
 	}
 }
