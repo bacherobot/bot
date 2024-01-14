@@ -39,7 +39,7 @@ module.exports = {
 		infos = await infos.json().catch(err => { return { message: err } })
 
 		// Si on a une erreur
-		if(infos.message || !infos?.retrieved_at) return await bacheroFunctions.report.createAndReply("requête vers l'API d'MCS", infos.message || infos, {}, interaction)
+		if(infos.message || !infos?.retrieved_at) return await bacheroFunctions.report.createAndReply("requête vers l'API d'MCS", infos.message || infos, { edition, ip }, interaction)
 
 		// Créer l'embed
 		var embed = new EmbedBuilder()

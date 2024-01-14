@@ -174,7 +174,7 @@ async function sendToChannel(interaction, userToFake){
 		// Donc si l'envoi a raté, on réessaie mais cette fois-ci en créant un nouveau webhook avant
 		webhook = await getWebhook(interaction, true)
 		webhook.send({ content: text, username: user?.username, avatarURL: user?.avatarURL }).catch(async err => {
-			return await bacheroFunctions.report.createAndReply("envoie d'un message avec le webhook", err, {}, interaction)
+			return await bacheroFunctions.report.createAndReply("envoie d'un message avec le webhook", err, { content: text, username: user?.username, avatarURL: user?.avatarURL }, interaction)
 		})
 	})
 

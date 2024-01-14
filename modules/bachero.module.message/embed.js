@@ -156,7 +156,7 @@ module.exports = {
 				// Obtenir le contenu
 				var content = await fetch(`https://${source.text}`, { headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).then(res => res.text()).catch(err => { return `/\\ ERREUR /\\\n\n${err}` })
 
-				// Si il y a une erreur
+				// S'il y a une erreur
 				if(content?.toString()?.startsWith("/\\ ERREUR /\\")) return await bacheroFunctions.report.createAndReply("obtention du texte", content?.replace("/\\ ERREUR /\\\n\n", "")?.toString() || content, {}, interaction)
 
 				// Sinon, définir les informations de l'embed
@@ -168,7 +168,7 @@ module.exports = {
 				// Obtenir le contenu
 				var content = (await bacheroFunctions.database.get(database, `embedId-${source.all}`)) || null
 
-				// Si il existe, définir les informations de l'embed
+				// S'il existe, définir les informations de l'embed
 				if(content) embedInfos = content
 			}
 		}

@@ -99,8 +99,12 @@ module.exports = {
 
 		// Tout les jours, on supprime les données plus vieilles que 24 heures
 		setInterval(async () => {
+			// Log debug
+			bacheroFunctions.showDebug("(Vérif quotidienne) Suppression des snipes trop vieux")
+
 			// Si on a 0 snipes, on annule
-			if(!client.snipes || client.snipes.size == 0) return
+			if(!client.snipes || client.snipes.size == 0) return bacheroFunctions.showDebug("(Vérif quotidienne) Aucun snipe à supprimer")
+			else bacheroFunctions.showDebug("(Vérif quotidienne) Des snipes vont être vérifiés")
 
 			// Obtenir la liste des snipes
 			var snipes = client.snipes.entries()
@@ -124,13 +128,16 @@ module.exports = {
 	// Code à exécuter quand la commande est appelée
 	async execute(interaction){
 		// Vérifier si la fonctionnalité est activée
+		bacheroFunctions.showDebug(`Vérif. que la fonctionnalité soit activée (enabled-${interaction.guild.id})`)
 		var isEnabled = await bacheroFunctions.database.get(database, `enabled-${interaction.guild.id}`)
 		if(!isEnabled) return interaction.reply({ content: "La fonctionnalité Snipe est désactivée sur ce serveur.", ephemeral: true }).catch(err => {})
 
 		// Mettre la réponse en defer
+		bacheroFunctions.showDebug("Défer. la réponse")
 		if(await interaction.deferReply().catch(err => { return "stop" }) == "stop") return
 
 		// Obtenir les derniers snipes
+		bacheroFunctions.showDebug("Obtenir les derniers snipes")
 		var snipes = interaction.client?.snipes?.get(interaction.guildId) || []
 		if(!snipes?.length) return interaction.editReply({ content: "Aucun message n'a été supprimé ou modifié récemment..." }).catch(err => {})
 
@@ -140,6 +147,7 @@ module.exports = {
 		var query = await interaction.options.getString("query")
 
 		// Filtrer et trier les snipes
+		bacheroFunctions.showDebug(`Filtrer et trier ${snipes.length} snipes`)
 		snipes = snipes.filter(snipe => {
 			// Si on a un utilisateur, on ne garde que les snipes de cet utilisateur
 			if(user && snipe.authorId != user.id) return false
@@ -155,6 +163,7 @@ module.exports = {
 			// Sinon, on garde le snipe
 			return true
 		}).sort((a, b) => b.timestamp - a.timestamp)
+		bacheroFunctions.showDebug(`Il reste ${snipes.length} snipes`)
 
 		// Si on a aucun snipe, on annule
 		if(!snipes?.length) return interaction.editReply({ content: "Aucun snipe ne correspond à ces critères de recherche..." }).catch(err => {})
@@ -163,6 +172,7 @@ module.exports = {
 		var isSomeSnipeTooLong = false
 
 		// Lister les champs (fields) de l'embed
+		bacheroFunctions.showDebug("Générations des champs dans l'embed")
 		var fields = snipes.slice(0, 13).map(snipe => {
 			// Obtenir le contenu
 			var content = snipe.type == "edit" ? `**Avant :** ${snipe.oldContent}\n**Après :** ${snipe.newContent}` : snipe.content
@@ -184,6 +194,7 @@ module.exports = {
 		})
 
 		// Créer un embed
+		bacheroFunctions.showDebug("Création de l'embed")
 		var embed = new EmbedBuilder()
 			.setTitle("Fonctionnalité Snipe")
 			.addFields(fields)
@@ -198,21 +209,25 @@ module.exports = {
 			.setDisabled(true))
 
 		// Répondre à l'interaction
+		bacheroFunctions.showDebug("Répondre à l'interaction")
 		if(row) await interaction.editReply({ embeds: [embed], components: [row] }).catch(err => {})
 		else await interaction.editReply({ embeds: [embed] }).catch(err => {})
 
 		// Si certains snipes sont trop longs, on crée un haste
 		if(isSomeSnipeTooLong && ((hastebinTokenRequired && process.env.HASTEBIN_TOKEN) || !hastebinTokenRequired)){
+			// Log debug
+			bacheroFunctions.showDebug("Les snipes sont trop longs, on crée un haste")
+
 			// Générer le contenu du haste
 			var content = snipes.slice(0, 13).map(snipe => {
 				var content = snipe.type == "edit" ? `**Avant :** ${snipe.oldContent}\n**Après :** ${snipe.newContent}` : snipe.content
 				var attachments = snipe?.attachments?.map(attachment => { return `- ${attachment.filename} : ${attachment.url}` })?.join("\n") || ""
 				content = `${attachments}\n${content}`.trim()
 				return `${snipe.authorTag} (ID: ${snipe.authorId}) — ${snipe.type == "delete" ? "suppression" : snipe.type == "edit" ? "modification" : snipe.type} — ${new Date(snipe.timestamp).toLocaleString()}\n\n${content}`
-			})
-				.join("\n\n\n\n\n")
+			}).join("\n\n\n\n\n")
 
 			// Obtenir les informations de l'utilisateur
+			bacheroFunctions.showDebug("Envoi de la requête à Hastebin")
 			var haste = await fetch(hastebinAPI, {
 				method: "POST",
 				body: content,
@@ -224,9 +239,10 @@ module.exports = {
 			}).then(res => res.json()).catch(err => { return { error: true, message: err } })
 
 			// Si on a une erreur
-			if(haste?.message || !haste?.key) return await bacheroFunctions.report.createAndReply("création d'un haste", haste?.message || haste, { url: hastebinAPI }, interaction)
+			if(haste?.message || !haste?.key) return await bacheroFunctions.report.createAndReply("création d'un haste", haste?.message || haste, { url: hastebinAPI, body: content }, interaction)
 
 			// Modifier le bouton dans l'interaction
+			bacheroFunctions.showDebug("Modifier le bouton dans l'interaction, puis mise à jour")
 			row.components[0].setURL(`${hastebinUrl == "https://hastebin.com" ? `https://hastebin.com/share/${haste?.key}` : `${hastebinUrl}/${haste?.key}`}`).setDisabled(false)
 			await interaction.editReply({ components: [row] }).catch(err => {})
 		}

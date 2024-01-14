@@ -55,7 +55,7 @@ module.exports = {
 			var isFailed = false
 			await botClient.channels.cache.get(interaction.channelId).send(messageOption).catch(err => {
 				isFailed = true
-				return bacheroFunctions.report.createAndReply("envoi du message", err, {}, interaction)
+				return bacheroFunctions.report.createAndReply("envoi du message", err, { content: text, hasAttachment: !!attachment }, interaction)
 			})
 
 			// Obtenir une astuce
@@ -73,7 +73,7 @@ module.exports = {
 				content: text
 			})
 		} catch(err) {
-			return await bacheroFunctions.report.createAndReply("envoi du message", err, {}, interaction)
+			return await bacheroFunctions.report.createAndReply("envoi du message", err, { content: text, hasAttachment: !!attachment }, interaction)
 		}
 
 		// Si c'est une commande texte, tenter de supprimer le message d'invocation

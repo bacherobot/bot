@@ -108,7 +108,7 @@ async function whenLineObtained(interaction, line, isFromModal){
 	if(cache_stops[line]) stops = cache_stops[line]
 	else {
 		stops = await fetch(`https://bo-api.divia.fr/api/totemArretsByLigne/ligne/${line}`).then(r => r.json()).catch(err => { return { fetcherror: err } })
-		if(stops.fetcherror || !stops?.length) return await bacheroFunctions.report.createAndReply("requête vers l'API de Divia (n°2)", stops.fetcherror || stops, {}, interaction)
+		if(stops.fetcherror || !stops?.length) return await bacheroFunctions.report.createAndReply("requête vers l'API de Divia (n°2)", stops.fetcherror || stops, { line }, interaction)
 		stops = stops.sort((a, b) => a.nom.localeCompare(b.nom)).map(s => { return { id: s.id, name: s.nom } }) // L'API change l'ordre des arrêts parfois
 	}
 
@@ -196,7 +196,7 @@ async function whenStopObtained(interaction, stop, isComplete){
 	var times = await fetch(`https://tim.divia.fr/api/get/totem?source_type=bo_divia_utilisateur&source_uuid=abc&ligne=${line?.id || line}&arret=${stop}&token=${jwtToken}`).then(r => r.json()).catch(err => { return { fetcherror: err } })
 	if(times.fetcherror || times.message || times.code || !times?.result_infos?.totem){
 		if(times.code == 401) jwtToken = await getJwtToken()
-		return await bacheroFunctions.report.createAndReply("requête vers l'API de la Divia (n°3)", times.fetcherror || times.message || times, { jwtToken: jwtToken }, interaction)
+		return await bacheroFunctions.report.createAndReply("requête vers l'API de la Divia (n°3)", times.fetcherror || times.message || times, { jwtToken: jwtToken, line, stop }, interaction)
 	}
 	else times = times.result_infos.totem
 

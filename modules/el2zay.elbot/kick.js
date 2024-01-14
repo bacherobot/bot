@@ -66,7 +66,7 @@ module.exports = {
 			if(!isDmImpossible) await member.send({ content: "Au final on a pas pu t'exclure 💀💀" }).catch(err => {})
 
 			// On retourne un rapport d'erreur
-			return bacheroFunctions.report.createAndReply("exclusion", isKickPossible.err || isKickPossible, {}, interaction)
+			return bacheroFunctions.report.createAndReply("exclusion", isKickPossible.err || isKickPossible, { memberId, reason }, interaction)
 		}
 
 		// On refait un embed, et on l'envoie dans le salon

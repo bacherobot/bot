@@ -1,5 +1,3 @@
-// TODO: faire un big ctrl+f dans le code et remplacer "si il" par "s'il"
-
 // Commencer à mesurer le temps que le bot a pris pour s'allumer
 var performanceStart = performance.now()
 
@@ -14,7 +12,6 @@ var intlFormatter = new Intl.DateTimeFormat("fr-FR", {
 	second: "2-digit"
 })
 global.intlFormatter = intlFormatter
-// TODO: l'utiliser ici, et dans le functions.js
 
 // Importer quelques librairies
 require("dotenv").config()
@@ -224,7 +221,7 @@ function loadModules(){
 			}
 		}
 
-		// Si il y a des erreurs
+		// S'il y a des erreurs
 		if(errors.length > 0){
 			bacheroFunctions.showLog("error", `Des erreurs ont été rencontrées :\n${errors.map(err => `  ${err}`).join("\n")}`, "module-load-error")
 			return process.exit()
@@ -286,7 +283,7 @@ function loadModules(){
 			if(file?.interactionListener) file.interactionListener(interactionListener)
 			if(editedfile?.interactionListenerText) editedfile.interactionListenerText(interactionListenerText)
 
-			// Si il y a des commandes slash
+			// S'il y a des commandes slash
 			if(file?.slashInfo && file?.execute){
 				if(allSlashCommands.find(slashCommand => slashCommand.name == file.slashInfo.name)){
 					bacheroFunctions.showLog("error", `Impossible de charger le module ${chalk.yellow(module)} : une commande slash avec le même nom existe déjà.`, "module-load-error")
@@ -300,7 +297,7 @@ function loadModules(){
 				thisModuleAllCommands.push(slashInfoJSON)
 			}
 
-			// Si il y a des menus contextuel
+			// S'il y a des menus contextuel
 			if(file?.contextInfo && file?.execute){
 				if(thisModuleAllContextsMenu.find(slashCommand => slashCommand.name == file.contextInfo.name)){
 					bacheroFunctions.showLog("error", `Impossible de charger le module ${chalk.yellow(module)} : un menu contextuel avec le même nom existe déjà.`, "module-load-error")
@@ -311,7 +308,7 @@ function loadModules(){
 				thisModuleAllContextsMenu.push(file.contextInfo.toJSON())
 			}
 
-			// Si il y a une fonction pour obtenir le client
+			// S'il y a une fonction pour obtenir le client
 			if(file?.getClient) allGetClientsFunctions.push(file.getClient)
 		}
 

@@ -79,7 +79,7 @@ module.exports = {
 			// Répondre à l'interaction
 			if (interaction.sourceType !== "textCommand") interaction.editReply({ content: `Message envoyé !\n> **Tips : ** ${sayShowAuthor ? "On est pas raciste 🔥🔥" : "尸巳尺丂口冂冂巳 冂巳 丂丹工丁 Q凵巳 V口凵丂 巳丁巳丂 乚'丹凵丁巳凵尺 刀巳 匚巳丁丁巳 匚口爪爪丹冂刀巳 🤫"}` }).catch(err => {})
 		} catch (err) {
-			return await bacheroFunctions.report.createAndReply("envoi du message", err, {}, interaction)
+			return await bacheroFunctions.report.createAndReply("envoi du message", err, { content: text, hasAttachment: !!attachment }, interaction)
 		}
 
 		// Si c'est une commande texte, tenter de supprimer le message d'invocation

@@ -77,7 +77,7 @@ module.exports = {
 				"X-Api-Key": token,
 			}
 		}).catch(error => {
-			if(interaction) bacheroFunctions.report.createAndReply("requête vers l'API de Remove.bg", error, {}, interaction)
+			if(interaction) bacheroFunctions.report.createAndReply("requête vers l'API de Remove.bg", error, { image_url: url }, interaction)
 			return "stop"
 		})
 

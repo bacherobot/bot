@@ -497,7 +497,7 @@ async function checkCooldown(cooldownId, userId){
 	if(cooldown instanceof Error) return 0
 	if(!cooldown) return 0
 
-	// Sinon, vérifier si il est expiré
+	// Sinon, vérifier s'il est expiré
 	if(cooldown.expireDate < Date.now()){
 		// Si le cooldown est persistant, on le supprime
 		if(cooldown.persistant) await database_delete(cooldownDb, `${cooldownId}-${userId}`)
@@ -527,7 +527,7 @@ async function checkCooldown(cooldownId, userId){
 	@returns {boolean} true
 */
 async function deleteCooldown(cooldownId, userId, waitForDelete = true){
-	// Si il est dans la map, le supprimer
+	// S'il est dans la map, le supprimer
 	if(cooldowns.has(`${cooldownId}-${userId}`)){
 		cooldowns.delete(`${cooldownId}-${userId}`)
 	}

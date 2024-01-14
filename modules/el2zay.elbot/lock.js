@@ -35,7 +35,7 @@ module.exports = {
 				.setColor(bacheroFunctions.colors.primary)
 			await interaction.reply({ embeds: [embed] }).catch(err => {})
 		} catch (err) {
-			return bacheroFunctions.report.createAndReply("verrouillage du salon", err.err || err, {}, interaction)
+			return bacheroFunctions.report.createAndReply("verrouillage du salon", err.err || err, { reason }, interaction)
 		}
 	}
 }

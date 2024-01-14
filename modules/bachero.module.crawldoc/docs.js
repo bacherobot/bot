@@ -20,10 +20,12 @@ function getDomain(url){
 // Fonction pour obtenir des infos sur le service
 async function getServiceInfo(){
 	// Obtenir les infos
+	bacheroFunctions.showDebug("Obtention des informations sur le service CrawlDoc")
 	var infos = await fetch("https://crawldoc-api.johanstick.fr/", { headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).then(res => res.json()).catch(err => { return {} })
 	if(!infos?.compatibleSites) return { error: true, message: infos?.message || infos?.error || "Impossible d'obtenir les informations sur le service CrawlDoc" }
 
 	// Enregistrer les informations
+	bacheroFunctions.showDebug("Enregistrement des informations sur le service dans le cache")
 	cache.set("compatibleSites", infos.compatibleSites, 60 * 60 * 24 * 7)
 	cache.set("languages", infos.languages, 60 * 60 * 24 * 7)
 	return infos
@@ -75,6 +77,7 @@ module.exports = {
 
 		// Obtenir le site sur lequel on va chercher
 		var siteQuery = interaction.options.getString("site")
+		bacheroFunctions.showDebug(`Recherche du site ${siteQuery} dans la liste des sites compatibles`)
 		var site = compatibleSites.find(s => simplifyString(s.name) == simplifyString(siteQuery) || simplifyString(s.domain) == simplifyString(siteQuery) || simplifyString(s.id) == simplifyString(siteQuery))
 		if(!site) return interaction.editReply({ embeds: [new EmbedBuilder().setTitle("Site introuvable").setDescription(`Aucun site n'a pu être trouvé via le nom que vous avez entré comme paramètre. Liste des sites compatibles :\n\n${compatibleSites.map(s => `• ${s.name} ([${s.domain}](https://${s.domain}))`).join("\n")}`).setColor(bacheroFunctions.colors.danger)] }).catch(err => {})
 
@@ -82,6 +85,7 @@ module.exports = {
 		var query = interaction.options.getString("query")
 
 		// Effectuer une recherche
+		bacheroFunctions.showDebug("Requête pour obtenir les résultats de recherche")
 		var searchResults = await fetch("https://crawldoc-api.johanstick.fr/search", { method: "POST", body: JSON.stringify({
 			query,
 			sites: [site.id],
@@ -91,7 +95,8 @@ module.exports = {
 		}), headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)", "Content-Type": "application/json" } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
 
 		// Si on a une erreur
-		if(searchResults?.error || searchResults?.message) return await bacheroFunctions.report.createAndReply("requête vers l'API de CrawlDoc", searchResults?.message || searchResults?.error || searchResults, {}, interaction)
+		bacheroFunctions.showDebug(searchResults)
+		if(searchResults?.error || searchResults?.message) return await bacheroFunctions.report.createAndReply("requête vers l'API de CrawlDoc", searchResults?.message || searchResults?.error || searchResults, { query, siteId: site.id, languageCode: interaction.options.getString("lang") }, interaction)
 		if(!searchResults?.length) return interaction.editReply({ embeds: [new EmbedBuilder().setTitle("Résultats de recherche").setDescription("Aucun résultat n'a pu être trouvé. Essayez d'ajuster les paramètres tels que la langue ou le site, ou essayez de simplifier votre recherche.").setColor(bacheroFunctions.colors.danger)] }).catch(err => {})
 
 		// Créer l'embed

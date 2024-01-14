@@ -106,7 +106,7 @@ module.exports = {
 			if(!isDmImpossible) await member.send({ content: "Au final on a pas pu te bannir 💀💀" }).catch(err => {})
 
 			// On retourne un rapport d'erreur
-			return bacheroFunctions.report.createAndReply("bannissement", isBanPossible.err || isBanPossible, {}, interaction)
+			return bacheroFunctions.report.createAndReply("bannissement", isBanPossible.err || isBanPossible, { memberId, reason }, interaction)
 		}
 
 		// On refait un embed, et on l'envoie dans le salon

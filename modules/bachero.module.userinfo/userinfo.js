@@ -43,7 +43,7 @@ module.exports = {
 		else var userInfo = await interaction.options.getUser("user") || interaction.user
 
 		// Si on a une erreur
-		if(userInfo.error) return await report.createAndReply("requête vers l'API de Discord WhoIs", userInfo?.message?.toString() || userInfo, {}, interaction)
+		if(userInfo.error) return await report.createAndReply("requête vers l'API de Discord WhoIs", userInfo?.message?.toString() || userInfo, { userId, showBadges: !disableBadges }, interaction)
 
 		// Utiliser les informations fournis par WhoIs
 		userInfo = userInfo?.advancedInfo || userInfo
@@ -182,7 +182,7 @@ module.exports = {
 				// Si on a une erreur
 				if(usernameHistory.error){
 					if(usernameHistory.message == "L'historique de pseudo est vide") return i.update({ content: usernameHistory.message, embeds: [], components: [] })
-					else return await report.createAndReply("obtention de l'historique de pseudos", usernameHistory?.message?.toString() || usernameHistory, {}, i)
+					else return await report.createAndReply("obtention de l'historique de pseudos", usernameHistory?.message?.toString() || usernameHistory, { userId }, i)
 				}
 
 				// Utiliser les informations que l'API nous renvoie

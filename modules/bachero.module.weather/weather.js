@@ -43,7 +43,7 @@ module.exports = {
 
 		// Si on a une erreur
 		if(weather?.error?.message == "No matching location found.") return interaction.editReply({ content: "Aucun résultat n'a pu être trouvé pour ce terme de recherche." }).catch(err => {})
-		if(weather.error || !weather?.location?.name || !weather?.current) return await bacheroFunctions.report.createAndReply("requête vers l'API de WeatherAPI", weather?.error?.message || weather?.message || weather?.error || weather, {}, interaction)
+		if(weather.error || !weather?.location?.name || !weather?.current) return await bacheroFunctions.report.createAndReply("requête vers l'API de WeatherAPI", weather?.error?.message || weather?.message || weather?.error || weather, { query: encodeURIComponent(query) }, interaction)
 
 		// Obtenir le temps de la journée
 		var today = weather?.forecast?.forecastday?.[0]

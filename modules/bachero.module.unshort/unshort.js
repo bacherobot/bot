@@ -56,7 +56,7 @@ module.exports = {
 		var unshortened = await fetch("https://unshort-api.vercel.app", { method: "POST", body: JSON.stringify({ link: query }), headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).then(res => res.json()).catch(err => { return { fetcherror: err } })
 
 		// Si on a une erreur
-		if(unshortened.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API d'Unshort", unshortened.fetcherror || unshortened.error || unshortened.message, {}, interaction)
+		if(unshortened.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API d'Unshort", unshortened.fetcherror || unshortened.error || unshortened.message, { link: query }, interaction)
 		else if(unshortened.error || unshortened.statusCode) return interaction.editReply(unshortened.message || unshortened.error || unshortened.statusCode).catch(err => {})
 
 		// Obtenir les métadonnées

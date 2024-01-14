@@ -41,7 +41,7 @@ module.exports = {
 
 		// Tenter de débannir le membre
 		var isUnbanPossible = await interaction.guild.members.unban(member.user.id, reason).catch(err => { return { err: err } })
-		if(isUnbanPossible.err) return await bacheroFunctions.report.createAndReply("débannissement", isUnbanPossible.err || isUnbanPossible, {}, interaction)
+		if(isUnbanPossible.err) return await bacheroFunctions.report.createAndReply("débannissement", isUnbanPossible.err || isUnbanPossible, { memberId: member?.id, reason }, interaction)
 
 		// Tenter d'envoyer un message privé au membre si l'option est activée
 		var isDmImpossible = false

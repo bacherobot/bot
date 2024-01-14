@@ -30,7 +30,7 @@ module.exports = {
 
 		// Rechercher les arrêts
 		var stops = await fetch(`https://api.grandest2.cityway.fr/search/address?keywords=${query}&maxitems=10&pointtypes=4`).then(res => res.json()).catch(err => { return { fetcherror: err } })
-		if(stops.fetcherror || !stops?.StatusCode) return await bacheroFunctions.report.createAndReply("requête vers l'API de Fluo (n°1)", stops.fetcherror || stops, {}, interaction)
+		if(stops.fetcherror || !stops?.StatusCode) return await bacheroFunctions.report.createAndReply("requête vers l'API de Fluo (n°1)", stops.fetcherror || stops, { query }, interaction)
 
 		// Faire un select menu
 		let selectMenu = new Discord.StringSelectMenuBuilder()
@@ -68,8 +68,8 @@ module.exports = {
 				if(await interaction.deferReply().catch(err => { return "stop" }) == "stop") return
 
 				// On obtient les données de l'arrêt
-				var stops = await fetch(`https://www.fluo.eu/api/PhysicalStop/GetStops?logicalId=${interaction.values[0]}`, { method: "GET", headers: { "Content-Type": "application/json" } }).then(res => res.json()).catch(err => { return { fetcherror: err } })
-				if(stops.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API de Fluo (n°2)", stops.fetcherror || stops, {}, interaction)
+				var stops = await fetch(`https://www.fluo.eu/api/PhysicalStop/GetStops?logicalId=${interaction.values?.[0]}`, { method: "GET", headers: { "Content-Type": "application/json" } }).then(res => res.json()).catch(err => { return { fetcherror: err } })
+				if(stops.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API de Fluo (n°2)", stops.fetcherror || stops, { logicalId: interaction.values?.[0] }, interaction)
 				else stops = stops.Data
 
 				// On crée un embed
@@ -79,8 +79,8 @@ module.exports = {
 					.setFooter({ text: "Données fournies par Fluo Grand Est" })
 
 				// Récupérer les prochains départs
-				var nextsStops = await fetch(`https://www.fluo.eu/fr/NextDeparture/logicalstop?logicalId=${interaction.values[0]}&group=&_=${Date.now()}`).then(res => res.text()).catch(err => { return { fetcherror: err } })
-				if(nextsStops.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API de Fluo (n°3)", nextsStops.fetcherror || nextsStops, {}, interaction)
+				var nextsStops = await fetch(`https://www.fluo.eu/fr/NextDeparture/logicalstop?logicalId=${interaction.values?.[0]}&group=&_=${Date.now()}`).then(res => res.text()).catch(err => { return { fetcherror: err } })
+				if(nextsStops.fetcherror) return await bacheroFunctions.report.createAndReply("requête vers l'API de Fluo (n°3)", nextsStops.fetcherror || nextsStops, { logicalId: interaction.values?.[0] }, interaction)
 
 				// On parse le HTML (l'API ne retourne pas de JSON)
 				let dom = htmlParser.parse(nextsStops)
