@@ -48,14 +48,14 @@
         {
             "name": "botActivityContent",
             "type": "string",
-            "default": null,
+            "default": "bachero.johanstick.fr",
             "value": "bachero.johanstick.fr",
             "description": "Définit le contenu du statut d'activité au bot, aucun si non défini."
         },
         {
             "name": "botActivityType",
             "type": "string",
-            "default": null,
+            "default": "custom",
             "value": "custom",
             "description": "Définit le type de statut parmi : playing, streaming, watching, listening, competing, custom (statut personnalisé)"
         },
