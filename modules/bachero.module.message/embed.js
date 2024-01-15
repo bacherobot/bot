@@ -132,24 +132,23 @@ module.exports = {
 		if(source){
 			// Tenter d'obtenir certaines sources
 			source = { all: source }
-			// source.hastebin = source?.all?.match(/hastebin.com\/.{2,99}/g)?.toString()?.replace('hastebin.com/','')
-			source.text = source?.all?.match(/text.johanstick.fr\/v\/\d*-\w*/g)?.toString()?.replace("/v/", "/raw/")
+			source.hastebin = source?.all?.match(/haste.johanstick.fr\/.{2,99}/g)?.toString()?.replace("haste.johanstick.fr/", "")
+			source.text = source?.all?.match(/text.johanstick.fr\/v\/\d*-\w*/g)?.toString()?.replace("/v/", "/raw/") // TODO: supprimer cette feature qd le service sera définitivement fermé
 
 			// Si on a réussi à obtenir un hastebin, obtenir son contenu
-			// TODO: supporter l'utilisation de clé d'api, qui est forcé depuis quelques jours
-			// if(source?.hastebin){
-			// 	// Obtenir le contenu
-			// 	var content = await fetch(`https://hastebin.com/raw/${source.hastebin}`, { headers: { 'User-Agent': 'BacheroBot (+https://github.com/bacherobot/bot)' } }).then(res => res.text()).catch(err => { return { message: err } })
+			if(source?.hastebin){
+				// Obtenir le contenu
+				var content = await fetch(`https://haste.johanstick.fr/raw/${source.hastebin}`, { headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).then(res => res.text()).catch(err => { return { message: err } })
 
-			// 	// Si on arrive à parser en JSON, c'est qu'il y a une erreur
-			// 	try {
-			// 		content = JSON.parse(content)
-			// 	} catch(err){}
-			// 	if(typeof content == 'object') return await bacheroFunctions.report.createAndReply("obtention du hastebin", content?.message?.toString() || content, {}, interaction)
+				// Si on arrive à parser en JSON, c'est qu'il y a une erreur
+				try {
+					content = JSON.parse(content)
+				} catch(err){}
+				if(typeof content == "object") return await bacheroFunctions.report.createAndReply("obtention du hastebin", content?.message?.toString() || content, {}, interaction)
 
-			// 	// Sinon, définir les informations de l'embed
-			// 	embedInfos.description = content
-			// }
+				// Sinon, définir les informations de l'embed
+				embedInfos.description = content
+			}
 
 			// Si on a réussi à obtenir un texte, obtenir son contenu
 			if(source?.text){

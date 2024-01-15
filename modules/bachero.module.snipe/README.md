@@ -1,6 +1,6 @@
 # Fonctionnalité Snipe
 
-Snipe est un module fait pour aider les modérateurs de serveurs à obtenir les messages modifiés et supprimés par un utilisateur, ou un autre modérateur.
+Snipe est un module fait pour aider les modérateurs de serveurs à voir les différentes actions qu'un utilisateur a pu faire de manière anonyme, ou un autre modérateur.
 
 Bachero est capable de détecter lorsqu'un message est modifié ou lorsqu'il est supprimé pour l'ajouter à une base de données non persistante. Cette base de données sera alors utilisée pour afficher ces messages quand un membre (ayant la permission de gérer les messages) utilise la commande `snipe`.
 
@@ -17,37 +17,54 @@ Exemple : pour n'afficher que les snipes de l'utilisateur `@Bachero#0001`, et qu
 
 ### Hastebin
 
-Discord empêche d'afficher un texte faisant plus de 1024 caractères pour le contenu d'un snipe affiché. Pour contourner ce problème, Bachero utilise [Hastebin](https://hastebin.com/) pour afficher le contenu d'un snipe trop long.
-
-**Utilisation :**
-
-Pour être utilisé, la fonctionnalité nécessite que vous vous authentifiez en rajoutant une clé d'API dans votre fichier .env, avec une variable nommée `HASTEBIN_TOKEN`.  
-Cette clé peut être obtenue depuis la [documentation d'Hastebin](https://www.toptal.com/developers/hastebin/documentation), puis en cliquant sur "Sign in with Github".
+Discord empêche d'afficher un texte faisant plus de 1024 caractères pour le contenu d'un snipe affiché. Pour contourner ce problème, Bachero utilise Hastebin pour afficher le contenu d'un snipe trop long.
 
 **Changer de serveur Hastebin :**
 
-Par défaut, Bachero utilise le serveur d'Hastebin officiel (`https://hastebin.com`). Cependant, vous pouvez changer de serveur en modifiant la variable `HASTEBIN_URL` dans votre fichier .env.
+Par défaut, Bachero utilise le serveur d'Hastebin hébergé par Bachero (`https://haste.johanstick.fr`). Cependant, vous pouvez changer de serveur en modifiant la variable `HASTEBIN_URL` dans votre fichier .env.
 
-> Seul le serveur Hastebin officiel n'a été testé, si vous rencontrez des problèmes avec un autre serveur, merci de nous le signaler.  
-> Il n'est pas nécessaire de vous authentifier sur certains serveurs.
+> Si vous rencontrez des problèmes avec un serveur tiers, faites-le nous savoir en ouvrant une issue sur GitHub.  
+> Sur les serveurs de [Toptal](https://www.toptal.com/developers/hastebin), il sera nécessaire d'utiliser la variable `HASTEBIN_TOKEN` pour ajouter une clé d'API.
 
 **Désactiver l'utilisation d'Hastebin :**
 
-Si ni la variable `HASTEBIN_TOKEN`, ni la variable `HASTEBIN_URL`n'est présente dans votre fichier .env, Bachero ne fera pas appel à Hastebin pour afficher les snipes trop longs, ceux-ci seront donc tronqués.
+Si ni la variable `HASTEBIN_TOKEN`, ni la variable `HASTEBIN_URL` n'est présente dans votre fichier .env, Bachero ne fera pas appel à Hastebin pour afficher les snipes trop longs, ceux-ci seront donc tronqués.
 
 ### Confidentialité
 
 Bachero souhaite respecter au mieux votre vie privée, nous nous engageons à suivre les mesures suivantes :
+
 * Les snipes sont enregistrés dans une base de données non persistante : ils seront supprimés à chaque redémarrage de l'infrastructure ou après 24 heures.
 * Les messages qui ont été envoyés par un robot, ou par un compte utilisateur il y a plus de trois jours, ne seront pas enregistrés.
 * La fonctionnalité est désactivée par défaut, et ne sera activée que si un membre avec la permission de gérer le serveur l'active manuellement.
 * La désactivation de la fonctionnalité n'entraînera pas la suppression des snipes déjà enregistrée (pour éviter que certains modérateurs en abusent).
 * Il est impossible pour n'importe qui de supprimer, ou de modifier un snipe déjà enregistré.
 * Un modérateur n'est pas en mesure d'exporter l'ensemble des données présentes pour un serveur.
-* Notre base de données n'inclut que 500 messages par serveurs, les plus anciens seront supprimés au fur et à mesure.
-* Seules les informations suivantes sont enregistrées : les identifiants du message, de l'utilisateur et du salon ; le nom d'utilisateur de l'auteur ; le contenu du message ; la date de suppression ou de modification ; les attachements.
+* Notre base de données n'inclut que 500 actions par serveurs, les plus anciennes seront supprimés au fur et à mesure.
+* Les autres fonctionnalités du bot peuvent également enregistrer des actions qui peuvent être liées à un utilisateur, aucun rôle peut passer outre cette règle.
+* Seules les informations suivantes sont enregistrées : l'identifiant de l'utilisateur ; le tag de l'auteur ; le contenu du message ; la date de création du snipe ; les attachements du message ; le type d'action.
 
 > Important : une instance administrée par un tiers peut choisir de modifier le comportement de ce module, et donc de ne pas respecter ces engagements.
+
+### Snipes de modules tiers
+
+Les modules inclus dans Bachero, ainsi que les modules tiers, peuvent choisir d'ajouter leurs propres snipes pour aider la modération à comprendre l'utilisation de certaines commandes du bot.
+
+**Utilisation dans vos modules :**
+
+```js
+const bacheroFunctions = require("../../functions")
+
+bacheroFunctions.message.send("createSnipe", {
+	guildId: interaction.guild.id, // id du serveur Discord auquel créer le snipe
+	user: interaction.user, // utilisateur à l'origine du snipe (objet contenant `id`, `discriminator`, `username`, `tag` ou alors l'objet User de DiscordJS)
+	type: "peut importe", // type d'action, affiché dans le titre du snipe
+	content: `Déclenchement d'un truc grave chaud` // contenu du snipe, court (~ 1 ligne)
+})
+```
+
+> Le module Snipe ajoutera l'entrée dans sa base de données sans répondre quoi que ce soit.  
+> Si le module n'est pas présent ou n'est pas activé, la fonction ne renverra rien.
 
 ### Installation / activation
 

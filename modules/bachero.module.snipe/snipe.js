@@ -2,7 +2,7 @@ const { EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits, ButtonStyle, But
 const fetch = require("node-fetch")
 const bacheroFunctions = require("../../functions")
 const database = bacheroFunctions.database.getDatabase("bachero.module.snipe")
-const hastebinUrl = process.env.HASTEBIN_URL || "https://hastebin.com"
+const hastebinUrl = process.env.HASTEBIN_URL || "https://haste.johanstick.fr"
 const hastebinAPI = `${hastebinUrl}/documents`
 const hastebinTokenRequired = hastebinUrl == "https://hastebin.com"
 
@@ -198,7 +198,7 @@ module.exports = {
 		var embed = new EmbedBuilder()
 			.setTitle("Fonctionnalité Snipe")
 			.addFields(fields)
-			.setDescription(`Affichage ${snipes.length == 1 ? "de la dernière action sur ce serveur" : `des **${snipes.slice(0, 13).length}** dernières actions sur ce serveur`}.${isSomeSnipeTooLong ? "\n⚠️ Certains snipes sont trop longs pour être affichés ici : ils ont été tronqués..." : ""}`)
+			.setDescription(`Affichage ${snipes.length == 1 ? "de la dernière action sur ce serveur" : `des **${snipes.slice(0, 13).length}** dernières actions sur ce serveur`}.${isSomeSnipeTooLong ? "\n\n⚠️ Certains snipes sont trop longs pour être affichés ici : ils ont été tronqués..." : ""}`)
 			.setColor(bacheroFunctions.colors.primary)
 
 		// Ajouter un bouton pour accéder au haste
@@ -223,7 +223,7 @@ module.exports = {
 				var content = snipe.type == "edit" ? `**Avant :** ${snipe.oldContent}\n**Après :** ${snipe.newContent}` : snipe.content
 				var attachments = snipe?.attachments?.map(attachment => { return `- ${attachment.filename} : ${attachment.url}` })?.join("\n") || ""
 				content = `${attachments}\n${content}`.trim()
-				return `${snipe.authorTag} (ID: ${snipe.authorId}) — ${snipe.type == "delete" ? "suppression" : snipe.type == "edit" ? "modification" : snipe.type} — ${new Date(snipe.timestamp).toLocaleString()}\n\n${content}`
+				return `${snipe.authorTag} (ID: ${snipe.authorId}) — ${snipe.type == "delete" ? "suppression" : snipe.type == "edit" ? "modification" : snipe.type} — ${global.intlFormatter.format(new Date(snipe.timestamp))}\n\n${content}`
 			}).join("\n\n\n\n\n")
 
 			// Obtenir les informations de l'utilisateur
