@@ -111,8 +111,8 @@ async function getLinkData(link){
 	}
 
 	// Si on a eu des nouvelles données, on les renvoie
-	if(dataToReturn) cache.set(cleanURL, dataToReturn, 3600) // 1 heure
-	return dataToReturn
+	if(dataToReturn) cache.set(cleanURL, dataToReturn?.data, 3600) // 1 heure
+	return dataToReturn?.data
 }
 
 // Exporter une fonction
