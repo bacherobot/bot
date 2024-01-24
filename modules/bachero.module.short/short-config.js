@@ -37,7 +37,7 @@ module.exports = {
 
 			// On répond à l'interaction
 			var embed = new EmbedBuilder()
-				.setTitle("Service actuel pour le racourcissement d'URL")
+				.setTitle("Service actuel pour le raccourcissement d'URL")
 				.setDescription(`Le service actuel est [\`${provider.name}\`](${provider.website}). Celui-ci ${provider.shortcodes ? "supporte" : "ne supporte pas"} la personnalisation du lien.${provider.warning ? `\n\n> ${provider.warning}.` : ""}`)
 				.setColor(bacheroFunctions.colors.primary)
 			await interaction.update({ embeds: [embed] }).catch(err => {})
@@ -52,7 +52,7 @@ module.exports = {
 
 		// Créer un embed
 		var embed = new EmbedBuilder()
-			.setTitle("Service actuel pour le racourcissement d'URL")
+			.setTitle("Service actuel pour le raccourcissement d'URL")
 			.setDescription(provider ? `Le service actuel est \`${provider}\`. Celui-ci ${providerComplete?.shortcodes ? "supporte" : "ne supporte pas"} la personnalisation du lien.${providerComplete.warning ? `\n\n> ${providerComplete.warning}.` : ""}` : "Aucun service n'est actuellement défini.")
 			.setColor(bacheroFunctions.colors.primary)
 
