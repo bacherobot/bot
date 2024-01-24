@@ -410,6 +410,7 @@ function showDebug(...args){
 	if(showDebugLogsInConsole) console.debug(`${new Date().toLocaleTimeString()} ${chalk ? chalk.magenta("[DEBUG]") : "[DEBUG]"}  ${chalk ? chalk.gray(`(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`) : `(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`}`, ...args)
 
 	// L'ajouter également aux fichiers de logs machines récentes (et le supprimer s'il existe déjà et qu'on affiche la première log)
+	if(!fs.existsSync(path.join(__dirname, "logs"))) fs.mkdirSync(path.join(__dirname, "logs"))
 	if(!showedLog_debug && !showedLog && fs.existsSync(path.join(__dirname, "logs", "machine-latest.txt"))) fs.unlinkSync(path.join(__dirname, "logs", "machine-latest.txt"))
 	fs.appendFileSync(path.join(__dirname, "logs", "machine-latest.txt"), `DEBUG▮${Date.now()}▮[DEBUG]▮${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule.replaceAll("▮", "").replaceAll("%JUMP%", "% JUMP%").replaceAll("\n", "%JUMP%")}▮${args.map(x => typeof x == "object" ? stringify(x) : x).join(" ")}\n`)
 

@@ -3,7 +3,7 @@ var performanceStart = performance.now()
 
 // Date
 var intlFormatter = new Intl.DateTimeFormat("fr-FR", {
-	timeZone: process.env.DEFAULT_TIMEZONE || "Europe/Paris", // TODO: faudrait ptet laisser la possibilité de changer ça
+	timeZone: process.env.DEFAULT_TIMEZONE || "Europe/Paris",
 	year: "numeric",
 	month: "2-digit",
 	day: "2-digit",
