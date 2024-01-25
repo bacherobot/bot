@@ -206,8 +206,8 @@ function loadModules(){
 			if(typeof manifest?.files != "object") errors.push(`Impossible de charger le module ${chalk.yellow(module)} : la valeur ${chalk.yellow("files")} n'est pas de type ${chalk.yellow("array")}.`)
 
 			// Si un module avec le même nom de packet existe déjà
-			if(allModules.find(moduleA => moduleA.packageName == manifest.packageName)) errors.push(`Impossible de charger le module ${chalk.yellow(module)} : un module avec le même nom de packet existe déjà.`)
-			if(allModules.find(moduleA => moduleA.packageName == module)) errors.push(`Impossible de charger le module ${chalk.yellow(module)} : un module avec le même nom de packet existe déjà.`)
+			if(allModules.find(moduleA => moduleA?.packageName == manifest?.packageName)) errors.push(`Impossible de charger le module ${chalk.yellow(module)} : un module avec le même nom de packet existe déjà.`)
+			if(allModules.find(moduleA => moduleA?.packageName == module)) errors.push(`Impossible de charger le module ${chalk.yellow(module)} : un module avec le même nom de packet existe déjà.`)
 
 			// Vérifier que les librairies nécessaires existent
 			if(manifest?.dependencies) for(var dependencie of manifest.dependencies){
@@ -536,10 +536,9 @@ client.on("interactionCreate", async interaction => {
 			bacheroFunctions.showLog("warn", `${interaction.user.discriminator == "0" ? interaction.user.username : interaction.user.tag} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, "user-slashcommand-error")
 			bacheroFunctions.showLog("warn", error.stack || error, "user-slashcommand-error", true, true)
 			try {
-				interaction.reply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
-			} catch (error){
-				await interaction.editReply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
-			}
+				if(interaction.replied || interaction.deferred) await interaction.editReply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
+				else interaction.reply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
+			} catch (error){}
 		}
 
 		// Mettre à jour les statistiques

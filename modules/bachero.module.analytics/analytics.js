@@ -98,7 +98,7 @@ module.exports = {
 			if(!disableTextCommand) lines.push(`**Utilisations par méthodes**\n${Object.entries(command[1].method).map(method => { return `ㅤ  •  ${method[0].replace("slash", "Commande slash").replace("text", "Commande texte")} : ${method[1]}` }).join("\n")}\n`)
 			lines.push(`**Utilisations par périodes**\n${Object.entries(command[1].periods).map(period => { return `ㅤ  •  ${period[0].replace("morning", "En matinée").replace("afternoon", "En après-midi").replace("evening", "En soirée").replace("night", "Pendant la nuit")} : ${period[1]}` }).join("\n")}\n`)
 			lines.push(`**Utilisations par jours**\n${Object.entries(command[1].weekday).map(day => { return `ㅤ  •  ${day[0].replace("monday", "Lundi").replace("tuesday", "Mardi").replace("wednesday", "Mercredi").replace("thursday", "Jeudi").replace("friday", "Vendredi").replace("saturday", "Samedi").replace("sunday", "Dimanche")} : ${day[1]}` }).join("\n")}\n`)
-			if(Object.entries(command[1].subCommands).length) lines.push(`**Utilisation des sous commandes**\n${Object.entries(command[1].subCommands).map(subCommand => { return `ㅤ  •  ${subCommand[0]} : ${subCommand[1]}` }).join("\n")}\n`)
+			if(command[1].subCommands && Object.entries(command[1].subCommands).length) lines.push(`**Utilisation des sous commandes**\n${Object.entries(command[1].subCommands).map(subCommand => { return `ㅤ  •  ${subCommand[0]} : ${subCommand[1]}` }).join("\n")}\n`)
 			lines.push(`**Utilisations totales :** ${command[1].totalCount}`)
 			if(command[1].lastExecution) lines.push(`**Dernière exécution :** <t:${Math.round(command[1].lastExecution / 1000)}:R>\n`)
 

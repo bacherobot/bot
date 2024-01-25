@@ -44,7 +44,7 @@ function stringify(object){
 	try {
 		return JSON.stringify(object)
 	} catch (err) {
-		return "<Impossible de convertir l'objet en JSON>"
+		return `<Impossible de convertir l'objet en JSON: > ${object}`
 	}
 }
 
