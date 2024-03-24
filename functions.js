@@ -384,6 +384,9 @@ function showLog(type, content, id = "noid", showInConsole = true, hideDetails =
 	var bacheroFolderName = path.join(__dirname).split(path.sep)
 	bacheroFolderName = bacheroFolderName[bacheroFolderName.length - 1]
 
+	// Si le contenu est une erreur
+	if(content instanceof Error) content = content.stack || content.message || content
+
 	// Si on doit afficher dans la console, on le fait
 	if(showInConsole) console[type == "error" ? "error" : type == "warn" ? "warn" : "log"](((hideDetails ? "" : `${new Date().toLocaleTimeString()} ${coloredType(type)} ${_type == "ok" ? "   " : _type == "error" ? "" : " "} ${chalk ? chalk.gray(`(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`) : `(${callerModule == `${bacheroFolderName}/index.js` ? "Module Loader" : callerModule == `${bacheroFolderName}/functions.js` ? "Bachero Functions" : callerModule})`} `) + (typeof content == "object" ? stringify(content) : content)))
 
@@ -701,7 +704,7 @@ async function report_create(context, error, moreInfos, interaction){
 	}).filter(x => x.date > Date.now() - 5000)
 
 	// Créer le rapport sous forme de texte
-	var report = `${randomid} | Rapport (contexte: ${context}) générée le ${date} avec Bachero v${version}.\n\n${"=".repeat(15)} À partir de l'interaction\n${Object.entries(interaction).map(x => `\n• ${x[0]}: ${typeof x[1] == "object" ? stringify(x[1]) : x[1]}`).join("")}\n\n${"=".repeat(15)} Source de l'exécution\n${callerPath?.map(x => `\n• ${x}`)}\n\n${"=".repeat(15)} Informations apportées par le module\n\n${stringify(moreInfos) || moreInfos}\n\n${"=".repeat(15)} Logs récentes\n\n${logs.length ? logs.map(log => `${global.intlFormatter.format(new Date(parseInt(log?.date) || 0)).split(" ")?.[1]} ${log?.level} (${log?.invoker}) ${log?.details}`).join("\n") : "Aucune log n'a pu être trouvé"}\n\n${"=".repeat(15)} Contenu de l'erreur\n\n${error.stack || error.message || error.toString() || error}`
+	var report = `${randomid} | Rapport (contexte: ${context}) générée le ${date} avec Bachero v${version}.\n\n${"=".repeat(15)} À partir de l'interaction\n${Object.entries(interaction).map(x => `\n• ${x[0]}: ${typeof x[1] == "object" ? stringify(x[1]) : x[1]}`).join("")}\n\n${"=".repeat(15)} Source de l'exécution\n${callerPath?.map(x => `\n• ${x}`)}\n\n${"=".repeat(15)} Informations apportées par le module\n\n${stringify(moreInfos) || moreInfos}\n\n${"=".repeat(15)} Logs récentes\n\n${logs.length ? logs.map(log => `${global.intlFormatter.format(new Date(parseInt(log?.date) || 0)).split(" ")?.[1]} ${log?.level} (${log?.invoker}) ${log?.details?.replaceAll("%JUMP%", "\n")}`).join("\n") : "Aucune log n'a pu être trouvé"}\n\n${"=".repeat(15)} Contenu de l'erreur\n\n${error.stack || error.message || error.toString() || error}`
 
 	// L'enregistrer dans la BDD
 	if(config_getValue("bachero", "databaseType") == "mongodb"){
@@ -746,7 +749,7 @@ async function report_createAndReply(context, error, moreInfos, interaction){
 	var reportId = await report_create(context, error, moreInfos, interaction)
 
 	// Répondre
-	return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription(`Un problème est survenu lors de l'exécution de la commande (contex : ${context}) :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\`\nEn cas de besoin, vous pourrez communiquer l'identifiant \`${reportId}\` au support pour les aider dans la résolution de problème.`).setColor(config_getValue("bachero", "dangerEmbedColor"))], ephemeral: true }).catch(err => {
+	return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription(`Un problème est survenu lors de l'exécution de la commande (contexte : ${context}) :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\`\nEn cas de besoin, vous pourrez communiquer l'identifiant \`${reportId}\` au support pour les aider dans la résolution de problème.`).setColor(config_getValue("bachero", "dangerEmbedColor"))], ephemeral: true }).catch(err => {
 		showLog("warn", `Impossible de répondre à une interaction (contexte: ${context}) : ${err}`, "error-report-send-failed")
 	})
 }
