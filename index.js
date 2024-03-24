@@ -473,7 +473,6 @@ async function updateCommandAnalytics(guildId, commandName, subCommand, method){
 
 // Fonction pour créer un embed d'erreur / avertissement
 function createErrorEmbed(title, description, embedColor = "secondEmbedColor", showErrorFooter = false){
-	if(elbotStyleInErrors) title = title.replace("Une erreur est survenue", "Erreur de la console")
 	var embed = new EmbedBuilder()
 		.setTitle(title)
 		.setDescription(description)
@@ -506,11 +505,12 @@ client.on("interactionCreate", async interaction => {
 			await contextMenu.file.execute(interaction)
 		} catch (error){
 			bacheroFunctions.showLog("warn", `${interaction.user.discriminator == "0" ? interaction.user.username : interaction.user.tag} a exécuté le menu contextuel ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, "user-contextmenu-error")
-			bacheroFunctions.showLog("warn", error.stack || error, "user-contextmenu-error", true, true)
+			bacheroFunctions.showLog("warn", error, "user-contextmenu-error", true, true)
 			try {
-				interaction.reply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution du menu contextuel :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
+				return bacheroFunctions.report.createAndReply("menu contextuel", error, {}, interaction)
 			} catch (error){
-				await interaction.editReply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution du menu contextuel :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
+				bacheroFunctions.showLog("warn", "Impossible de répondre à l'utilisateur suite à une erreur lors de l'exécution d'un menu contextuel :", "user-contextmenu-error")
+				bacheroFunctions.showLog("warn", error, "user-contextmenu-error", true, true)
 			}
 		}
 	}
@@ -536,9 +536,11 @@ client.on("interactionCreate", async interaction => {
 			bacheroFunctions.showLog("warn", `${interaction.user.discriminator == "0" ? interaction.user.username : interaction.user.tag} a exécuté la commande slash ${chalk.yellow(interaction.commandName)} qui a fini en une erreur :`, "user-slashcommand-error")
 			bacheroFunctions.showLog("warn", error.stack || error, "user-slashcommand-error", true, true)
 			try {
-				if(interaction.replied || interaction.deferred) await interaction.editReply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
-				else interaction.reply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)], ephemeral: false }).catch(err => {})
-			} catch (error){}
+				return bacheroFunctions.report.createAndReply("commande slash", error, {}, interaction)
+			} catch (error){
+				bacheroFunctions.showLog("warn", "Impossible de répondre à l'utilisateur suite à une erreur lors de l'exécution d'une commande slash :", "user-slashcommand-error")
+				bacheroFunctions.showLog("warn", error, "user-slashcommand-error", true, true)
+			}
 		}
 
 		// Mettre à jour les statistiques
@@ -959,11 +961,12 @@ client.on("messageCreate", async message => {
 		await command.file.execute(message)
 	} catch (error){
 		bacheroFunctions.showLog("warn", `${message.user.discriminator == "0" ? message.user.username : message.user.tag} a exécuté la commande texte ${chalk.yellow(message.commandName)} qui a fini en une erreur :`, "user-textcommand-error")
-		bacheroFunctions.showLog("warn", error.stack || error, "user-textcommand-error", true, true)
+		bacheroFunctions.showLog("warn", error, "user-textcommand-error", true, true)
 		try {
-			messageResponse = message.reply({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)] }).catch(err => {})
+			messageResponse = await bacheroFunctions.report.createAndReply("commande texte", error, {}, message)
 		} catch (error){
-			await messageResponse.edit({ embeds: [createErrorEmbed("Une erreur est survenue", `Un problème est survenu lors de l'exécution de la commande :\n\`\`\`\n${error?.toString()?.replace(/`/g, " `") || error}\n\`\`\``, "dangerEmbedColor", true)] }).catch(err => {})
+			bacheroFunctions.showLog("warn", "Impossible de répondre à l'utilisateur suite à une erreur lors de l'exécution d'une commande texte :", "user-textcommand-error")
+			bacheroFunctions.showLog("warn", error, "user-textcommand-error", true, true)
 		}
 	}
 
