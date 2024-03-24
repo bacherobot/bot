@@ -41,11 +41,25 @@ var foldersPath = {
 
 // Fonction pour JSON.stringify en vérifiant les erreurs
 function stringify(object){
+	var toReturn
+
 	try {
-		return JSON.stringify(object)
+		toReturn = JSON.stringify(object) // 1ère méthode
 	} catch (err) {
-		return `<Impossible de convertir l'objet en JSON: > ${object}`
+		showLog("debug", "Impossible de convertir un objet en JSON (1ère méthode)", "json-stringify-error")
+		showLog("debug", err, "json-stringify-error")
+
+		try {
+			toReturn = JSON.stringify(err, Object.getOwnPropertyNames(err)) // 2ème méthode, j'ai pas assez testé mais ptet ça marchera
+		} catch (err) {
+			showLog("debug", "Impossible de convertir un objet en JSON (2ème méthode)", "json-stringify-error")
+			showLog("debug", err, "json-stringify-error")
+
+			toReturn = toReturn?.toString() // 3ème méthode, aucune idée de si ça marchera
+		}
 	}
+
+	return toReturn
 }
 
 // Obtenir toute la configuration d'un module
@@ -274,14 +288,20 @@ async function database_getAll(database){
 	// Préparer la liste
 	var json = {}
 
-	// Si on utilise quickmongo (valeur .connection existe)
-	if(database?.connection){
-		var defaultJSON = await database.all()
-		defaultJSON.forEach(all => { json[all.ID] = all.data })
-	}
+	// Tenter d'obtenir les valeurs
+	try {
+		// Si on utilise quickmongo (valeur .connection existe)
+		if(database?.connection){
+			var defaultJSON = await database.all()
+			defaultJSON.forEach(all => { json[all.ID] = all.data })
+		}
 
-	// Sinon on utilise la méthode JSON
-	else json = await database.JSON()
+		// Sinon on utilise la méthode JSON (simple-json-db)
+		else json = await database.JSON()
+	} catch (err) {
+		showLog("error", "Impossible d'obtenir toutes les valeurs de la base de données (peut-être lié à votre connexion si utilisation de MongoDB)", "database-getall-error")
+		showLog("error", err, "database-getall-error", true, true)
+	}
 
 	// Retourner le résultat
 	return json
