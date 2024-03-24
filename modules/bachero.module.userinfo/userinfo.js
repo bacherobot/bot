@@ -156,7 +156,7 @@ module.exports = {
 		var listFields = [
 			{ name: "Bot ?", value: userInfo.bot ? "Oui" : "Non", inline: true },
 			memberInfo?.nickname ? { name: "Surnom", value: escapeMarkdown(memberInfo.nickname), inline: true } : null,
-			memberInfo?._roles?.length ? { name: `${memberInfo?._roles?.length?.toString()} rôle${memberInfo?._roles?.length > 1 ? "s" : ""}`, value: `+ haut : \`${memberInfo?.roles?.cache.sort((a, b) => b.position - a.position)?.map(role => role.name)[0]?.replace(/`/g, "")}\``, inline: true } : null,
+			memberInfo?._roles?.length ? { name: `${memberInfo?._roles?.length?.toString()} rôle${memberInfo?._roles?.length > 1 ? "s" : ""}`, value: `${memberInfo?._roles?.length == 1 ? '' : '+ haut : '}\`${memberInfo?.roles?.cache.sort((a, b) => b.position - a.position)?.map(role => role.name)[0]?.replace(/`/g, "")}\``, inline: true } : null,
 			{ name: "Identifiant", value: `\`${userInfo.id.replace(/`/g, "")}\``, inline: true },
 			userInfo?.created_at_unix ? { name: "Création du compte", value: `<t:${Math.round(userInfo.created_at_unix / 1000)}:f>`, inline: true } : null,
 			memberInfo?.joinedTimestamp ? { name: "Arrivée ici", value: `<t:${Math.round(memberInfo.joinedTimestamp / 1000)}:f>`, inline: true } : null,
