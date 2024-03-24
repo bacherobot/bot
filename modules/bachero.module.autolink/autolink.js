@@ -1,9 +1,14 @@
 const { EmbedBuilder } = require("discord.js")
 const fetch = require("node-fetch")
-const escape = require("markdown-escape")
+const _escape = require("markdown-escape")
 const bacheroFunctions = require("../../functions")
 const database = bacheroFunctions.database.getDatabase("bachero.module.autolink")
 const stendApis = bacheroFunctions.config.getValue("bachero.module.autolink", "stendApis")
+
+// Fonction pour échapper du markdown sans erreur
+function escape(text){
+	return _escape(text || "")
+}
 
 // Convertir une taille en bytes en une taille lisible
 function formatBytes(bytes, decimals = 2){
