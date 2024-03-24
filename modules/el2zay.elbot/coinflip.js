@@ -20,7 +20,7 @@ function generateEmbed(lastResult, succession = 0){
 		.setTitle("Résultat")
 		.setDescription(`**C'est ${random} !**${succession ? `\n(x${succession + 1})` : ""}`)
 		.setColor(bacheroFunctions.colors.primary)
-		.setThumbnail(`https://cdn.discordapp.com/emojis/${random == 0 ? "1143610180630745249" : "1143610184669859981"}.png`)
+		.setThumbnail(`https://cdn.discordapp.com/emojis/${random == 'pile' ? "1143610180630745249" : "1143610184669859981"}.png`)
 
 	// Retourner
 	return { embed, succession, random, lastResult: lastResult || random }
