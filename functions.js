@@ -11,7 +11,7 @@ var chalk
 if(!process.argv.includes("--optimize")) chalk = require("chalk")
 
 // Listener pour partager des messages entre modules
-var listener = new EventEmitter2({ wildcard: true })
+var listener = new EventEmitter2({ wildcard: true, maxListeners: 500 })
 
 // Liste des cooldowns
 var cooldowns = new Map()
