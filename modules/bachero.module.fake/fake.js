@@ -5,6 +5,7 @@ const database = bacheroFunctions.database.getDatabase("bachero.module.fake")
 const modalList = []
 
 // Liste des profils prédéfinis
+// TODO: déplacer les images sur un serveur externe, au cas où Discord bloqueraient leur chargement
 const profiles = {
 	"DUOLINGO": { username: "Duo", avatarURL: "https://cdn.discordapp.com/attachments/1092512692499120280/1092527267877498950/f2a2e608c854822ad2563a09595e7827.png" },
 	"BALDI": { username: "Professeur de français", avatarURL: "https://cdn.discordapp.com/attachments/1092512692499120280/1092532477651845120/EPV1TB4So1lB0DGrdCVExDpNU8ML67nd8OqBeoOIM-s6sDicxmDdPvCXD6n7LKevFl0.png" },

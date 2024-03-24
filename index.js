@@ -479,8 +479,8 @@ function createErrorEmbed(title, description, embedColor = "secondEmbedColor", s
 		.setDescription(description)
 		.setColor(bacheroFunctions.config.getValue("bachero", embedColor))
 	if(showErrorFooter) embed.setFooter({ text: typeof showErrorFooter == "string" ? showErrorFooter : `N'hésitez pas à signaler ce problème au staff de ${botName} !` })
-	if(elbotStyleInErrors && embedColor == "dangerEmbedColor") embed.setThumbnail("https://cdn.discordapp.com/attachments/1092512692499120280/1136754644287225908/Sans_titre_1.png")
-	else if(elbotStyleInErrors) embed.setThumbnail("https://cdn.discordapp.com/attachments/1092512692499120280/1092532047182053407/elbot.jpg")
+	if(elbotStyleInErrors && embedColor == "dangerEmbedColor") embed.setThumbnail("https://github.com/bacherobot/ressources/blob/main/elbot/elbot%20bsod.jpeg?raw=true")
+	else if(elbotStyleInErrors) embed.setThumbnail("https://github.com/bacherobot/ressources/blob/main/elbot/elbot.jpg?raw=trues")
 	return embed
 }
 
