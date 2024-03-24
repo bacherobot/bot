@@ -20,7 +20,7 @@ const path = require("path")
 const jsonc = require("jsonc")
 const Fuse = require("fuse.js")
 const StackTracey = require("stacktracey")
-const { EventEmitter } = require("events")
+const { EventEmitter2 } = require("eventemitter2")
 const bacheroFunctions = require("./functions"); global.bacheroFunctions = bacheroFunctions // En profiter pour la partager aux modules
 
 // Obtenir quelques variables en plus
@@ -92,8 +92,8 @@ process.on("uncaughtException", err => showException(err))
 process.on("unhandledRejection", err => showException(err))
 
 // Créé quelques listeners
-var interactionListener = new EventEmitter()
-var interactionListenerText = new EventEmitter()
+var interactionListener = new EventEmitter2({ maxListeners: 500 })
+var interactionListenerText = new EventEmitter2({ maxListeners: 500 })
 
 // Vérifier les cooldown persistants dans la base de données
 async function checkPersistentCooldowns(){
