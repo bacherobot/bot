@@ -6,6 +6,15 @@ const fetch = require("node-fetch")
 var apiKey = process.env.WEATHERAPI_KEY
 if(!apiKey?.length) return bacheroFunctions.showLog("warn", "Aucune clé d'API pour la commande weather du module \"bachero.module.weather\" n'a pu être trouvé. La commande sera désactivé", "weathercmd-no-key")
 
+// Cache
+var cache
+if(global.weatherCache) cache = global.weatherCache
+else {
+	const NodeCache = require("node-cache")
+	cache = new NodeCache()
+	global.weatherCache = cache
+}
+
 // Fonction pour convertir un string au format 12h en 24h (Exemple: "12:00 AM" => "00:00")
 function convert12hTo24h(str){
 	// Obtenir les heures et les minutes
@@ -37,6 +46,9 @@ module.exports = {
 		var query = interaction.options.getString("search")
 		if(query.toLowerCase().includes("auto:ip")) query = "Paris" // on empêche de définir "auto:ip" car ça ferait fuiter l'IP du serveur
 		if(query.toLowerCase() == "ntr") query = "Nanterre" // 92i représente
+
+		// Si on a déjà un résultat en cache
+		if(cache.has(query)) return interaction.editReply({ embeds: [cache.get(query)] }).catch(err => {})
 
 		// Obtenir la météo
 		var weather = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(query)}&days=1&aqi=no&alerts=no&lang=fr`, { headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
@@ -76,5 +88,8 @@ module.exports = {
 
 		// Envoyer l'embed
 		interaction.editReply({ embeds: [embed] }).catch(err => {})
+
+		// Mettre en cache l'embed
+		cache.set(query, embed, 60 * 5)
 	}
 }
