@@ -743,13 +743,13 @@ async function report_createAndReply(context, error, moreInfos, interaction){
 	else interaction.action = interaction.editReply
 
 	// Si le système est désactivé
-	if(config_getValue("bachero", "disableReport") == true) return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription(`Un problème est survenu lors de l'exécution de la commande (contexte : ${context}) :\n\`\`\`\n${(typeof error == "object" ? stringify(error).replace(/`/g, " `") : error?.toString()?.replace(/`/g, " `")) || error}\n\`\`\``).setColor(config_getValue("bachero", "dangerEmbedColor")).setFooter({ text: `N'hésitez pas à signaler ce problème au staff de ${botName} !` })], ephemeral: true }).catch(err => {})
+	if(config_getValue("bachero", "disableReport") == true) return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription(`Un problème est survenu lors de l'exécution de la commande (contexte : ${context}) :\n\`\`\`\n${(!(error instanceof Error) && typeof error == "object" ? stringify(error).replace(/`/g, " `") : error?.toString()?.replace(/`/g, " `")) || error}\n\`\`\``).setColor(config_getValue("bachero", "dangerEmbedColor")).setFooter({ text: `N'hésitez pas à signaler ce problème au staff de ${botName} !` })], ephemeral: true }).catch(err => {})
 
 	// Créer le rapport
 	var reportId = await report_create(context, error, moreInfos, interaction)
 
 	// Répondre
-	return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription(`Un problème est survenu lors de l'exécution de la commande (contexte : ${context}) :\n\`\`\`\n${(typeof error == "object" ? stringify(error).replace(/`/g, " `") : error?.toString()?.replace(/`/g, " `")) || error}\n\`\`\`\nEn cas de besoin, vous pourrez communiquer l'identifiant \`${reportId}\` au support pour les aider dans la résolution de problème.`).setColor(config_getValue("bachero", "dangerEmbedColor"))], ephemeral: true }).catch(err => {
+	return interaction.action({ components: [], content: null, embeds: [new EmbedBuilder().setTitle("Une erreur est survenue").setDescription(`Un problème est survenu lors de l'exécution de la commande (contexte : ${context}) :\n\`\`\`\n${(!(error instanceof Error) && typeof error == "object" ? stringify(error).replace(/`/g, " `") : error?.toString()?.replace(/`/g, " `")) || error}\n\`\`\`\nEn cas de besoin, vous pourrez communiquer l'identifiant \`${reportId}\` au support pour les aider dans la résolution de problème.`).setColor(config_getValue("bachero", "dangerEmbedColor"))], ephemeral: true }).catch(err => {
 		showLog("warn", `Impossible de répondre à une interaction (contexte: ${context}) : ${err}`, "error-report-send-failed")
 	})
 }
