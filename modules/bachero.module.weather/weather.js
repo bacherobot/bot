@@ -80,7 +80,7 @@ module.exports = {
 				typeof weather?.current?.wind_kph == "number" ? { name: "Vent", value: `${weather?.current?.wind_kph?.toString()?.replace(".", ",")} km/h`, inline: true } : null,
 				!isNaN(today?.astro?.sunrise) && !isNaN(today?.astro?.sunset) ? { name: "Soleil", value: `Lever : ${convert12hTo24h(today?.astro?.sunrise)}\nCoucher : ${convert12hTo24h(today?.astro?.sunset)}`, inline: true } : null,
 				!isNaN(today?.astro?.moonrise) && !isNaN(today?.astro?.moonset) ? { name: "Lune", value: `Lever : ${convert12hTo24h(today?.astro?.moonrise)}\nCoucher : ${convert12hTo24h(today?.astro?.moonset)}`, inline: true } : null,
-				hoursForecast?.length ? { name: "Prévisions par heures", value: hoursForecast.map(h => `- **${h?.time?.split(" ")[1]} :** Temp. ${Math.round(h?.temp_c)}°C  |  Ress. ${Math.round(h?.feelslike_c)}°C`).join("\n"), inline: false } : null
+				hoursForecast?.length ? { name: "Prévisions par heures", value: hoursForecast.map((h, i) => `- **${h?.time?.split(" ")[1]} :** Temp. ${Math.round(h?.temp_c)}°C  |  Ress. ${Math.round(h?.feelslike_c)}°C ${i > 0 && hoursForecast?.[i - 1] ? (h?.temp_c > hoursForecast?.[i - 1]?.temp_c ? "**↗**" : h?.temp_c < hoursForecast?.[i - 1]?.temp_c ? "**↘**" : "**=**") : ""}`).join("\n"), inline: false } : null
 			].filter(f => f != null))
 			.setThumbnail(`https:${weather?.current?.condition?.icon}`)
 			.setColor(bacheroFunctions.colors.primary)
