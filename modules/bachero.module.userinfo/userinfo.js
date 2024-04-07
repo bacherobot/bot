@@ -73,14 +73,8 @@ module.exports = {
 		pronouns = listPronounsFR[pronouns] || ""
 
 		// Créer une ligne de boutons (pour les actions principales)
-		var date = Date.now()
-		var row
+		var row = new ActionRowBuilder()
 		if(!showMinimal){
-			row = new ActionRowBuilder().addComponents(new ButtonBuilder()
-				.setCustomId(`userinfo-nameHistory-${date}`)
-				.setStyle(ButtonStyle.Primary)
-				.setLabel("Historique de pseudos"))
-
 			// Si on a réussi à obtenir son lien d'invitation
 			if(userInfo?.bot_invite_link) row.addComponents(new ButtonBuilder()
 				.setURL(userInfo?.bot_invite_link)
@@ -96,11 +90,10 @@ module.exports = {
 			})
 		}
 
-		// Obtenir la liste des badges
-		// Préparer la liste
+		// Lister les badges de l'user
 		var badges = []
 
-		// Liste de ceux qui existent de base dans Discord
+		// Ajouter les badges Discord
 		var discordIntegratedBadge = {
 			"Discord_Employee": { name: "Employée Discord", emoji: "<:EmployeDiscord:1008809296290648159>" },
 			"Partnered_Server_Owner": { name: "Partenaire Discord", emoji: "<:PartenaireDiscord:1008809311847317554>" },
@@ -114,11 +107,11 @@ module.exports = {
 			"Early_Verified_Bot_Developer": { name: "Développeur de bot certifié de la première heure", emoji: "<:Dveloppeurdebotcertifidelapremir:1008809288141111417>" },
 			"Discord_Certified_Moderator": { name: "Modérateur certifié", emoji: "<:Modrateurcertifi:1008809309649514506>" }
 		}
-
-		// Et tout ajouter
 		if(userInfo?.badges?.discord) for(var i = 0; i < userInfo?.badges?.discord.length; i++){
 			if(discordIntegratedBadge[userInfo?.badges?.discord[i]]?.emoji) badges.push({ from: "discord", emoji: discordIntegratedBadge[userInfo?.badges?.discord[i]].emoji, name: discordIntegratedBadge[userInfo?.badges?.discord[i]].name, link: discordIntegratedBadge[userInfo?.badges?.discord[i]].link })
 		}
+
+		// Ajouter les badges tiers
 		if(userInfo?.badges?.replugged_developer) badges.push({ from: "replugged", name: "Développeur Replugged", emoji: "<:DveloppeurReplugged:1008809294189305896>", link: "https://replugged.dev/" })
 		if(userInfo?.badges?.replugged_staff) badges.push({ from: "replugged", name: "Équipe Replugged", emoji: "<:quipeReplugged:1008809298442326037>", link: "https://replugged.dev/" })
 		if(userInfo?.badges?.replugged_support) badges.push({ from: "replugged", name: "Support Replugged", emoji: "<:SupportReplugged:1008809321368404150>", link: "https://replugged.dev/" })
@@ -156,50 +149,13 @@ module.exports = {
 		var listFields = [
 			{ name: "Bot ?", value: userInfo.bot ? "Oui" : "Non", inline: true },
 			memberInfo?.nickname ? { name: "Surnom", value: escapeMarkdown(memberInfo.nickname), inline: true } : null,
-			memberInfo?._roles?.length ? { name: `${memberInfo?._roles?.length?.toString()} rôle${memberInfo?._roles?.length > 1 ? "s" : ""}`, value: `${memberInfo?._roles?.length == 1 ? '' : '+ haut : '}\`${memberInfo?.roles?.cache.sort((a, b) => b.position - a.position)?.map(role => role.name)[0]?.replace(/`/g, "")}\``, inline: true } : null,
+			memberInfo?._roles?.length ? { name: `${memberInfo?._roles?.length?.toString()} rôle${memberInfo?._roles?.length > 1 ? "s" : ""}`, value: `${memberInfo?._roles?.length == 1 ? "" : "+ haut : "}\`${memberInfo?.roles?.cache.sort((a, b) => b.position - a.position)?.map(role => role.name)[0]?.replace(/`/g, "")}\``, inline: true } : null,
 			{ name: "Identifiant", value: `\`${userInfo.id.replace(/`/g, "")}\``, inline: true },
 			userInfo?.created_at_unix ? { name: "Création du compte", value: `<t:${Math.round(userInfo.created_at_unix / 1000)}:f>`, inline: true } : null,
 			memberInfo?.joinedTimestamp ? { name: "Arrivée ici", value: `<t:${Math.round(memberInfo.joinedTimestamp / 1000)}:f>`, inline: true } : null,
 			userInfo?.tags?.length ? { name: "Tags", value: userInfo?.tags?.map(tag => `\`${escapeMarkdown(tag.replace(/`/g, ""))}\``)?.join(", "), inline: true } : null,
 		]
 		embed.addFields(listFields.filter(field => field != null))
-
-		// Quand quelqu'un clique sur le bouton pour l'historique de pseudos
-		if(row){
-			const filter = i => i.customId == `userinfo-nameHistory-${date}`
-			const collector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, filter, time: 999999 })
-			collector.on("collect", async i => {
-				// Arrêter le collecteur et mettre en defer
-				collector.stop()
-				if(await i.deferReply().catch(err => { return "stop" }) == "stop") return
-
-				// Désactiver le bouton qui permet d'afficher ce message (puisque le collecteur est arrêté)
-				row.components[0].setDisabled(true)
-
-				// Récupérer la liste des pseudos
-				var usernameHistory = await fetch(`https://discord-whois.vercel.app/api/getUsernameHistory?discordId=${userId}`, { headers: { "User-Agent": "BacheroBot (+https://github.com/bacherobot/bot)" } }).then(res => res.json()).catch(err => { return { error: true, message: err } })
-
-				// Si on a une erreur
-				if(usernameHistory.error){
-					if(usernameHistory.message == "L'historique de pseudo est vide") return i.update({ content: usernameHistory.message, embeds: [], components: [] })
-					else return await report.createAndReply("obtention de l'historique de pseudos", usernameHistory?.message?.toString() || usernameHistory, { userId }, i)
-				}
-
-				// Utiliser les informations que l'API nous renvoie
-				usernameHistory = usernameHistory.advancedInfo
-
-				// Créé un embed
-				var embed = new EmbedBuilder()
-				embed.setTitle("Historique de pseudos")
-				embed.setDescription(`${usernameHistory.map(u => `<t:${Math.round(u.date / 1000)}:f> | ${escapeMarkdown(u.username)}`).join("\n").slice(0, 3800)}\n\n> L'historique de pseudos se base sur le moment auquel [Discord WhoIs](https://bachero.johanstick.fr/blog/discord-whois) a été utilisé pour obtenir les informations de l'utilisateur.\n\n> À chaque fois qu'un utilisateur obtient les informations d'un autre utilisateur, le pseudo sera modifié dans l'historique.`)
-				embed.setColor(colors.primary)
-				embed.setFooter({ text: "Informations obtenues via Discord WhoIs" })
-
-				// Répondre et modifier l'ancienne réponse pour enlever le bouton
-				if(await i.editReply({ embeds: [embed] }).catch(err => { return "stop" }) == "stop") return
-				await interaction.editReply({ components: [row] }).catch(err => { return "stop" })
-			})
-		}
 
 		// Répondre à l'interaction
 		if(row) interaction.editReply({ embeds: [embed], components: [row] }).catch(err => {})
