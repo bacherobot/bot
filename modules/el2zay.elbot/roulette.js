@@ -15,7 +15,7 @@ module.exports = {
 			.setName("secondes")
 			.setDescription("La durée en secondes avant la fin de la roulette")
 			.setMinValue(2)
-			.setMaxValue(3600)
+			.setMaxValue(57600)
 			.setRequired(true))
 		.addAttachmentOption(option => option
 			.setName("image")
