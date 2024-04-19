@@ -94,7 +94,7 @@ const listPhrases = [
 	{ text: "J'oublie pas ton entrainement, mon reuf. Repose en paix mon ange", source: "https://genius.com/Savage-toddy-tout-sen-va-sauf-les-souvenirs-lyrics" },
 	{ text: "J'tourne en rond, j'ai plus sommeil, j'gratte un couplet dans la fumée", source: "https://genius.com/Luv-resval-hades-lyrics" },
 	{ text: "J'ai plus rien à dire au soleil, j'aime toujours autant m'isoler", source: "https://genius.com/Luv-resval-hades-lyrics" },
-	{ text: "La déesse est si belle, donc on l'a suivi sur les sentiers", source: "https://genius.com/Luv-resval-hades-lyrics" },
+	{ text: "La déesse est si belle, donc on l'a suivie sur les sentiers", source: "https://genius.com/Luv-resval-hades-lyrics" },
 	{ text: "Et mes textes se ressemblent, c'est la Terre qui me chante, ça n'a pas d'sens", source: "https://genius.com/Luv-resval-hades-lyrics" },
 	{ text: "Dans l'ivresse, on encaisse et les troubles se ressentent", source: "https://genius.com/Luv-resval-hades-lyrics" },
 	{ text: "Que si la vie ne m'donne pas tout c'que j'lui demande, j'passerai par la violence", source: "https://genius.com/Damso-tueurs-lyrics" },
