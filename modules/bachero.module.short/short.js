@@ -28,7 +28,7 @@ async function replyShortenUrl(interaction, url, provider, shortCode){
 		.setTitle("Résultat du raccourcissement")
 		.setDescription(shortened)
 		.setColor(bacheroFunctions.colors.primary)
-		.setThumbnail(`https://chart.googleapis.com/chart?cht=qr&chld=L|1&chs=256x256&chl=${encodeURI(shortened?.url)}`)
+		.setThumbnail(`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURI(shortened?.url)}&size=192x192`)
 		.setFooter({ text: `Sous la demande de ${interaction.user.discriminator == "0" ? interaction.user.username : interaction.user.tag}` })
 
 	// Envoyer le message
