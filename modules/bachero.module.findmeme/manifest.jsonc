@@ -1,0 +1,27 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.findmeme",
+
+	// Nom du module
+	"name": "Recherche de memes",
+
+	// Description du module
+	"shortDescription": "Effectue des recherches de memes français via le service FindMeme",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"findmeme.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
+		}
+	]
+}
