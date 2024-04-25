@@ -9,6 +9,7 @@ let limite_sup = 250 // limite la + haute (supérieure)
 
 // Ranges de QI
 const ranges = [
+	{ min: -999, max: 55, reply: "{QI}. Rien à rajouter. tu pues" },
 	{ min: 55, max: 75, reply: "AHAHAHA BOUUU LE NUL IL A {QI} DE QI 😹😹😹" },
 	{ min: 75, max: 95, reply: "T'es un peu claqué mais trkl, ton QI est à {QI}" },
 	{ min: 95, max: 115, reply: "Ça vaaa t'es normal, t'as {QI} de QI" },
@@ -17,8 +18,10 @@ const ranges = [
 	{ min: 150, max: 160, reply: "{QI} de QI ?? Oh le-" },
 	{ min: 160, max: 170, reply: "Scuse nous celui avec {QI} de QI" },
 	{ min: 170, max: 235, reply: "{QI} de QI, oh le melon de fou" },
-	{ min: 235, max: 243, reply: "OOOOeuuuuuu gnagna je suis le mec le plus intelligent gnagna j'ai {QI} de QI" },
-	{ min: 243, max: 250, reply: "Frérot t'as cru t'étais Einstein, comment ça {QI} ??" }
+	{ min: 235, max: 242, reply: "OOOOeuuuuuu gnagna je suis le mec le plus intelligent gnagna j'ai {QI} de QI" },
+	{ min: 242, max: 246, reply: "Frérot t'as cru t'étais Einstein, comment ça {QI} ??" },
+	{ min: 246, max: 250, reply: "Lâche ça zhm {QI} ça svoit tu ments ??" },
+	{ min: 250, max: 999, reply: "T'as {QI} de QI, t'es un génie, un surhomme, un extraterrestre brf t'es trop fort" }
 ]
 
 module.exports = {
