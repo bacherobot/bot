@@ -18,7 +18,7 @@ module.exports = {
 		const channelPermissionOverwrites = channel.permissionOverwrites.cache.get(role.id)
 
 		// Si le salon n'est pas verouillé
-		if(!channelPermissionOverwrites?.deny?.has("SendMessages")) return interaction.reply({ content: `Le salon ${channel} est déjà déverouillé.`, ephemeral: true }).catch(err => {})
+		if(!channelPermissionOverwrites?.deny?.has("SendMessages")) return interaction.editReply({ content: `Le salon ${channel} est déjà déverouillé.`, ephemeral: true }).catch(err => {})
 
 		// On le déverrouille
 		try {
@@ -28,7 +28,7 @@ module.exports = {
 				.setTitle("Déverrouillage du salon")
 				.setDescription(`Le salon ${channel} a été déverrouillé.`)
 				.setColor(bacheroFunctions.colors.primary)
-			await interaction.reply({ embeds: [embed] }).catch(err => {})
+			await interaction.editReply({ embeds: [embed] }).catch(err => {})
 		} catch (err) {
 			return bacheroFunctions.report.createAndReply("verrouillage du salon", err.err || err, {}, interaction)
 		}
