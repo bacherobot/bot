@@ -39,6 +39,7 @@
 		"node-cache": "^5.1.2",
 		"node-fetch": "2.6.7",
 		"node-html-parser": "^6.1.5",
+		"pretty-ms": "7.0.1",
 		"quickmongo": "3.0.2",
 		"simple-json-db": "^2.0.0",
 		"stacktracey": "^2.1.8",

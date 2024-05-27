@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ContextMenuCommandBuilder, ApplicationCommandType, escapeMarkdown } = require("discord.js")
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ContextMenuCommandBuilder, ApplicationCommandType, escapeMarkdown } = require("discord.js")
 const { config, report, colors } = require("../../functions")
 const alwaysShowMinimal = config.getValue("bachero.module.userinfo", "alwaysShowMinimal")
 const disableBadges = config.getValue("bachero.module.userinfo", "disableBadges")

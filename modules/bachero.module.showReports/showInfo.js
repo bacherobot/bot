@@ -25,6 +25,7 @@ module.exports = {
 					// Sinon, obtenir un rapport avec cet identifiant
 					reportId.stop("correct")
 					var report = await bacheroFunctions.report.get(m.content)
+					if(!report) return tempAskMessage.edit("Aucun rapport trouvé avec cet identifiant.").catch(err => {})
 
 					// Si le rapport fait moins de 2000 caractères, l'envoyer directement, sinon faire un fichier
 					if(report.length < 2000) message.channel.send(codeBlock(report)).catch(err => {})

@@ -78,7 +78,7 @@ module.exports = {
 		// Obtenir le site sur lequel on va chercher
 		var siteQuery = interaction.options.getString("site")
 		bacheroFunctions.showDebug(`Recherche du site ${siteQuery} dans la liste des sites compatibles`)
-		var site = compatibleSites.find(s => simplifyString(s.name) == simplifyString(siteQuery) || simplifyString(s.domain) == simplifyString(siteQuery) || simplifyString(s.id) == simplifyString(siteQuery) || s.alias.find(a => simplifyString(a) == simplifyString(siteQuery)))
+		var site = compatibleSites.find(s => simplifyString(s.name) == simplifyString(siteQuery) || simplifyString(s.domain) == simplifyString(siteQuery) || simplifyString(s.id) == simplifyString(siteQuery) || s?.alias?.find(a => simplifyString(a) == simplifyString(siteQuery)))
 		if(!site) return interaction.editReply({ embeds: [new EmbedBuilder().setTitle("Site introuvable").setDescription(`Aucun site n'a pu être trouvé via le nom que vous avez entré comme paramètre. Liste des sites compatibles :\n\n${compatibleSites.map(s => `• ${s.name} ([${s.domain}](https://${s.domain}))`).join("\n")}`).setColor(bacheroFunctions.colors.danger)] }).catch(err => {})
 
 		// Obtenir le terme de recherche
