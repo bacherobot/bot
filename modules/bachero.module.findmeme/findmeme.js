@@ -15,7 +15,7 @@ else {
 async function getMemes(){
 	if(cache.has("memes")) return cache.get("memes")
 
-	var memes = await fetch("https://findmeme-api.vercel.app/allMemes.json").then(res => res.text()).catch(err => { return { message: err?.message || err } })
+	var memes = await fetch("https://findmeme-api.johanstick.fr/allMemes.json").then(res => res.text()).catch(err => { return { message: err?.message || err } })
 
 	if(!memes?.message){
 		try {
@@ -156,7 +156,7 @@ module.exports = {
 		// Si on a un terme de recherche
 		else {
 			// Faire une recherche
-			var searchResult = await fetch(`https://findmeme-api.vercel.app/search?maxResults=20&query=${encodeURI(query)}`).then(res => res.text()).catch(err => { return { message: err?.message || err } })
+			var searchResult = await fetch(`https://findmeme-api.johanstick.fr/search?maxResults=20&query=${encodeURI(query)}`).then(res => res.text()).catch(err => { return { message: err?.message || err } })
 
 			// On parse en JSON
 			if(!searchResult?.message){

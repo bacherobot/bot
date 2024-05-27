@@ -11,7 +11,7 @@ async function replyShortenUrl(interaction, url, provider, shortCode){
 	// Si on a pas un provider, on obtient celui dans la BDD
 	if(!provider){
 		provider = await bacheroFunctions.database.get(database, `provider-${interaction.user.id}`)
-		if(!provider) provider = "s.jk.al"
+		if(!provider) provider = "mdrr.fr"
 	}
 
 	// On vérifie si le provider sélectionné est valide
