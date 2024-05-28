@@ -49,6 +49,7 @@ module.exports = {
 		// Obtenir le service actuel
 		var provider = await bacheroFunctions.database.get(database, `provider-${interaction.user.id}`)
 		var providerComplete = providersList.find(a => a.name == provider)
+		if(!providerComplete) provider = null
 
 		// Créer un embed
 		var embed = new EmbedBuilder()

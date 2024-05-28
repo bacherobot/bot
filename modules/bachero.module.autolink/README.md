@@ -25,6 +25,6 @@ Lorsqu'un utilisateur envoie un ou plusieurs liens, ceux-ci seront extraits et d
 
 ### Installation / activation
 
-Ce module est déjà préinstallé dans Bachero, vous pouvez ouvrir le fichier manifest.jsonc présent dans `modules/bachero.module.autolink` et changer la valeur de `enabled` à `true` pour l'activer.
+Ce module est déjà préinstallé dans Bachero, vous pouvez ouvrir le fichier manifest.jsonc présent dans `modules/bachero.module.autolink` et définir la valeur `disabled` sur `false` pour l'activer.
 
 Pour désinstaller complètement ce module, vous pouvez supprimer le dossier `modules/bachero.module.autolink`, vous pourrez ensuite recréer ce dossier et télécharger les fichiers depuis [GitHub](https://github.com/bacherobot/bot/tree/master/modules/bachero.module.autolink) dans le cas où vous souhaitez utiliser à nouveau ce module.

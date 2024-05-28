@@ -12,7 +12,7 @@ Les informations suivantes seront affichées :
 * Lever/coucher du soleil et de la lune
 * Prévisions par heures (à 7h, 12h, 15h, 18h, 21h)
 
-## Clés d'APIs
+### Clés d'APIs
 
 > Les clés d'APIs doivent être stockées dans un fichier `.env` à la racine de Bachero, aux côtés d'[autres variables](https://bachero.johanstick.fr/docs/configuration/dotenv) nécessaires au bon fonctionnement du bot.
 
