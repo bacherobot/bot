@@ -1,0 +1,27 @@
+{
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.gamestats",
+
+	// Nom du module
+	"name": "Statistiques de jeux",
+
+	// Description du module
+	"shortDescription": "Affiche des statistiques sur les joueurs de différents jeux vidéos",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"gamestats.js"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
+		}
+	]
+}
