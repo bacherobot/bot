@@ -1,0 +1,33 @@
+{
+	"disabled": true,
+	// Nom unique, plusieurs modules ne peuvent pas avoir le même nom
+	"packageName": "bachero.module.images",
+
+	// Nom du module
+	"name": "Générations d'images",
+
+	// Description du module
+	"shortDescription": "Générer des images à partir d'un texte, en réponse à un message",
+
+	// Source (par exemple, lien du module sur GitHub),
+	"source": "https://github.com/bacherobot/bot",
+
+	// Liste des fichiers à charger
+	"files": [
+		"faketweet.js"
+	],
+
+	// Liste des dépendances NodeJS
+	"dependencies": [
+		"screenshothtml@2.0.1"
+	],
+
+	// Liste du/des auteurs du module
+	"authors": [
+		{
+			"name": "Johan",
+			"discordId": "277825082334773251",
+			"link": "https://johanstick.fr"
+		}
+	]
+}
