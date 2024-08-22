@@ -4,9 +4,9 @@ Un module Bachero capable de générer des images personnalisées à partir de c
 
 ### Disclaimer
 
-**1.** Sur certaines infrastructures, l'installation de [Puppeteer](https://pptr.dev/) (rendu web) peut être compliquée. Si vous rencontrez des problèmes, vous pouvez désactiver ce module en suivant les étapes dans la section dédiée : cela n'aura aucune influence sur le reste de votre instance Bachero.
-**2.** Les appels au moteur de rendu WEB se font localement, via un navigateur automatisé et sans interface graphique, aucune fenêtre ne s'affichera sur la machine hôte.
-**3.** La commande `faketweet` peut afficher un filigrane sur l'image générée avec certains comptes. Cette restriction a été mis en place afin d'éviter des potentielles utilisations malveillantes.
+**1.** Sur certaines infrastructures, l'installation de [Puppeteer](https://pptr.dev/) (rendu web) peut être compliquée. Si vous rencontrez des problèmes, vous pouvez désactiver ce module en suivant les étapes dans la section dédiée : cela n'aura aucune influence sur le reste de votre instance Bachero.  
+**2.** Les appels au moteur de rendu WEB se font localement, via un navigateur automatisé et sans interface graphique, aucune fenêtre ne s'affichera sur la machine hôte.  
+**3.** La commande `faketweet` peut afficher un filigrane sur l'image générée avec certains comptes. Cette restriction a été mis en place afin d'éviter des potentielles utilisations malveillantes.  
 
 ### Installation / activation
 

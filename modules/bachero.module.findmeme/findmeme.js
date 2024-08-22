@@ -136,7 +136,7 @@ module.exports = {
 		}
 
 		// Si on veut récupérer les infos des memes
-		else if(query == "info"){
+		else if(query == "info" || query == "infos" || query == "stat" || query == "stats" || query == "detail" || query == "details"){
 			// Obtenir et vérifier les memes
 			var memes = await getMemes()
 			if(memes?.message) return await bacheroFunctions.report.createAndReply("obtention des memes", memes?.message || memes, { query }, interaction)
