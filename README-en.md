@@ -2,6 +2,9 @@
 
 # Bachero
 
+> [!WARNING]
+> The Bachero project is no longer maintained and is not recommended for production use. The documentation is left as an [archive](https://web.archive.org/web/https://bachero.johanstick.fr), and [a blog post](https://johanstick.fr/en/bachero/) has been written to explain the reasons behind this decision.
+
 Bachero is a Discord bot with the goal of replacing all the existing ones, bringing features that no one else has, and solving a lot of problems.
 
 👉 Open — open source, free and easily self-hostable
